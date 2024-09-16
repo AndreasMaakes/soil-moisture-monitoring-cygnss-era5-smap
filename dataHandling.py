@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-
+"Yield successive n-sized chunks from l."
 
 '''Login to the server'''
 username = "andreasmaakes"
