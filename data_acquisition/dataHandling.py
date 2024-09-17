@@ -1,9 +1,4 @@
-from pydap.client import open_url
-from pydap.cas.urs import setup_session
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
-from functions import create_dates_array, data_fetching
+from functions import data_fetching
 
 '''Login to the server'''
 username = "andreasmaakes"
@@ -25,8 +20,6 @@ min_lat = 28
 max_lon = 65
 min_lon = 54
 inc_angle = 65
-
-
 
 data_fetching(start_date, end_date, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle)
 

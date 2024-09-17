@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from tqdm import tqdm
+import xarray as xr
 
 
 '''
@@ -64,25 +65,52 @@ def data_fetching(startDate: str, endDate: str, username: str, password: str, ma
                 dataset = open_url(url, session=setup_session(username, password), protocol='dap4')
 
                 # Fetch data from the dataset 
-                ddm_snr = np.array(dataset['ddm_snr'][:, 0]) 
-                sp_lon = np.array(dataset['sp_lon'][:, 0])
+                print("Fetching data - 0/11 completed")
+                ddm_snr = np.array(dataset['ddm_snr'][:, 0]).ravel()
+                print("ddm_snr fetched - 1/11 completed")
+                sp_lon = np.array(dataset['sp_lon'][:, 0]).ravel()
+                print("sp_lon fetched - 2/11 completed")
                 sp_lon[sp_lon > 180] -= 360 #Adjusting the longitude to the correct values for plotting
-                sp_lat = np.array(dataset['sp_lat'][:, 0])
-                gps_tx_power_db_w = np.array(dataset['gps_tx_power_db_w'][:, 0])
-                gps_ant_gain_db_i = np.array(dataset['gps_ant_gain_db_i'][:, 0])
-                sp_rx_gain = np.array(dataset['sp_rx_gain'][:, 0])
-                tx_to_sp_range = np.array(dataset['tx_to_sp_range'][:, 0])
-                rx_to_sp_range = np.array(dataset['rx_to_sp_range'][:, 0])
-                prn_code = np.array(dataset['prn_code'][:, 0])
-                sp_inc_angle = np.array(dataset['sp_inc_angle'][:, 0]) 
-                quality_flags = np.array(dataset['quality_flags'][:, 0])
+                sp_lat = np.array(dataset['sp_lat'][:, 0]).ravel()
+                print("sp_lat fetched - 3/11 completed")
+                gps_tx_power_db_w = np.array(dataset['gps_tx_power_db_w'][:, 0]).ravel()
+                print("gps_tx_power_db_w fetched - 4/11 completed")
+                gps_ant_gain_db_i = np.array(dataset['gps_ant_gain_db_i'][:, 0]).ravel()
+                print("gps_ant_gain_db_i fetched - 5/11 completed")
+                sp_rx_gain = np.array(dataset['sp_rx_gain'][:, 0]).ravel()
+                print("sp_rx_gain fetched - 6/11 completed")
+                tx_to_sp_range = np.array(dataset['tx_to_sp_range'][:, 0]).ravel()
+                print("tx_to_sp_range fetched - 7/11 completed")
+                rx_to_sp_range = np.array(dataset['rx_to_sp_range'][:, 0]).ravel()
+                print("rx_to_sp_range fetched - 8/11 completed")
+                prn_code = np.array(dataset['prn_code'][:, 0]).ravel()
+                print("prn_code fetched - 9/11 completed")
+                sp_inc_angle = np.array(dataset['sp_inc_angle'][:, 0]).ravel()
+                print("sp_inc_angle fetched - 10/11 completed")
+                quality_flags = np.array(dataset['quality_flags'][:, 0]).ravel()
+                print("quality_flags fetched - 11/11 completed")
 
+                print("⿐ⱐ⻘⢌⡩␿␍⫋❣⚆⃷␟Ⰺ⼆␩ⶋ⃽Ⱋ⫄⑝ⓣ┿⍡⫠Ⳋ⬵☵")
+                print("CONGRATULATIONS, ALL DATA FETCHED SUCCESSFULLY")
+                print("∜♕⭫⋭∳⁄≬┃⼻⠎▅⊡⅝⨅ⰰ⦷⌍⨓▊⛗⛠✕⠫ⱴ⫁⭅Ⲡ⿄")
+                print("These are the shapes")
+                print(ddm_snr.shape)
+                print(sp_lon.shape)
+                print(sp_lat.shape)
+                print(gps_tx_power_db_w.shape)
+                print(gps_ant_gain_db_i.shape)
+                print(sp_rx_gain.shape)
+                print(tx_to_sp_range.shape)
+                print(rx_to_sp_range.shape)
+                print(prn_code.shape)
+                print(sp_inc_angle.shape)
+                print(quality_flags.shape)
                 # Create a dataframe with the data
                 
                 df = pd.DataFrame({
+                    'ddm_snr': ddm_snr,
                     'sp_lon': sp_lon,
                     'sp_lat': sp_lat,
-                    'ddm_snr': ddm_snr,
                     'gps_tx_power_db_w': gps_tx_power_db_w,
                     'gps_ant_gain_db_i': gps_ant_gain_db_i,
                     'sp_rx_gain': sp_rx_gain,
@@ -91,14 +119,16 @@ def data_fetching(startDate: str, endDate: str, username: str, password: str, ma
                     'prn_code': prn_code,
                     'sp_inc_angle': sp_inc_angle,
                     'quality_flags': quality_flags
-                })                
+                })    
+                            
                 '''
                 Filter parameters
                 Max_lat: float, min_lat: float, max_lon: float, min_lon: float, inc_angle: float
                 '''
+                
                 df_filtered = data_filtering(df, max_lat, min_lat, max_lon, min_lon, inc_angle)
-                #Printing 45 first rows to check
-                print(df_filtered.head(10))
+                ds = xr.Dataset.from_dataframe(df_filtered)
+                ds.to_netcdf(f'./data/{sat}_{date}.nc')
                 print(f"Data for {sat} on {date}:")
                 
 
@@ -106,4 +136,4 @@ def data_fetching(startDate: str, endDate: str, username: str, password: str, ma
                 # If the URL is invalid (404 error), print a message and skip this satellite/date
                 print(f"No data available for {sat} on {date}, skipping. Error: {e}")
 
-    print("Data fetching complete.")
+    
