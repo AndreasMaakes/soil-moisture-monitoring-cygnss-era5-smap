@@ -52,7 +52,7 @@ def data_fetching(startDate: str, endDate: str, username: str, password: str, ma
     dates = create_dates_array(startDate, endDate)
     
     # List of satellite identifiers
-    satellites = [f'cyg0{i}' for i in range(1, 2)]
+    satellites = [f'cyg0{i}' for i in range(1, 9)]
 
 # Iterate over each satellite and date
     for sat in tqdm(satellites):
@@ -127,6 +127,8 @@ def data_fetching(startDate: str, endDate: str, username: str, password: str, ma
                 '''
                 
                 df_filtered = data_filtering(df, max_lat, min_lat, max_lon, min_lon, inc_angle)
+                #Reseting the index to start at zero again
+                df_filtered = df_filtered.reset_index(drop=True)
                 ds = xr.Dataset.from_dataframe(df_filtered)
                 ds.to_netcdf(f'./data/{sat}_{date}.nc')
                 print(f"Data for {sat} on {date}:")
