@@ -9,7 +9,7 @@ Dates format: "yyyymmdd"
 '''
 
 start_date = "20240101"
-end_date = "20240101"
+end_date = "20240103"
 
 '''
 Defining spatial filter

@@ -71,7 +71,7 @@ def data_fetching(startDate: str, endDate: str, username: str, password: str, ma
 
 # Iterate over each satellite and date
     for sat in tqdm(satellites):
-        for date in dates:
+        for date in tqdm(dates):
             try:
                 # Construct the URL for the current satellite and date
                 url = f"https://opendap.earthdata.nasa.gov/collections/C2832195379-POCLOUD/granules/{sat}.ddmi.s{date}-000000-e{date}-235959.l1.power-brcs.a32.d33"
