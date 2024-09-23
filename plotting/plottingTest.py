@@ -1,7 +1,7 @@
 import plotly.graph_objects as go
 import pandas as pd
 import xarray as xr
-
+import plotly.express as px
 
 '''
 # Load the data
@@ -34,7 +34,12 @@ df7 = data7.to_dataframe().reset_index()
 data8 = xr.open_dataset("../Prosjektoppgave/data/cyg08_20240101.nc")
 df8 = data8.to_dataframe().reset_index()
 
-trace1 = go.Scattergeo(
+
+mapbox_token = 'pk.eyJ1Ijoib2xlZXZjYSIsImEiOiJjbTFldmt6aGIyeWN4MmxzamFrYTV3dTNxIn0.bbVpqBfsIl_Y0W7YGRXCgQ'
+px.set_mapbox_access_token(mapbox_token)
+
+
+trace1 = go.Scattermapbox(
     lon = df1['sp_lon'],
     lat = df1['sp_lat'],
     text = df1['ddm_snr'],
@@ -43,7 +48,7 @@ trace1 = go.Scattergeo(
     )
 )
 
-trace2 = go.Scattergeo(
+trace2 = go.Scattermapbox(
     lon = df2['sp_lon'],
     lat = df2['sp_lat'],
     text = df2['ddm_snr'],
@@ -52,7 +57,7 @@ trace2 = go.Scattergeo(
     )
 )
 
-trace3 = go.Scattergeo(
+trace3 = go.Scattermapbox(
     lon = df3['sp_lon'],
     lat = df3['sp_lat'],
     text = df3['ddm_snr'],
@@ -61,7 +66,7 @@ trace3 = go.Scattergeo(
     )
 )
 
-trace4 = go.Scattergeo(
+trace4 = go.Scattermapbox(
     lon = df4['sp_lon'],
     lat = df4['sp_lat'],
     text = df4['ddm_snr'],
@@ -70,7 +75,7 @@ trace4 = go.Scattergeo(
     )
 )
 
-trace5 = go.Scattergeo(
+trace5 = go.Scattermapbox(
     lon = df5['sp_lon'],
     lat = df5['sp_lat'],
     text = df5['ddm_snr'],
@@ -79,7 +84,7 @@ trace5 = go.Scattergeo(
     )
 )
 
-trace7 = go.Scattergeo(
+trace7 = go.Scattermapbox(
     lon = df7['sp_lon'],
     lat = df7['sp_lat'],
     text = df7['ddm_snr'],
@@ -88,7 +93,7 @@ trace7 = go.Scattergeo(
     )
 )
 
-trace8 = go.Scattergeo(
+trace8 = go.Scattermapbox(
     lon = df8['sp_lon'],
     lat = df8['sp_lat'],
     text = df8['ddm_snr'],
@@ -101,9 +106,11 @@ fig = go.Figure(data=[trace1, trace2, trace3, trace4, trace5, trace7, trace8])
 
 fig.update_layout(
     title = 'DDM_SNR on 20240101',
-    geo = dict(
-        projection_type = 'natural earth',
-        scope = 'asia',
+    mapbox = dict(
+        style = 'light',
+        zoom = 4,
+        center = dict(lon = 59.5, lat = 32),
+        accesstoken = mapbox_token
     )
 )
 

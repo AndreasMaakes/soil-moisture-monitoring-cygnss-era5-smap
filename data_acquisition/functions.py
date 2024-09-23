@@ -40,7 +40,22 @@ def data_filtering(df, max_lat: float, min_lat: float, max_lon: float, min_lon: 
     
     df_filtered_spatial = df[(df["sp_lon"] >= min_lon) & (df["sp_lon"] <= max_lon) & (df["sp_lat"] >= min_lat) & (df["sp_lat"] <= max_lat)]
     df_filtered_inclination = df_filtered_spatial[(df["sp_inc_angle"] <= inc_angle)]
-    df_filtered_qf = df_filtered_inclination[(df["quality_flags"] != 2) | (df["quality_flags"] != 4) | (df["quality_flags"] != 5) | (df["quality_flags"] != 8) |(df["quality_flags"] != 16) | (df["quality_flags"] != 17)]
+    
+    # Bitmasks to exclude rows with certain quality flags set
+    bitmask_exclude = (
+        0x00000002 |  # S-Band powered up (qf 2)
+        0x00000008 |  # Small SC attitude error (qf 4)
+        0x00000010 |  # Black body DDM (qf 5)
+        0x00000080 |  #  ddm_is_test_pattern (qf 8)
+        0x00008000 |  #  direct_signal_in_ddm (qf 15)
+        0x00010000    # low_confdence_gps_eirp_estimate (qf 16)
+        
+    )
+    
+    # Use bitwise AND to filter out rows with these quality flag bits set
+    df_filtered_qf = df_filtered_inclination[(df_filtered_inclination["quality_flags"] & bitmask_exclude) == 0]
+    
+    
     
     return df_filtered_qf
 
