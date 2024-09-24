@@ -2,7 +2,6 @@ from webob.exc import HTTPError  # Import HTTPError to catch 404 errors
 from pydap.client import open_url
 from pydap.cas.urs import setup_session
 import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
 from tqdm import tqdm
 import xarray as xr
@@ -34,12 +33,25 @@ def create_dates_array(startDate: str, endDate: str):
 
 '''
 This function filters the data based on geographical location, quality flag and inicident angle 
-quality flags 2, 4, 5, 8, 16, and 17
+quality flags 2, 4, 5, 8, 16, and 17. We also need to filter out ddm_snr below 2, and sp_rx_gain gain below 0 and over 13.
 '''
 def data_filtering(df, max_lat: float, min_lat: float, max_lon: float, min_lon: float, inc_angle: float):
     
+    print("Filtering data. Dataframe length before geospatial filtering: ", len(df))
     df_filtered_spatial = df[(df["sp_lon"] >= min_lon) & (df["sp_lon"] <= max_lon) & (df["sp_lat"] >= min_lat) & (df["sp_lat"] <= max_lat)]
+    print("Dataframe length after geospatial filtering: ", len(df_filtered_spatial))
+    
+    print("Filtering data based on inclination angle")
     df_filtered_inclination = df_filtered_spatial[(df["sp_inc_angle"] <= inc_angle)]
+    print("Dataframe length after inclination angle filtering: ", len(df_filtered_inclination))
+    
+    print("Filtering data based on ddm_snr")
+    df_filtered_ddm_snr = df_filtered_inclination[(df_filtered_inclination["ddm_snr"] >= 1)]
+    print("Dataframe length after ddm_snr filtering: ", len(df_filtered_ddm_snr))
+    
+    print("Filtering data based on sp_rx_gain")
+    df_filtered_sp_rx_gain = df_filtered_ddm_snr[(df_filtered_ddm_snr["sp_rx_gain"] >= 0) & (df_filtered_ddm_snr["sp_rx_gain"] <= 15)]
+    print("Dataframe length after sp_rx_gain filtering: ", len(df_filtered_sp_rx_gain))
     
     # Bitmasks to exclude rows with certain quality flags set
     bitmask_exclude = (
@@ -53,9 +65,9 @@ def data_filtering(df, max_lat: float, min_lat: float, max_lon: float, min_lon: 
     )
     
     # Use bitwise AND to filter out rows with these quality flag bits set
-    df_filtered_qf = df_filtered_inclination[(df_filtered_inclination["quality_flags"] & bitmask_exclude) == 0]
-    
-    
+    print("Filtering data based on quality flags")
+    df_filtered_qf = df_filtered_sp_rx_gain[(df_filtered_sp_rx_gain["quality_flags"] & bitmask_exclude) == 0]
+    print("Dataframe length after quality flag filtering: ", len(df_filtered_qf))
     
     return df_filtered_qf
 
@@ -80,46 +92,68 @@ def data_fetching(startDate: str, endDate: str, username: str, password: str, ma
                 dataset = open_url(url, session=setup_session(username, password), protocol='dap4')
 
                 # Fetch data from the dataset 
+                print()
                 print("Fetching data - 0/11 completed")
                 ddm_snr = np.array(dataset['ddm_snr'][:, 0]).ravel()
+                ddm_snr = np.append(ddm_snr, np.array(dataset['ddm_snr'][:, 1]).ravel())
+                ddm_snr = np.append(ddm_snr, np.array(dataset['ddm_snr'][:, 2]).ravel())
+                ddm_snr = np.append(ddm_snr, np.array(dataset['ddm_snr'][:, 3]).ravel())
                 print("ddm_snr fetched - 1/11 completed")
                 sp_lon = np.array(dataset['sp_lon'][:, 0]).ravel()
+                sp_lon = np.append(sp_lon, np.array(dataset['sp_lon'][:, 1]).ravel())
+                sp_lon = np.append(sp_lon, np.array(dataset['sp_lon'][:, 2]).ravel())
+                sp_lon = np.append(sp_lon, np.array(dataset['sp_lon'][:, 3]).ravel())
                 print("sp_lon fetched - 2/11 completed")
                 sp_lon[sp_lon > 180] -= 360 #Adjusting the longitude to the correct values for plotting
                 sp_lat = np.array(dataset['sp_lat'][:, 0]).ravel()
+                sp_lat = np.append(sp_lat, np.array(dataset['sp_lat'][:, 1]).ravel())   
+                sp_lat = np.append(sp_lat, np.array(dataset['sp_lat'][:, 2]).ravel())
+                sp_lat = np.append(sp_lat, np.array(dataset['sp_lat'][:, 3]).ravel())
                 print("sp_lat fetched - 3/11 completed")
                 gps_tx_power_db_w = np.array(dataset['gps_tx_power_db_w'][:, 0]).ravel()
+                gps_tx_power_db_w = np.append(gps_tx_power_db_w, np.array(dataset['gps_tx_power_db_w'][:, 1]).ravel())
+                gps_tx_power_db_w = np.append(gps_tx_power_db_w, np.array(dataset['gps_tx_power_db_w'][:, 2]).ravel())
+                gps_tx_power_db_w = np.append(gps_tx_power_db_w, np.array(dataset['gps_tx_power_db_w'][:, 3]).ravel())
                 print("gps_tx_power_db_w fetched - 4/11 completed")
                 gps_ant_gain_db_i = np.array(dataset['gps_ant_gain_db_i'][:, 0]).ravel()
+                gps_ant_gain_db_i = np.append(gps_ant_gain_db_i, np.array(dataset['gps_ant_gain_db_i'][:, 1]).ravel())
+                gps_ant_gain_db_i = np.append(gps_ant_gain_db_i, np.array(dataset['gps_ant_gain_db_i'][:, 2]).ravel())
+                gps_ant_gain_db_i = np.append(gps_ant_gain_db_i, np.array(dataset['gps_ant_gain_db_i'][:, 3]).ravel())
                 print("gps_ant_gain_db_i fetched - 5/11 completed")
                 sp_rx_gain = np.array(dataset['sp_rx_gain'][:, 0]).ravel()
+                sp_rx_gain = np.append(sp_rx_gain, np.array(dataset['sp_rx_gain'][:, 1]).ravel())
+                sp_rx_gain = np.append(sp_rx_gain, np.array(dataset['sp_rx_gain'][:, 2]).ravel())
+                sp_rx_gain = np.append(sp_rx_gain, np.array(dataset['sp_rx_gain'][:, 3]).ravel())
                 print("sp_rx_gain fetched - 6/11 completed")
                 tx_to_sp_range = np.array(dataset['tx_to_sp_range'][:, 0]).ravel()
+                tx_to_sp_range = np.append(tx_to_sp_range, np.array(dataset['tx_to_sp_range'][:, 1]).ravel())
+                tx_to_sp_range = np.append(tx_to_sp_range, np.array(dataset['tx_to_sp_range'][:, 2]).ravel())
+                tx_to_sp_range = np.append(tx_to_sp_range, np.array(dataset['tx_to_sp_range'][:, 3]).ravel())
                 print("tx_to_sp_range fetched - 7/11 completed")
                 rx_to_sp_range = np.array(dataset['rx_to_sp_range'][:, 0]).ravel()
+                rx_to_sp_range = np.append(rx_to_sp_range, np.array(dataset['rx_to_sp_range'][:, 1]).ravel())
+                rx_to_sp_range = np.append(rx_to_sp_range, np.array(dataset['rx_to_sp_range'][:, 2]).ravel())
+                rx_to_sp_range = np.append(rx_to_sp_range, np.array(dataset['rx_to_sp_range'][:, 3]).ravel())
                 print("rx_to_sp_range fetched - 8/11 completed")
                 prn_code = np.array(dataset['prn_code'][:, 0]).ravel()
+                prn_code = np.append(prn_code, np.array(dataset['prn_code'][:, 1]).ravel())
+                prn_code = np.append(prn_code, np.array(dataset['prn_code'][:, 2]).ravel())
+                prn_code = np.append(prn_code, np.array(dataset['prn_code'][:, 3]).ravel())
                 print("prn_code fetched - 9/11 completed")
                 sp_inc_angle = np.array(dataset['sp_inc_angle'][:, 0]).ravel()
+                sp_inc_angle = np.append(sp_inc_angle, np.array(dataset['sp_inc_angle'][:, 1]).ravel())
+                sp_inc_angle = np.append(sp_inc_angle, np.array(dataset['sp_inc_angle'][:, 2]).ravel())
+                sp_inc_angle = np.append(sp_inc_angle, np.array(dataset['sp_inc_angle'][:, 3]).ravel())
                 print("sp_inc_angle fetched - 10/11 completed")
                 quality_flags = np.array(dataset['quality_flags'][:, 0]).ravel()
+                quality_flags = np.append(quality_flags, np.array(dataset['quality_flags'][:, 1]).ravel())
+                quality_flags = np.append(quality_flags, np.array(dataset['quality_flags'][:, 2]).ravel())
+                quality_flags = np.append(quality_flags, np.array(dataset['quality_flags'][:, 3]).ravel())
                 print("quality_flags fetched - 11/11 completed")
-
-                print("⿐ⱐ⻘⢌⡩␿␍⫋❣⚆⃷␟Ⰺ⼆␩ⶋ⃽Ⱋ⫄⑝ⓣ┿⍡⫠Ⳋ⬵☵")
+                
                 print("CONGRATULATIONS, ALL DATA FETCHED SUCCESSFULLY")
-                print("∜♕⭫⋭∳⁄≬┃⼻⠎▅⊡⅝⨅ⰰ⦷⌍⨓▊⛗⛠✕⠫ⱴ⫁⭅Ⲡ⿄")
-                print("These are the shapes")
-                print(ddm_snr.shape)
-                print(sp_lon.shape)
-                print(sp_lat.shape)
-                print(gps_tx_power_db_w.shape)
-                print(gps_ant_gain_db_i.shape)
-                print(sp_rx_gain.shape)
-                print(tx_to_sp_range.shape)
-                print(rx_to_sp_range.shape)
-                print(prn_code.shape)
-                print(sp_inc_angle.shape)
-                print(quality_flags.shape)
+                
+                
                 # Create a dataframe with the data
                 
                 df = pd.DataFrame({
@@ -136,17 +170,13 @@ def data_fetching(startDate: str, endDate: str, username: str, password: str, ma
                     'quality_flags': quality_flags
                 })    
                             
-                '''
-                Filter parameters
-                Max_lat: float, min_lat: float, max_lon: float, min_lon: float, inc_angle: float
-                '''
                 
                 df_filtered = data_filtering(df, max_lat, min_lat, max_lon, min_lon, inc_angle)
                 #Reseting the index to start at zero again
                 df_filtered = df_filtered.reset_index(drop=True)
                 ds = xr.Dataset.from_dataframe(df_filtered)
                 ds.to_netcdf(f'./data/{sat}_{date}.nc')
-                print(f"Data for {sat} on {date}:")
+                print(f"Data fetched for {sat} on {date}")
                 
 
             except HTTPError as e:

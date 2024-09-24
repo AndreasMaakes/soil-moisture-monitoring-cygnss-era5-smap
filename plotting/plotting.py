@@ -10,9 +10,9 @@ importData()
 fig = go.Figure(data=createTraces(importData()))
 
 fig.update_layout(
-    title = 'gps_tx_power_db_w on 20240101',
+    title = 'ddm_snr on 20240901-20240905',
     mapbox = dict(
-        style = 'light',
+        style = 'outdoors',
         zoom = 4,
         center = dict(lon = 59.5, lat = 32),
         accesstoken = mapbox_token
