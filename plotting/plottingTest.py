@@ -13,6 +13,8 @@ print(df.head(45))
 fig = px.scatter_geo(df, lat='sp_lat', lon='sp_lon', hover_name='gps_tx_power_db_w', projection = 'natural earth')
 fig.show()
 '''
+
+
 data1 = xr.open_dataset("../Prosjektoppgave/data/cyg01_20240101.nc")
 df1 = data1.to_dataframe().reset_index()
 
