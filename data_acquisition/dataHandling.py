@@ -8,8 +8,8 @@ password = "Terrengmodell69!"
 Dates format: "yyyymmdd"
 '''
 
-start_date = "20240911"
-end_date = "20240911"
+start_date = "20240912"
+end_date = "20240913" 
 
 '''
 Defining spatial filter
