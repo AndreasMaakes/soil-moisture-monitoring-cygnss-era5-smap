@@ -17,7 +17,6 @@ def importData():
         dataFrames.append(df)
     return dataFrames
 
-print(importData()[0].head(10))
 
 
 #Function to create traces to plot and visualize variables from CYGNSS data
