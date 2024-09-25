@@ -5,8 +5,6 @@ from functions import importData, createTraces
 mapbox_token = 'pk.eyJ1Ijoib2xlZXZjYSIsImEiOiJjbTFldmt6aGIyeWN4MmxzamFrYTV3dTNxIn0.bbVpqBfsIl_Y0W7YGRXCgQ'
 px.set_mapbox_access_token(mapbox_token)
 
-importData()
-
 fig = go.Figure(data=createTraces(importData()))
 
 fig.update_layout(
