@@ -33,6 +33,24 @@ def create_dates_array(startDate: str, endDate: str):
 
 
 '''
+Functions to calculate the SR value and adding it to the dataframe
+'''
+
+#Biases based on the PRN code, empirical values
+biases = [1.017,0.004,1.636,0,-0.610,0.24,-0.709,0.605,1.498,-0.783,-0.230,-1.021,0.007,-0.730,-0.376,-0.481,0.256,-0.206,-0.206,0.345,-0.909,-0.838,-0.858,1.140,0.880,0.163,0.409,-0.712,-1.032,0.877,-0.562,-0.819]
+#Wavelength of the L1 frequency in meters
+l1_wavelength = 0.1903 
+
+#Function to calculate the bias based on the PRN code
+def calculateBias(prn):
+    return biases[int(prn) - 1]
+
+#Function to calculate the SR value based on the formula provided in the documentation                
+def sr(row):
+    return row["ddm_snr"] - row["gps_tx_power_db_w"] - row["gps_ant_gain_db_i"] - row["sp_rx_gain"] - 20 * np.log10(l1_wavelength) + 20 * np.log10(row["tx_to_sp_range"] + row["rx_to_sp_range"]) + 20 * np.log10(4 * np.pi) + calculateBias(row["prn_code"]) - 140 #Subtracting 140 because why the hell not
+
+
+'''
 This function filters the data based on geographical location, quality flag and inicident angle 
 quality flags 2, 4, 5, 8, 16, and 17. We also need to filter out ddm_snr below 2, and sp_rx_gain gain below 0 and over 13.
 '''
@@ -184,9 +202,11 @@ def data_fetching(startDate: str, endDate: str, username: str, password: str, ma
                 df_filtered = data_filtering(df, max_lat, min_lat, max_lon, min_lon, inc_angle)
                 #Reseting the index to start at zero again
                 df_filtered = df_filtered.reset_index(drop=True)
+                
+                #Calculate the SR value and add it to the dataframe
+                df_filtered["sr"] = df_filtered.apply(sr, axis = 1)
+                
                 ds = xr.Dataset.from_dataframe(df_filtered)
-                
-                
                 ds.to_netcdf(f'{folder_path}/{sat}_{date}.nc')
                 print(f"Data fetched for {sat} on {date}")
                 
