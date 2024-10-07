@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 import xarray as xr
+import os
 
 
 '''
@@ -75,12 +76,21 @@ def data_filtering(df, max_lat: float, min_lat: float, max_lon: float, min_lon: 
 
 '''This function downloads the data'''
 
-def data_fetching(startDate: str, endDate: str, username: str, password: str, max_lat: float, min_lat: float, max_lon: float, min_lon: float, inc_angle: float):
+def data_fetching(startDate: str, endDate: str, username: str, password: str, max_lat: float, min_lat: float, max_lon: float, min_lon: float, inc_angle: float, area: str):
     dates = create_dates_array(startDate, endDate)
     
     # List of satellite identifiers
     satellites = [f'cyg0{i}' for i in range(1, 9)]
-
+    
+    #Creating a new folder for the data for this specific run
+    name = f'{area}-{startDate}-{endDate}'
+    folder_path = f'./data/{name}'
+    
+    try:
+        os.mkdir(folder_path)
+    except OSError:
+        print ("Creation of the directory %s failed" % folder_path)
+    
 # Iterate over each satellite and date
     for sat in tqdm(satellites):
         for date in tqdm(dates):
@@ -175,7 +185,9 @@ def data_fetching(startDate: str, endDate: str, username: str, password: str, ma
                 #Reseting the index to start at zero again
                 df_filtered = df_filtered.reset_index(drop=True)
                 ds = xr.Dataset.from_dataframe(df_filtered)
-                ds.to_netcdf(f'./data/{sat}_{date}.nc')
+                
+                
+                ds.to_netcdf(f'{folder_path}/{sat}_{date}.nc')
                 print(f"Data fetched for {sat} on {date}")
                 
 

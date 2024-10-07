@@ -18,11 +18,11 @@ for df in dataFrames:
     lons = np.append(lons, lon)
     srs = np.append(srs, sr)
     
-max_lat = 36
-min_lat = 28
+max_lat = 15
+min_lat = 10
 
-max_lon = 65
-min_lon = 54
+max_lon = 21
+min_lon = 16
 
 # Creating a grid
 lat_step = 0.1  # Grid resolution for latitude

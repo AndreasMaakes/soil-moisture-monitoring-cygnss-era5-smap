@@ -7,7 +7,7 @@ import os
 #Function to import data
 def importData():
     '''Data folder'''
-    basePath = "../Prosjektoppgave/data/"
+    basePath = "../Prosjektoppgave/data/Chad-20240612-20240613"
     dataFrames = []
     for file in os.listdir(basePath):
         filePath = os.path.join(basePath, file)
