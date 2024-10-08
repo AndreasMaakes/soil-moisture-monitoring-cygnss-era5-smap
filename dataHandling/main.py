@@ -22,17 +22,29 @@ inc_angle = 65
 '''
 Dates format: "yyyymmdd"
 '''
-start_date = "20230612"
-end_date = "20230612" 
+start_date = "20240911"
+end_date = "20240913" 
 
 #Region name that is to be used for naming data folders
-name = "Test"
+name = "North-Africa"
 
+'''
 #Chad spatial filter
 min_lat = 10
 max_lat = 15
 min_lon = 16
 max_lon = 21
+'''
+
+#Cygnss longitudes have to be corrected 
+#Entire africa spatial filter
+min_lat = 2
+max_lat = 20
+
+min_lon = -19
+max_lon = 38
+
+
 
 #Inclination angle
 inc_angle = 65
