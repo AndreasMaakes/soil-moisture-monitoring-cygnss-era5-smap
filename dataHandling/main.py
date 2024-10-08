@@ -23,10 +23,10 @@ inc_angle = 65
 Dates format: "yyyymmdd"
 '''
 start_date = "20230612"
-end_date = "20230613" 
+end_date = "20230612" 
 
 #Region name that is to be used for naming data folders
-name = "Chad"
+name = "Test"
 
 #Chad spatial filter
 min_lat = 10
