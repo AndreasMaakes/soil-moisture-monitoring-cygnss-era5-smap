@@ -4,7 +4,7 @@ import xarray as xr
 import plotly.express as px
 import os
 
-#Function to import data
+#Function to import data from the data folder
 def importData():
     '''Data folder'''
     basePath = "../Prosjektoppgave/data/Chad-20231212-20231213"
