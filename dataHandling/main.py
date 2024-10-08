@@ -1,4 +1,4 @@
-from functions import data_fetching
+from data_fetching import data_fetching
 
 '''Login to the server'''
 username = "andreasmaakes"
@@ -22,8 +22,8 @@ inc_angle = 65
 '''
 Dates format: "yyyymmdd"
 '''
-start_date = "20230912"
-end_date = "20230913" 
+start_date = "20230612"
+end_date = "20230613" 
 
 #Region name that is to be used for naming data folders
 name = "Chad"

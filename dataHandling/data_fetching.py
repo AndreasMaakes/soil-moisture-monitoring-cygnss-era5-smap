@@ -6,7 +6,9 @@ import pandas as pd
 from tqdm import tqdm
 import xarray as xr
 import os
-
+from data_filtering import data_filtering
+from calculate_sr import sr
+from create_dates_array import create_dates_array
 
 '''
 This functions lets the user input the from and to date, and returns the date in the format that the API requires.
@@ -14,85 +16,7 @@ This functions lets the user input the from and to date, and returns the date in
 The date format is as follows: YYYYMMDD, for example 20240701
 '''
 
-from datetime import datetime, timedelta
 
-def create_dates_array(startDate: str, endDate: str):
-    # Convert string dates to datetime objects
-    start = datetime.strptime(startDate, "%Y%m%d")
-    end = datetime.strptime(endDate, "%Y%m%d")
-    
-    # Generate all dates in the range
-    dates = []
-    current_date = start
-    while current_date <= end:
-        # Append the date in the desired format
-        dates.append(current_date.strftime("%Y%m%d"))
-        current_date += timedelta(days=1)
-    
-    return dates
-
-
-'''
-Functions to calculate the SR value and adding it to the dataframe
-'''
-
-#Biases based on the PRN code, empirical values
-biases = [1.017,0.004,1.636,0,-0.610,0.24,-0.709,0.605,1.498,-0.783,-0.230,-1.021,0.007,-0.730,-0.376,-0.481,0.256,-0.206,-0.206,0.345,-0.909,-0.838,-0.858,1.140,0.880,0.163,0.409,-0.712,-1.032,0.877,-0.562,-0.819]
-#Wavelength of the L1 frequency in meters
-l1_wavelength = 0.1903 
-
-#Function to calculate the bias based on the PRN code
-def calculateBias(prn):
-    return biases[int(prn) - 1]
-
-#Function to calculate the SR value based on the formula provided in the documentation                
-def sr(row):
-    return row["ddm_snr"] - row["gps_tx_power_db_w"] - row["gps_ant_gain_db_i"] - row["sp_rx_gain"] - 20 * np.log10(l1_wavelength) + 20 * np.log10(row["tx_to_sp_range"] + row["rx_to_sp_range"]) + 20 * np.log10(4 * np.pi) + calculateBias(row["prn_code"]) - 140 #Subtracting 140 because why the hell not
-
-
-'''
-This function filters the data based on geographical location, quality flag and inicident angle 
-quality flags 2, 4, 5, 8, 16, and 17. We also need to filter out ddm_snr below 2, and sp_rx_gain gain below 0 and over 13.
-'''
-def data_filtering(df, max_lat: float, min_lat: float, max_lon: float, min_lon: float, inc_angle: float):
-    
-    print("Filtering data. Dataframe length before geospatial filtering: ", len(df))
-    df_filtered_spatial = df[(df["sp_lon"] >= min_lon) & (df["sp_lon"] <= max_lon) & (df["sp_lat"] >= min_lat) & (df["sp_lat"] <= max_lat)]
-    print("Dataframe length after geospatial filtering: ", len(df_filtered_spatial))
-    
-    print("Filtering data based on inclination angle")
-    df_filtered_inclination = df_filtered_spatial[(df["sp_inc_angle"] <= inc_angle)]
-    print("Dataframe length after inclination angle filtering: ", len(df_filtered_inclination))
-    
-    print("Filtering data based on ddm_snr")
-    df_filtered_ddm_snr = df_filtered_inclination[(df_filtered_inclination["ddm_snr"] >= 1)]
-    print("Dataframe length after ddm_snr filtering: ", len(df_filtered_ddm_snr))
-    
-    print("Filtering data based on sp_rx_gain")
-    df_filtered_sp_rx_gain = df_filtered_ddm_snr[(df_filtered_ddm_snr["sp_rx_gain"] >= 0) & (df_filtered_ddm_snr["sp_rx_gain"] <= 15)]
-    print("Dataframe length after sp_rx_gain filtering: ", len(df_filtered_sp_rx_gain))
-    
-    # Bitmasks to exclude rows with certain quality flags set
-    bitmask_exclude = (
-        0x00000002 |  # S-Band powered up (qf 2)
-        0x00000008 |  # Small SC attitude error (qf 4)
-        0x00000010 |  # Black body DDM (qf 5)
-        0x00000080 |  #  ddm_is_test_pattern (qf 8)
-        0x00008000 |  #  direct_signal_in_ddm (qf 15)
-        0x00010000    # low_confdence_gps_eirp_estimate (qf 16)
-        
-    )
-    
-    # Use bitwise AND to filter out rows with these quality flag bits set
-    print("Filtering data based on quality flags")
-    df_filtered_qf = df_filtered_sp_rx_gain[(df_filtered_sp_rx_gain["quality_flags"] & bitmask_exclude) == 0]
-    print("Dataframe length after quality flag filtering: ", len(df_filtered_qf))
-    
-    return df_filtered_qf
-
-
-
-'''This function downloads the data'''
 
 def data_fetching(startDate: str, endDate: str, username: str, password: str, max_lat: float, min_lat: float, max_lon: float, min_lon: float, inc_angle: float, area: str):
     dates = create_dates_array(startDate, endDate)
@@ -198,8 +122,13 @@ def data_fetching(startDate: str, endDate: str, username: str, password: str, ma
                     'quality_flags': quality_flags
                 })    
                             
+                '''
+                The data_filtering function is being run on the dataframe here
+                '''
                 
                 df_filtered = data_filtering(df, max_lat, min_lat, max_lon, min_lon, inc_angle)
+                
+                
                 #Reseting the index to start at zero again
                 df_filtered = df_filtered.reset_index(drop=True)
                 
