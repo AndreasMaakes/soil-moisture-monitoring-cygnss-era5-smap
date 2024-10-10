@@ -1,6 +1,7 @@
 from webob.exc import HTTPError  # Import HTTPError to catch 404 errors
 from pydap.client import open_url
 from pydap.cas.urs import setup_session
+from datetime import datetime
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
@@ -18,20 +19,29 @@ The date format is as follows: YYYYMMDD, for example 20240701
 
 
 
-def data_fetching(startDate: str, endDate: str, username: str, password: str, max_lat: float, min_lat: float, max_lon: float, min_lon: float, inc_angle: float, area: str):
+def data_fetching(startDate: str, endDate: str, username: str, password: str, max_lat: float, min_lat: float, max_lon: float, min_lon: float, inc_angle: float, name: str, min_ddm_snr: float, min_sp_rx_gain: float, max_sp_rx_gain: float):
     dates = create_dates_array(startDate, endDate)
     
     # List of satellite identifiers
     satellites = [f'cyg0{i}' for i in range(1, 9)]
     
     #Creating a new folder for the data for this specific run
-    name = f'{area}-{startDate}-{endDate}'
-    folder_path = f'./data/{name}'
+    file_name = f'{name}-{startDate}-{endDate}'
+    folder_path = f'./data/{file_name}'
     
     try:
         os.mkdir(folder_path)
     except OSError:
         print(f"Creation of the directory {folder_path} failed")
+
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+
+    parameter_txt = open(f'./data/{file_name}/{name}-{startDate}-{endDate}.txt', "x")
+    parameter_txt.write("Area of interest: " + name + "\n" + "\nStart date: " + str(startDate) + "\nEnd date: " + str(endDate) + "\n" + "\nMinimum latitude: " + str(min_lat) + "\nMinimum longitude: " + str(min_lon) + "\nMaximum latitude: " + str(max_lat) + "\nMaximum longitude: " + str(max_lon) + "\n" + "\nMaximum inclination angle: " + str(inc_angle) + "\nMinimum ddm_snr: " + str(min_ddm_snr) + "\nMinimum sp_rx_gain: " + str(min_sp_rx_gain) + "\nMaximum sp_rx_gain: " + str(max_sp_rx_gain) + "\n" + "\nData fetching started: " + current_time)
+    parameter_txt.close()
+
+
 
     # Calculate the total number of iterations for progress tracking
     total_iterations = len(satellites) * len(dates)
@@ -132,13 +142,13 @@ def data_fetching(startDate: str, endDate: str, username: str, password: str, ma
                         })    
                                                     
                         # Filter and process the data
-                        df_filtered = data_filtering(df, max_lat, min_lat, max_lon, min_lon, inc_angle)
+                        df_filtered = data_filtering(df, max_lat, min_lat, max_lon, min_lon, inc_angle, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
                         df_filtered = df_filtered.reset_index(drop=True)
                         df_filtered["sr"] = df_filtered.apply(sr, axis=1)
                         
                         # Save the data
                         ds = xr.Dataset.from_dataframe(df_filtered)
-                        ds.to_netcdf(f'{folder_path}/{sat}_{date}.nc')
+                        ds.to_netcdf(f'{folder_path}/{sat}_{date}.nc')                        
                         
                         # Update the main progress bar
                         pbar.update(1)
@@ -148,3 +158,11 @@ def data_fetching(startDate: str, endDate: str, username: str, password: str, ma
                 except HTTPError as e:
                     print(f"No data available for {sat} on {date}, skipping. Error: {e}")
                     pbar.update(1)  # Even if skipped, progress the overall bar
+    
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+
+    parameter_txt = open(f'./data/{file_name}/{name}-{startDate}-{endDate}.txt', "a")
+    parameter_txt.write("\nData fetching completed: " + current_time)
+    parameter_txt.close()
+

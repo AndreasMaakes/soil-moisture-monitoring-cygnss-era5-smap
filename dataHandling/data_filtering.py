@@ -2,7 +2,7 @@
 This function filters the data based on geographical location, quality flag and inicident angle 
 quality flags 2, 4, 5, 8, 16, and 17. We also need to filter out ddm_snr below 2, and sp_rx_gain gain below 0 and over 13.
 '''
-def data_filtering(df, max_lat: float, min_lat: float, max_lon: float, min_lon: float, inc_angle: float):
+def data_filtering(df, max_lat: float, min_lat: float, max_lon: float, min_lon: float, inc_angle: float, min_ddm_snr: float, min_sp_rx_gain: float, max_sp_rx_gain: float):
     
     print("Filtering data. Dataframe length before geospatial filtering: ", len(df))
     df_filtered_spatial = df[(df["sp_lon"] >= min_lon) & (df["sp_lon"] <= max_lon) & (df["sp_lat"] >= min_lat) & (df["sp_lat"] <= max_lat)]
@@ -13,11 +13,11 @@ def data_filtering(df, max_lat: float, min_lat: float, max_lon: float, min_lon: 
     print("Dataframe length after inclination angle filtering: ", len(df_filtered_inclination))
     
     print("Filtering data based on ddm_snr")
-    df_filtered_ddm_snr = df_filtered_inclination[(df_filtered_inclination["ddm_snr"] >= 1)]
+    df_filtered_ddm_snr = df_filtered_inclination[(df_filtered_inclination["ddm_snr"] >= min_ddm_snr)]
     print("Dataframe length after ddm_snr filtering: ", len(df_filtered_ddm_snr))
     
     print("Filtering data based on sp_rx_gain")
-    df_filtered_sp_rx_gain = df_filtered_ddm_snr[(df_filtered_ddm_snr["sp_rx_gain"] >= 0) & (df_filtered_ddm_snr["sp_rx_gain"] <= 15)]
+    df_filtered_sp_rx_gain = df_filtered_ddm_snr[(df_filtered_ddm_snr["sp_rx_gain"] >= min_sp_rx_gain) & (df_filtered_ddm_snr["sp_rx_gain"] <= max_sp_rx_gain)]
     print("Dataframe length after sp_rx_gain filtering: ", len(df_filtered_sp_rx_gain))
     
     # Bitmasks to exclude rows with certain quality flags set
