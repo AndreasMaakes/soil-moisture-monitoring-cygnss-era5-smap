@@ -22,8 +22,8 @@ inc_angle = 65
 '''
 Dates format: "yyyymmdd"
 '''
-start_date = "20230312"
-end_date = "20230313" 
+start_date = "20221212"
+end_date = "20221213" 
 
 
 
@@ -35,6 +35,7 @@ min_lat = 10
 max_lat = 15
 min_lon = 16
 max_lon = 21
+#DDM SNR and SP RX gain
 min_ddm_snr = 1
 min_sp_rx_gain = 0
 max_sp_rx_gain = 15

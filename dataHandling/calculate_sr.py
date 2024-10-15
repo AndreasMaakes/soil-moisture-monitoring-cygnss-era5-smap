@@ -14,7 +14,7 @@ def calculateBias(prn):
 
 #Function to calculate the SR value based on the formula provided in the documentation                
 def sr(row):
-    return row["ddm_snr"] - row["gps_tx_power_db_w"] - row["gps_ant_gain_db_i"] - row["sp_rx_gain"] - 20 * np.log10(l1_wavelength) + 20 * np.log10(row["tx_to_sp_range"] + row["rx_to_sp_range"]) + 20 * np.log10(4 * np.pi) + calculateBias(row["prn_code"]) - 140 #Subtracting 140 because why the hell not
+    return row["ddm_snr"] - row["gps_tx_power_db_w"] - row["gps_ant_gain_db_i"] - row["sp_rx_gain"] - 20 * np.log10(l1_wavelength) + 20 * np.log10(row["tx_to_sp_range"] + row["rx_to_sp_range"]) + 20 * np.log10(4 * np.pi) + calculateBias(row["prn_code"])  
 
 
 
