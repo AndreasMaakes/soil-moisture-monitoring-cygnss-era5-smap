@@ -1,0 +1,17 @@
+Area of interest: Pakistan-India
+
+Start date: 20200101
+End date: 20200108
+
+Minimum latitude: 25
+Minimum longitude: 70
+Maximum latitude: 33
+Maximum longitude: 80
+
+Maximum inclination angle: 65
+Minimum ddm_snr: 1
+Minimum sp_rx_gain: 0
+Maximum sp_rx_gain: 15
+
+Data fetching started: 17:11:56
+Data fetching completed: 19:55:43
