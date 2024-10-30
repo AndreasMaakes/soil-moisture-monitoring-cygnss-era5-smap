@@ -86,7 +86,7 @@ def scatter_plot(folder_name, saveplot):
         mapbox=dict(
             style='dark', #mapbox://styles/oleevca/cm20jbhca002t01qv2jxfe7sh is the custom map ole designed 
             center=dict(lat=(min_lat + max_lat) / 2, lon=(min_lon + max_lon) / 2),
-            zoom=5.5,  # Adjust zoom level based on your region
+            zoom=4.5,  # Adjust zoom level based on your region
         ),
         height=1000,
         width=1850

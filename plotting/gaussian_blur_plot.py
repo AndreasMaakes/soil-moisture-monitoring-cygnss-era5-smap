@@ -1,10 +1,11 @@
 import plotly.graph_objects as go
 from scipy.interpolate import griddata
+from scipy.ndimage import gaussian_filter
 import numpy as np
 from import_data import importData 
 
 # Your data import and preparation remains the same
-def trace_plot(folder_name, saveplot):
+def gaussian_blur_plot(folder_name, saveplot, sigma):  # Add a sigma parameter to control blur level
     dataFrames = importData(folder_name)
     lats = np.array([])
     lons = np.array([])
@@ -21,31 +22,44 @@ def trace_plot(folder_name, saveplot):
     
     max_lat = np.max(lats)
     min_lat = np.min(lats)
-
     max_lon = np.max(lons)
     min_lon = np.min(lons)
 
-    
+    # Creating a grid
+    lat_step = 0.1  # Grid resolution for latitude
+    lon_step = 0.1  # Grid resolution for longitude
+    lat_grid = np.arange(min_lat, max_lat, lat_step)
+    lon_grid = np.arange(min_lon, max_lon, lon_step)
+    lon_grid, lat_grid = np.meshgrid(lon_grid, lat_grid)
 
-    hovertext = [f'SR: {sr_val:.2f}' for sr_val in srs]
+    # Interpolating
+    grid_values = griddata((lats, lons), srs, (lat_grid, lon_grid), method='nearest')
+
+    # Apply Gaussian filter
+    grid_values_blurred = gaussian_filter(grid_values, sigma=sigma)
+
+    # Flatten the grid to create the necessary structure for mapbox plotting
+    lat_flat = lat_grid.flatten()
+    lon_flat = lon_grid.flatten()
+    z_flat = grid_values_blurred.flatten()
+
+    hovertext = [f'SR: {sr_val:.2f}' for sr_val in z_flat]
 
     # Create the Mapbox heatmap
-    #Color scales and syntax found here
-    #https://plotly.com/python-api-reference/generated/plotly.graph_objects.Scattermapbox.html
-
     heatmap = go.Scattermapbox(
-        lat=lats,
-        lon=lons,
+        lat=lat_flat,
+        lon=lon_flat,
         mode='markers',
         hovertext=hovertext,
-        hoverinfo = 'text',
+        hoverinfo='text',
         marker=go.scattermapbox.Marker(
-            size=4,  
+            size=10,  # Adjust the marker size to match grid dimensions
+            color=z_flat,
+            symbol='pentagon',
             colorscale='RdYlBu',
-            color = srs,
             colorbar=dict(title='SR'),
             showscale=True,
-            opacity=0.8,
+            opacity=0.6,
         ),
     )
 
@@ -54,7 +68,7 @@ def trace_plot(folder_name, saveplot):
         title={'text': f'Scatter Mapbox Plot for {folder_name}', 
                'x': 0.5, 'xanchor': 'center', 'font': {'size': 30}},
         mapbox=dict(
-            style='carto-positron', #mapbox://styles/oleevca/cm20jbhca002t01qv2jxfe7sh is the custom map ole designed 
+            style='basic',
             center=dict(lat=(min_lat + max_lat) / 2, lon=(min_lon + max_lon) / 2),
             zoom=5.75,  # Adjust zoom level based on your region
         ),
@@ -62,7 +76,7 @@ def trace_plot(folder_name, saveplot):
         width=1850
     )
 
-    fig = go.Figure(data=[heatmap], layout=layout) 
+    fig = go.Figure(data=[heatmap], layout=layout)
 
     # Add your Mapbox access token here
     mapbox_access_token = 'pk.eyJ1Ijoib2xlZXZjYSIsImEiOiJjbTFldmt6aGIyeWN4MmxzamFrYTV3dTNxIn0.bbVpqBfsIl_Y0W7YGRXCgQ'
