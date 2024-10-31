@@ -55,11 +55,10 @@ def gaussian_blur_plot(folder_name, saveplot, sigma):  # Add a sigma parameter t
         marker=go.scattermapbox.Marker(
             size=10,  # Adjust the marker size to match grid dimensions
             color=z_flat,
-            symbol='pentagon',
             colorscale='RdYlBu',
             colorbar=dict(title='SR'),
             showscale=True,
-            opacity=0.6,
+            opacity=0.8,
         ),
     )
 
@@ -68,7 +67,7 @@ def gaussian_blur_plot(folder_name, saveplot, sigma):  # Add a sigma parameter t
         title={'text': f'Scatter Mapbox Plot for {folder_name}', 
                'x': 0.5, 'xanchor': 'center', 'font': {'size': 30}},
         mapbox=dict(
-            style='basic',
+            style='satellite',
             center=dict(lat=(min_lat + max_lat) / 2, lon=(min_lon + max_lon) / 2),
             zoom=5.75,  # Adjust zoom level based on your region
         ),

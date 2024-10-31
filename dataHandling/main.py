@@ -22,8 +22,8 @@ inc_angle = 65
 '''
 Dates format: "yyyymmdd"
 '''
-start_date = "20200101"
-end_date = "20200108" 
+start_date = "20240912"
+end_date = "20240918" 
 
 
 
@@ -57,6 +57,8 @@ min_sp_rx_gain = 0
 max_sp_rx_gain = 15
 inc_angle = 65
 '''
+
+'''
 #Region name that is to be used for naming data folders
 name = "Pakistan-India"
 #Chad spatial filter
@@ -64,6 +66,22 @@ min_lat = 25
 max_lat = 33
 min_lon = 70
 max_lon = 80
+#DDM SNR and SP RX gain
+min_ddm_snr = 1
+min_sp_rx_gain = 0
+max_sp_rx_gain = 15
+#Maximum inclination angle
+inc_angle = 65
+'''
+
+
+#Region name that is to be used for naming data folders
+name = "Brazil"
+#Chad spatial filter
+min_lat = -15
+max_lat = -10
+min_lon = -55
+max_lon = -47
 #DDM SNR and SP RX gain
 min_ddm_snr = 1
 min_sp_rx_gain = 0

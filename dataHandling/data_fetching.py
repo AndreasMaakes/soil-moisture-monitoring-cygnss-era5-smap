@@ -144,6 +144,13 @@ def data_fetching(startDate: str, endDate: str, username: str, password: str, ma
                         # Filter and process the data
                         df_filtered = data_filtering(df, max_lat, min_lat, max_lon, min_lon, inc_angle, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
                         df_filtered = df_filtered.reset_index(drop=True)
+                        
+                        # Check if df_filtered is empty
+                        if df_filtered.empty:
+                            print(f"No data available after filtering for {sat} on {date}, skipping.")
+                            pbar.update(1)  # Update progress even if no data saved
+                            continue  # Skip to the next iteration
+                        
                         df_filtered["sr"] = df_filtered.apply(sr, axis=1)
                         
                         # Save the data

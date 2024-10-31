@@ -7,6 +7,6 @@ setting the boolean to true enables filesaving
 '''
 #rasterized_heatmap("Pakistan-India-20200101-20200108", False, 1.0)
 #scatter_plot("Pakistan-India-20200101-20200108", False)
-trace_plot("Pakistan-India-20200101-20200108", False)
+#trace_plot("Pakistan-India-20200101-20200108", False)
 #gaussian_blur_plot("Pakistan-India-20200101-20200108", False, 1.0)
-#gaussian_blur_plot("Pakistan-India-20200101-20200108", False, 1.5)
+gaussian_blur_plot("Brazil-20240912-20240912", False, 1.5)
