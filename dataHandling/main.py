@@ -74,10 +74,9 @@ max_sp_rx_gain = 15
 inc_angle = 65
 '''
 
-
+'''
 #Region name that is to be used for naming data folders
 name = "Brazil"
-#Chad spatial filter
 min_lat = -15
 max_lat = -10
 min_lon = -55
@@ -88,6 +87,19 @@ min_sp_rx_gain = 0
 max_sp_rx_gain = 15
 #Maximum inclination angle
 inc_angle = 65
+'''
 
+#Region name that is to be used for naming data folders
+name = "Australia"
+min_lat = -30
+max_lat = -25
+min_lon = 144
+max_lon = 152
+#DDM SNR and SP RX gain
+min_ddm_snr = 1
+min_sp_rx_gain = 0
+max_sp_rx_gain = 15
+#Maximum inclination angle
+inc_angle = 65
 data_fetching(start_date, end_date, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
 
