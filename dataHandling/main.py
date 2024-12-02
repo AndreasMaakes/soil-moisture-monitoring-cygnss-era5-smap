@@ -22,12 +22,12 @@ inc_angle = 65
 '''
 Dates format: "yyyymmdd"
 '''
-start_date = "20241128"
-end_date = "20241128" 
+start_date = "20240912"
+end_date = "20240918" 
 
 
 
-'''
+
 #Region name that is to be used for naming data folders
 name = "Chad"
 #Chad spatial filter
@@ -41,7 +41,7 @@ min_sp_rx_gain = 0
 max_sp_rx_gain = 15
 #Maximum inclination angle
 inc_angle = 65
-'''
+
 
 #Cygnss longitudes have to be corrected 
 #Entire africa spatial filter
@@ -89,7 +89,7 @@ max_sp_rx_gain = 15
 inc_angle = 65
 '''
 
-
+'''
 
 #Region name that is to be used for naming data folders
 name = "Australia"
@@ -103,6 +103,8 @@ min_sp_rx_gain = 0
 max_sp_rx_gain = 15
 #Maximum inclination angle
 inc_angle = 65
+'''
+
 
 
 data_fetching(start_date, end_date, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
