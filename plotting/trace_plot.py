@@ -40,26 +40,26 @@ def trace_plot(folder_name, saveplot):
         hovertext=hovertext,
         hoverinfo = 'text',
         marker=go.scattermapbox.Marker(
-            size=4,  
+            size=5,  
             colorscale='RdYlBu',
             color = srs,
-            colorbar=dict(title='SR'),
+            colorbar=dict(title='SR (dB)'),
             showscale=True,
-            opacity=0.8,
+            opacity=1,
         ),
     )
 
     # Layout with a mapbox background
     layout = go.Layout(
-        title={'text': f'Scatter Mapbox Plot for {folder_name}', 
-               'x': 0.5, 'xanchor': 'center', 'font': {'size': 30}},
+        
         mapbox=dict(
             style='satellite', #mapbox://styles/oleevca/cm20jbhca002t01qv2jxfe7sh is the custom map ole designed 
             center=dict(lat=(min_lat + max_lat) / 2, lon=(min_lon + max_lon) / 2),
             zoom=5.75,  # Adjust zoom level based on your region
         ),
         height=1000,
-        width=1850
+        width=1450, 
+        font=dict(size=25)
     )
 
     fig = go.Figure(data=[heatmap], layout=layout) 

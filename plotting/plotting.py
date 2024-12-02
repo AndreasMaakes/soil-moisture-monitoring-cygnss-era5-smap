@@ -5,9 +5,11 @@ from heatmap_test import rasterized_heatmap
 '''
 setting the boolean to true enables filesaving 
 '''
-#rasterized_heatmap("Pakistan-India-20200101-20200108", False, 1.0)
-#scatter_plot("Pakistan-India-20200101-20200108", False)
-trace_plot("Chad-20240912-20240912", False)
-#gaussian_blur_plot("Australia-20240912-20240918", False, 1.0)
 
-#gaussian_blur_plot("Brazil-20240912-20240912", False, 1.5)
+'''Brazil plots - 7 days'''
+gaussian_blur_plot("Brazil-20240912-20240918", False, 1.5)
+#trace_plot("Brazil-20240912-20240918", False)
+
+'''Australia plots - 7 days'''  
+gaussian_blur_plot("Australia-20240912-20240918", False, 1.5)
+#trace_plot("Australia-20240912-20240918", False)

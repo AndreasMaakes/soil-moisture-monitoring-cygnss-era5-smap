@@ -70,26 +70,25 @@ def scatter_plot(folder_name, saveplot):
         hovertext = hovertext,
         hoverinfo = 'text',
         marker=go.scattermapbox.Marker(
-            size=6,  # Adjust the marker size to match grid dimensions
+            size=10,  # Adjust the marker size to match grid dimensions
             color=z_flat,
             colorscale='RdYlBu',
             colorbar=dict(title='SR'),
             showscale=True,
-            opacity=1,
+            opacity=0.8,
         ),
     )
 
     # Layout with a mapbox background
     layout = go.Layout(
-        title={'text': f'Scatter Mapbox Plot for {folder_name}', 
-               'x': 0.5, 'xanchor': 'center', 'font': {'size': 30}},
+        
         mapbox=dict(
-            style='dark', #mapbox://styles/oleevca/cm20jbhca002t01qv2jxfe7sh is the custom map ole designed 
+            style='satellite', #mapbox://styles/oleevca/cm20jbhca002t01qv2jxfe7sh is the custom map ole designed 
             center=dict(lat=(min_lat + max_lat) / 2, lon=(min_lon + max_lon) / 2),
-            zoom=4.5,  # Adjust zoom level based on your region
+            zoom=5.5,  # Adjust zoom level based on your region
         ),
         height=1000,
-        width=1850
+        width=1450
     )
 
     fig = go.Figure(data=[heatmap], layout=layout)
