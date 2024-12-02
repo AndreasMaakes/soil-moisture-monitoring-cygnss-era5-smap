@@ -54,7 +54,7 @@ def trace_plot(folder_name, saveplot):
         title={'text': f'Scatter Mapbox Plot for {folder_name}', 
                'x': 0.5, 'xanchor': 'center', 'font': {'size': 30}},
         mapbox=dict(
-            style='dark', #mapbox://styles/oleevca/cm20jbhca002t01qv2jxfe7sh is the custom map ole designed 
+            style='satellite', #mapbox://styles/oleevca/cm20jbhca002t01qv2jxfe7sh is the custom map ole designed 
             center=dict(lat=(min_lat + max_lat) / 2, lon=(min_lon + max_lon) / 2),
             zoom=5.75,  # Adjust zoom level based on your region
         ),
