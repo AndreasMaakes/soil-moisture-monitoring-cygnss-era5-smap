@@ -20,28 +20,55 @@ The date format is as follows: YYYYMMDD, for example 20240701
 
 
 def data_fetching(startDate: str, endDate: str, username: str, password: str, max_lat: float, min_lat: float, max_lon: float, min_lon: float, inc_angle: float, name: str, min_ddm_snr: float, min_sp_rx_gain: float, max_sp_rx_gain: float):
+    
     dates = create_dates_array(startDate, endDate)
-    
-    # List of satellite identifiers
     satellites = [f'cyg0{i}' for i in range(1, 9)]
-    
-    #Creating a new folder for the data for this specific run
-    file_name = f'{name}-{startDate}-{endDate}'
-    folder_path = f'./data/{file_name}'
-    
-    try:
-        os.mkdir(folder_path)
-    except OSError:
-        print(f"Creation of the directory {folder_path} failed")
 
+    # Define the base path for the data directory
+    base_data_path = './data'
+
+    # Create or locate the area-specific folder
+    area_folder_path = os.path.join(base_data_path, name)
+    if not os.path.exists(area_folder_path):
+        try:
+            os.mkdir(area_folder_path)
+            print(f"Directory {area_folder_path} created successfully.")
+        except OSError:
+            print(f"Creation of the directory {area_folder_path} failed.")
+    else:
+        print(f"Directory {area_folder_path} already exists.")
+
+    # Create a subfolder for this specific run inside the area-specific folder
+    file_name = f'{name}-{startDate}-{endDate}'
+    folder_path = os.path.join(area_folder_path, file_name)
+
+    if not os.path.exists(folder_path):
+        try:
+            os.mkdir(folder_path)
+            print(f"Directory {folder_path} created successfully.")
+        except OSError:
+            print(f"Creation of the directory {folder_path} failed.")
+    else:
+        print(f"Directory {folder_path} already exists.")
+
+    # Log the start of data fetching
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
 
-    parameter_txt = open(f'./data/{file_name}/{name}-{startDate}-{endDate}.txt', "x")
-    parameter_txt.write("Area of interest: " + name + "\n" + "\nStart date: " + str(startDate) + "\nEnd date: " + str(endDate) + "\n" + "\nMinimum latitude: " + str(min_lat) + "\nMinimum longitude: " + str(min_lon) + "\nMaximum latitude: " + str(max_lat) + "\nMaximum longitude: " + str(max_lon) + "\n" + "\nMaximum inclination angle: " + str(inc_angle) + "\nMinimum ddm_snr: " + str(min_ddm_snr) + "\nMinimum sp_rx_gain: " + str(min_sp_rx_gain) + "\nMaximum sp_rx_gain: " + str(max_sp_rx_gain) + "\n" + "\nData fetching started: " + current_time)
-    parameter_txt.close()
-
-
+    # Write parameters to a text file in the subfolder
+    parameter_txt_path = os.path.join(folder_path, f'{name}-{startDate}-{endDate}.txt')
+    with open(parameter_txt_path, "w") as parameter_txt:
+        parameter_txt.write(
+            f"Area of interest: {name}\n"
+            f"\nStart date: {startDate}\nEnd date: {endDate}\n"
+            f"\nMinimum latitude: {min_lat}\nMinimum longitude: {min_lon}\n"
+            f"Maximum latitude: {max_lat}\nMaximum longitude: {max_lon}\n"
+            f"\nMaximum inclination angle: {inc_angle}\n"
+            f"Minimum ddm_snr: {min_ddm_snr}\n"
+            f"Minimum sp_rx_gain: {min_sp_rx_gain}\n"
+            f"Maximum sp_rx_gain: {max_sp_rx_gain}\n"
+            f"\nData fetching started: {current_time}"
+        )
 
     # Calculate the total number of iterations for progress tracking
     total_iterations = len(satellites) * len(dates)
@@ -169,7 +196,10 @@ def data_fetching(startDate: str, endDate: str, username: str, password: str, ma
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
 
-    parameter_txt = open(f'./data/{file_name}/{name}-{startDate}-{endDate}.txt', "a")
-    parameter_txt.write("\nData fetching completed: " + current_time)
-    parameter_txt.close()
+    #   Construct the path for the parameter file in the current subfolder
+    parameter_txt_path = os.path.join(folder_path, f'{name}-{startDate}-{endDate}.txt')
+
+    # Append the completion time to the parameter file
+    with open(parameter_txt_path, "a") as parameter_txt:
+        parameter_txt.write(f"\nData fetching completed: {current_time}")
 

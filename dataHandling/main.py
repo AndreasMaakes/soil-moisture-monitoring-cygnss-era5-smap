@@ -22,8 +22,8 @@ inc_angle = 65
 '''
 Dates format: "yyyymmdd"
 '''
-start_date = "20240912"
-end_date = "20240918" 
+start_date = "20240916"
+end_date = "20240916" 
 
 
 
