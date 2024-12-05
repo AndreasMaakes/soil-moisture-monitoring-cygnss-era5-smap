@@ -4,7 +4,6 @@ from scipy.ndimage import gaussian_filter
 import numpy as np
 from import_data import importData 
 
-# Your data import and preparation remains the same
 def gaussian_blur_plot(folder_name, saveplot, sigma):  # Add a sigma parameter to control blur level
     dataFrames = importData(folder_name)
     lats = np.array([])
@@ -38,47 +37,51 @@ def gaussian_blur_plot(folder_name, saveplot, sigma):  # Add a sigma parameter t
     # Apply Gaussian filter
     grid_values_blurred = gaussian_filter(grid_values, sigma=sigma)
 
-    # Flatten the grid to create the necessary structure for mapbox plotting
+    # Flatten the grid to create the necessary structure
     lat_flat = lat_grid.flatten()
     lon_flat = lon_grid.flatten()
     z_flat = grid_values_blurred.flatten()
 
     hovertext = [f'SR: {sr_val:.2f}' for sr_val in z_flat]
 
-    # Create the Mapbox heatmap
-    heatmap = go.Scattermapbox(
-        lat=lat_flat,
-        lon=lon_flat,
+    # Create a scatter plot
+    scatter = go.Scatter(
+        x=lon_flat,
+        y=lat_flat,
         mode='markers',
-        hovertext=hovertext,
+        text=hovertext,
         hoverinfo='text',
-        marker=go.scattermapbox.Marker(
-            size=10,  # Adjust the marker size to match grid dimensions
+        marker=dict(
+            size=13,  # Adjust marker size
             color=z_flat,
             colorscale='RdYlBu',
             colorbar=dict(title='SR (dB)'),
-            showscale=True,
-            opacity=1,
-        ),
+            opacity=0.8,
+        )
     )
 
-    # Layout with a mapbox background
+    # Layout with Cartesian axes
     layout = go.Layout(
-        mapbox=dict(
-            style='satellite',
-            center=dict(lat=(min_lat + max_lat) / 2, lon=(min_lon + max_lon) / 2),
-            zoom=5.75,  # Adjust zoom level based on your region
+        title=f"Gaussian Blurred Scatter Plot (σ={sigma})",
+        xaxis=dict(
+            title="Longitude",
+            showgrid=True,
+            zeroline=False
+        ),
+        yaxis=dict(
+            title="Latitude",
+            showgrid=True,
+            zeroline=False
         ),
         height=1000,
         width=1450,
-        font=dict(size=25)
+        font=dict(size=25),
+        plot_bgcolor='white',  # Set the plot background to white
+        paper_bgcolor='white'  # Set the outer paper background to white
     )
 
-    fig = go.Figure(data=[heatmap], layout=layout)
+    fig = go.Figure(data=[scatter], layout=layout)
 
-    # Add your Mapbox access token here
-    mapbox_access_token = 'pk.eyJ1Ijoib2xlZXZjYSIsImEiOiJjbTFldmt6aGIyeWN4MmxzamFrYTV3dTNxIn0.bbVpqBfsIl_Y0W7YGRXCgQ'
-    fig.update_layout(mapbox_accesstoken=mapbox_access_token)
     fig.show()
     
     if saveplot:

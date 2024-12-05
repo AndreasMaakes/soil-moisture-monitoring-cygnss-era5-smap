@@ -1,10 +1,9 @@
 import plotly.graph_objects as go
-from scipy.interpolate import griddata
 import numpy as np
-from import_data import importData 
+from import_data import importData
 
-# Your data import and preparation remains the same
 def trace_plot(folder_name, saveplot):
+    # Import data
     dataFrames = importData(folder_name)
     lats = np.array([])
     lons = np.array([])
@@ -21,53 +20,51 @@ def trace_plot(folder_name, saveplot):
     
     max_lat = np.max(lats)
     min_lat = np.min(lats)
-
     max_lon = np.max(lons)
     min_lon = np.min(lons)
 
-    
-
     hovertext = [f'SR: {sr_val:.2f}' for sr_val in srs]
 
-    # Create the Mapbox heatmap
-    #Color scales and syntax found here
-    #https://plotly.com/python-api-reference/generated/plotly.graph_objects.Scattermapbox.html
-
-    heatmap = go.Scattermapbox(
-        lat=lats,
-        lon=lons,
+    # Create a scatter plot
+    scatter = go.Scatter(
+        x=lons,
+        y=lats,
         mode='markers',
-        hovertext=hovertext,
-        hoverinfo = 'text',
-        marker=go.scattermapbox.Marker(
-            size=5,  
+        text=hovertext,
+        hoverinfo='text',
+        marker=dict(
+            size=5,
+            color=srs,
             colorscale='RdYlBu',
-            color = srs,
             colorbar=dict(title='SR (dB)'),
-            showscale=True,
             opacity=1,
-        ),
+        )
     )
 
-    # Layout with a mapbox background
+    # Layout with Cartesian axes
     layout = go.Layout(
-        
-        mapbox=dict(
-            style='satellite', #mapbox://styles/oleevca/cm20jbhca002t01qv2jxfe7sh is the custom map ole designed 
-            center=dict(lat=(min_lat + max_lat) / 2, lon=(min_lon + max_lon) / 2),
-            zoom=5.75,  # Adjust zoom level based on your region
+        title="Trace Plot with Longitude and Latitude Axes",
+        xaxis=dict(
+            title="Longitude",
+            showgrid=True,
+            zeroline=False
+        ),
+        yaxis=dict(
+            title="Latitude",
+            showgrid=True,
+            zeroline=False
         ),
         height=1000,
-        width=1450, 
-        font=dict(size=25)
+        width=1450,
+        font=dict(size=25),
+        plot_bgcolor='white',  # White background
+        paper_bgcolor='white'  # White outer background
     )
 
-    fig = go.Figure(data=[heatmap], layout=layout) 
+    fig = go.Figure(data=[scatter], layout=layout)
 
-    # Add your Mapbox access token here
-    mapbox_access_token = 'pk.eyJ1Ijoib2xlZXZjYSIsImEiOiJjbTFldmt6aGIyeWN4MmxzamFrYTV3dTNxIn0.bbVpqBfsIl_Y0W7YGRXCgQ'
-    fig.update_layout(mapbox_accesstoken=mapbox_access_token)
+    # Show the figure
     fig.show()
-    
+
     if saveplot:
         fig.write_html(f'plotting/plots/{folder_name}.html')
