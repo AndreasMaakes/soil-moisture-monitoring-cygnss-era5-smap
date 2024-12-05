@@ -3,6 +3,10 @@ import numpy as np
 from import_data import importData
 
 def trace_plot(folder_name, saveplot):
+
+    name = folder_name.split("/")[0]
+    title = f'Smoothed CYGNSS Surface Reflectivity - {name} - September 2024'
+
     # Import data
     dataFrames = importData(folder_name)
     lats = np.array([])
@@ -35,7 +39,7 @@ def trace_plot(folder_name, saveplot):
         marker=dict(
             size=5,
             color=srs,
-            colorscale='RdYlBu',
+            colorscale='rdylbu',
             colorbar=dict(title='SR (dB)'),
             opacity=1,
         )
@@ -43,7 +47,7 @@ def trace_plot(folder_name, saveplot):
 
     # Layout with Cartesian axes
     layout = go.Layout(
-        title="Trace Plot with Longitude and Latitude Axes",
+        title=title,
         xaxis=dict(
             title="Longitude",
             showgrid=True,

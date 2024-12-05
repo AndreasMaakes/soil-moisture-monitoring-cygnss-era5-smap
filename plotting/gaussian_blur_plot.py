@@ -4,7 +4,16 @@ from scipy.ndimage import gaussian_filter
 import numpy as np
 from import_data import importData 
 
-def gaussian_blur_plot(folder_name, saveplot, sigma):  # Add a sigma parameter to control blur level
+def gaussian_blur_plot(folder_name, saveplot, sigma):
+      # Add a sigma parameter to control blur level
+    title = ""
+    name = folder_name.split("/")[0]
+
+    if(sigma == 0):
+        title = f'CYGNSS Surface Reflectivity - {name} - September 2024'
+    else:
+        title = f'Smoothed CYGNSS Surface Reflectivity - {name} - September 2024 - σ={sigma}'
+
     dataFrames = importData(folder_name)
     lats = np.array([])
     lons = np.array([])
@@ -52,32 +61,38 @@ def gaussian_blur_plot(folder_name, saveplot, sigma):  # Add a sigma parameter t
         text=hovertext,
         hoverinfo='text',
         marker=dict(
-            size=13,  # Adjust marker size
+            size=12,  # Adjust marker size
             color=z_flat,
-            colorscale='RdYlBu',
+            colorscale='portland_r',
             colorbar=dict(title='SR (dB)'),
-            opacity=0.8,
+            opacity=1,
         )
     )
 
-    # Layout with Cartesian axes
+    # Layout with Cartesian axes and centered title
     layout = go.Layout(
-        title=f"Gaussian Blurred Scatter Plot (σ={sigma})",
+        title=dict(
+            text=title,
+            x=0.5,  # Center the title
+            xanchor='center',
+            font=dict(size=35)  # Adjust title font size
+        ),
         xaxis=dict(
             title="Longitude",
             showgrid=True,
-            zeroline=False
+            zeroline=False,
         ),
         yaxis=dict(
             title="Latitude",
             showgrid=True,
-            zeroline=False
+            zeroline=False,
         ),
         height=1000,
         width=1450,
-        font=dict(size=25),
         plot_bgcolor='white',  # Set the plot background to white
-        paper_bgcolor='white'  # Set the outer paper background to white
+        paper_bgcolor='white',  # Set the outer paper background to white
+        font=dict(size=25)
+
     )
 
     fig = go.Figure(data=[scatter], layout=layout)
