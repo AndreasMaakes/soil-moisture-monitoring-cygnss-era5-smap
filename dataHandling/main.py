@@ -22,11 +22,6 @@ inc_angle = 65
 '''
 Dates format: "yyyymmdd"
 '''
-start_date = "20240916"
-end_date = "20240916" 
-
-
-
 
 #Region name that is to be used for naming data folders
 name = "Chad"
@@ -105,7 +100,9 @@ max_sp_rx_gain = 15
 inc_angle = 65
 '''
 
-
+start_date = "20240812"
+end_date = "20240812" 
 
 data_fetching(start_date, end_date, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
+
 
