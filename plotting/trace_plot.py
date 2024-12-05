@@ -5,7 +5,7 @@ from import_data import importData
 def trace_plot(folder_name, saveplot):
 
     name = folder_name.split("/")[0]
-    title = f'Smoothed CYGNSS Surface Reflectivity - {name} - September 2024'
+    title = f'CYGNSS ground tracks - {name} - September 2024'
 
     # Import data
     dataFrames = importData(folder_name)
@@ -37,9 +37,9 @@ def trace_plot(folder_name, saveplot):
         text=hovertext,
         hoverinfo='text',
         marker=dict(
-            size=5,
+            size=6,
             color=srs,
-            colorscale='rdylbu',
+            colorscale='portland_r',
             colorbar=dict(title='SR (dB)'),
             opacity=1,
         )
@@ -47,7 +47,12 @@ def trace_plot(folder_name, saveplot):
 
     # Layout with Cartesian axes
     layout = go.Layout(
-        title=title,
+        title=dict(
+            text=title,
+            x=0.5,  # Center the title
+            xanchor='center',
+            font=dict(size=35)
+        ), 
         xaxis=dict(
             title="Longitude",
             showgrid=True,
