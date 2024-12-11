@@ -1,9 +1,13 @@
 from data_fetching import data_fetching
+'''
+This is the main function of the program. 
+This file is simply used to call the data_fetching function with the desired parameters, which are explained in the data_fetching.py file.
+'''
 
-'''Login to the server'''
+'''Login to the server. '''
+
 username = "andreasmaakes"
 password = "Terrengmodell69!"
-
 
 '''
 Defining spatial filter
@@ -26,8 +30,6 @@ start_date = "20240430"
 end_date = "20240430" 
 
 
-
-
 #Region name that is to be used for naming data folders
 name = "Chad"
 #Chad spatial filter
@@ -42,37 +44,6 @@ max_sp_rx_gain = 15
 #Maximum inclination angle
 inc_angle = 65
 
-
-#Cygnss longitudes have to be corrected 
-#Entire africa spatial filter
-'''
-name = "North-Africa"
-min_lat = 2
-max_lat = 20
-min_lon = -19
-max_lon = 38
-
-min_ddm_snr = 1
-min_sp_rx_gain = 0
-max_sp_rx_gain = 15
-inc_angle = 65
-'''
-
-'''
-#Region name that is to be used for naming data folders
-name = "Pakistan-India"
-#Chad spatial filter
-min_lat = 25
-max_lat = 33
-min_lon = 70
-max_lon = 80
-#DDM SNR and SP RX gain
-min_ddm_snr = 1
-min_sp_rx_gain = 0
-max_sp_rx_gain = 15
-#Maximum inclination angle
-inc_angle = 65
-'''
 
 '''
 #Region name that is to be used for naming data folders

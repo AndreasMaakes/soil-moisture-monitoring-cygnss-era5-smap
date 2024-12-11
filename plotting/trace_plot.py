@@ -2,6 +2,17 @@ import plotly.graph_objects as go
 import numpy as np
 from import_data import importData
 
+'''
+This function is used to plot the ground tracks of the CYGNSS spacecraft.
+
+The function takes in two parameters:
+    - folder_name: The name of the folder containing the data to be plotted.
+    - saveplot: A boolean value that determines whether the plot should be saved to a file or not.
+    
+The function does not return anything, but it will display the plot in the browser.
+If the saveplot parameter is set to True, the plot will be saved to a file in the plotting/plots folder.
+'''
+
 def trace_plot(folder_name, saveplot):
 
     name = folder_name.split("/")[0]

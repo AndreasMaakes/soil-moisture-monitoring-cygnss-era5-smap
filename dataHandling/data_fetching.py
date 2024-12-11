@@ -11,23 +11,40 @@ from data_filtering import data_filtering
 from calculate_sr import sr
 from create_dates_array import create_dates_array
 
+
+'''This is the main function that handles the downloading of the data. This function also calls the data_filtering function to filter the data.
+
+Inputs:
+    startDate (str): The start date of the data fetching in the format YYYYMMDD
+    endDate (str): The end date of the data fetching in the format YYYYMMDD
+    username (str): The username of the user for the API 
+    password (str): The password of the user for the API (Note: Storing it as cleartext is not secure and should be handled with care)
+    max_lat (float): The maximum latitude of the area of interest
+    min_lat (float): The minimum latitude of the area of interest
+    max_lon (float): The maximum longitude of the area of interest
+    min_lon (float): The minimum longitude of the area of interest
+    inc_angle (float): The maximum inclination angle for the CYGNSS L1 data
+    name (str): The name of the area of interest, used for naming folders and files
+    min_ddm_snr (float): The minimum ddm_snr value for the CYGNSS L1 data
+    min_sp_rx_gain (float): The minimum sp_rx_gain value for the CYGNSS L1 data
+    max_sp_rx_gain (float): The maximum sp_rx_gain value for the CYGNSS L1 data
+
+Returns: 
+    The function returns nothing, but saves the data in the data folder, along with a txt files with metadata.
 '''
-This functions lets the user input the from and to date, and returns the date in the format that the API requires.
-
-The date format is as follows: YYYYMMDD, for example 20240701
-'''
-
-
 
 def data_fetching(startDate: str, endDate: str, username: str, password: str, max_lat: float, min_lat: float, max_lon: float, min_lon: float, inc_angle: float, name: str, min_ddm_snr: float, min_sp_rx_gain: float, max_sp_rx_gain: float):
     
+    '''Create a list of dates between the start and end date using the create_dates_array function'''
     dates = create_dates_array(startDate, endDate)
+    
+    '''Create a list of the CYGNSS satellites'''
     satellites = [f'cyg0{i}' for i in range(1, 9)]
 
-    # Define the base path for the data directory
+    '''Define the base path for the data directory'''
     base_data_path = './data'
 
-    # Create or locate the area-specific folder
+    '''Create or locate the area-specific folder'''
     area_folder_path = os.path.join(base_data_path, name)
     if not os.path.exists(area_folder_path):
         try:
@@ -38,7 +55,7 @@ def data_fetching(startDate: str, endDate: str, username: str, password: str, ma
     else:
         print(f"Directory {area_folder_path} already exists.")
 
-    # Create a subfolder for this specific run inside the area-specific folder
+    '''Create a subfolder for this specific run inside the area-specific folder. Name it after the area, start date, and end date.'''
     file_name = f'{name}-{startDate}-{endDate}'
     folder_path = os.path.join(area_folder_path, file_name)
 
@@ -51,11 +68,11 @@ def data_fetching(startDate: str, endDate: str, username: str, password: str, ma
     else:
         print(f"Directory {folder_path} already exists.")
 
-    # Log the start of data fetching
+    '''Log the start of data fetching using the current time'''
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
 
-    # Write parameters to a text file in the subfolder
+    '''Write parameters to a text file in the subfolder (metadata)'''
     parameter_txt_path = os.path.join(folder_path, f'{name}-{startDate}-{endDate}.txt')
     with open(parameter_txt_path, "w") as parameter_txt:
         parameter_txt.write(
@@ -70,21 +87,30 @@ def data_fetching(startDate: str, endDate: str, username: str, password: str, ma
             f"\nData fetching started: {current_time}"
         )
 
-    # Calculate the total number of iterations for progress tracking
+    '''Calculate the total number of iterations for progress tracking'''
     total_iterations = len(satellites) * len(dates)
 
-    # Use tqdm to monitor the progress of the whole process (satellites and dates combined)
+    '''
+    This is the main loop of the function.
+    It iterates over all the satellites and dates, fetching the data for each combination.
+    It uses the tqdm library to monitor the progress of the whole process, visualized as a progress bar.
+    '''
     with tqdm(total=total_iterations, desc="Progress: ", unit="files", colour = "green") as pbar:
         for sat in satellites:
             for date in dates:
                 try:
-                    # Construct the URL for the current satellite and date
+                    '''Construct the URL for the current satellite and date'''
                     url = f"https://opendap.earthdata.nasa.gov/collections/C2832195379-POCLOUD/granules/{sat}.ddmi.s{date}-000000-e{date}-235959.l1.power-brcs.a32.d33"
                     
-                    # Attempt to open the dataset
+                    '''Attempt to open the dataset'''
                     dataset = open_url(url, session=setup_session(username, password), protocol='dap4')
                     
-                    # Fetching data with progress inside each step
+                    '''
+                    Fetching all 11 variable from the dataset
+                    Note: The tqdm progressbar is hardcoded to 11 variables, if additional variables are added the progressbar 
+                    needs to be updated accordingly.
+                    '''
+                    
                     with tqdm(total=11, desc=f"Fetching data for {sat} on {date}", unit="steps", leave=False, colour = "yellow") as step_pbar:
                         ddm_snr = np.array(dataset['ddm_snr'][:, 0]).ravel()
                         ddm_snr = np.append(ddm_snr, np.array(dataset['ddm_snr'][:, 1]).ravel())
@@ -96,7 +122,7 @@ def data_fetching(startDate: str, endDate: str, username: str, password: str, ma
                         sp_lon = np.append(sp_lon, np.array(dataset['sp_lon'][:, 1]).ravel())
                         sp_lon = np.append(sp_lon, np.array(dataset['sp_lon'][:, 2]).ravel())
                         sp_lon = np.append(sp_lon, np.array(dataset['sp_lon'][:, 3]).ravel())
-                        sp_lon[sp_lon > 180] -= 360  # Adjusting the longitude to the correct values for plotting
+                        sp_lon[sp_lon > 180] -= 360  # Adjusting the longitude since it is in the range [-180, 180]
                         step_pbar.update(1)
 
                         sp_lat = np.array(dataset['sp_lat'][:, 0]).ravel()
@@ -153,7 +179,7 @@ def data_fetching(startDate: str, endDate: str, username: str, password: str, ma
                         quality_flags = np.append(quality_flags, np.array(dataset['quality_flags'][:, 3]).ravel())
                         step_pbar.update(1)
 
-                        # Create a dataframe with the data
+                        '''Create a dataframe with the data'''
                         df = pd.DataFrame({
                             'ddm_snr': ddm_snr,
                             'sp_lon': sp_lon,
@@ -168,35 +194,38 @@ def data_fetching(startDate: str, endDate: str, username: str, password: str, ma
                             'quality_flags': quality_flags
                         })    
                                                     
-                        # Filter and process the data
+                        '''Filter and process the data'''
                         df_filtered = data_filtering(df, max_lat, min_lat, max_lon, min_lon, inc_angle, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
                         df_filtered = df_filtered.reset_index(drop=True)
                         
-                        # Check if df_filtered is empty
+                        '''Check if df_filtered is empty, if so, skip to the next iteration'''
                         if df_filtered.empty:
                             print(f"No data available after filtering for {sat} on {date}, skipping.")
                             pbar.update(1)  # Update progress even if no data saved
                             continue  # Skip to the next iteration
                         
+                        '''Calculate the surface reflectivity using the sr function'''
                         df_filtered["sr"] = df_filtered.apply(sr, axis=1)
                         
-                        # Save the data
+                        '''Save the data'''
                         ds = xr.Dataset.from_dataframe(df_filtered)
                         ds.to_netcdf(f'{folder_path}/{sat}_{date}.nc')                        
                         
-                        # Update the main progress bar
+                        '''Update the main progress bar'''
                         pbar.update(1)
                         print()
                         print(f"Data fetched and filtered for {sat} on {date}")
+                        
 
                 except HTTPError as e:
                     print(f"No data available for {sat} on {date}, skipping. Error: {e}")
-                    pbar.update(1)  # Even if skipped, progress the overall bar
+                    pbar.update(1)  # Even if skipped, progressbar needs to be updated
     
+    '''Log the completion time to the parameter file'''
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
 
-    #   Construct the path for the parameter file in the current subfolder
+    # Construct the path for the metadata file
     parameter_txt_path = os.path.join(folder_path, f'{name}-{startDate}-{endDate}.txt')
 
     # Append the completion time to the parameter file
