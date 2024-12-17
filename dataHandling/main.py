@@ -9,27 +9,11 @@ This file is simply used to call the data_fetching function with the desired par
 username = "andreasmaakes"
 password = "Terrengmodell69!"
 
-'''
-Defining spatial filter
-Max_lat: float, min_lat: float, max_lon: float, min_lon: float, inc_angle: float
-'''
 
-#Iran spatial filter
-'''
-max_lat = 36
-min_lat = 28
-max_lon = 65
-min_lon = 54
-inc_angle = 65
-'''
 
-'''
-Dates format: "yyyymmdd"
-'''
+#Dates format: "yyyymmdd"
 start_date = "20240430"
 end_date = "20240430" 
-
-
 #Region name that is to be used for naming data folders
 name = "Chad"
 #Chad spatial filter
@@ -46,6 +30,9 @@ inc_angle = 65
 
 
 '''
+#Dates format: "yyyymmdd"
+start_date = "20240430"
+end_date = "20240430" 
 #Region name that is to be used for naming data folders
 name = "Brazil"
 min_lat = -15
@@ -61,7 +48,9 @@ inc_angle = 65
 '''
 
 '''
-
+#Dates format: "yyyymmdd"
+start_date = "20240430"
+end_date = "20240430" 
 #Region name that is to be used for naming data folders
 name = "Australia"
 min_lat = -30
@@ -75,9 +64,6 @@ max_sp_rx_gain = 15
 #Maximum inclination angle
 inc_angle = 65
 '''
-
-start_date = "20240812"
-end_date = "20240812" 
 
 data_fetching(start_date, end_date, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
 
