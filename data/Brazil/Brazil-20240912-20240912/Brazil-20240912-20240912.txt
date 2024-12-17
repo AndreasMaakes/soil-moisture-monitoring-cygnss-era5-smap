@@ -1,0 +1,17 @@
+Area of interest: Brazil
+
+Start date: 20240912
+End date: 20240912
+
+Minimum latitude: -15
+Minimum longitude: -55
+Maximum latitude: -10
+Maximum longitude: -47
+
+Maximum inclination angle: 65
+Minimum ddm_snr: 2
+Minimum sp_rx_gain: 0
+Maximum sp_rx_gain: 15
+
+Data fetching started: 13:56:20
+Data fetching completed: 14:15:39

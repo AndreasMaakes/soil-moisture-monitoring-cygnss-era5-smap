@@ -1,0 +1,17 @@
+Area of interest: Australia
+
+Start date: 20241128
+End date: 20241128
+
+Minimum latitude: -30
+Minimum longitude: 144
+Maximum latitude: -25
+Maximum longitude: 152
+
+Maximum inclination angle: 65
+Minimum ddm_snr: 1
+Minimum sp_rx_gain: 0
+Maximum sp_rx_gain: 15
+
+Data fetching started: 13:43:29
+Data fetching completed: 14:04:51
