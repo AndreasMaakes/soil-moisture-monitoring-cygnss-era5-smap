@@ -1,4 +1,4 @@
-from data_fetching import data_fetching
+from CYGNSS.data_fetching import data_fetching
 '''
 This is the main function of the program. 
 This file is simply used to call the data_fetching function with the desired parameters, which are explained in the data_fetching.py file.
