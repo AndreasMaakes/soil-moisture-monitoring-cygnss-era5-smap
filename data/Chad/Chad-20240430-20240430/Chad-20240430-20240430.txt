@@ -1,0 +1,16 @@
+Area of interest: Chad
+
+Start date: 20240430
+End date: 20240430
+
+Minimum latitude: 11
+Minimum longitude: 16
+Maximum latitude: 14
+Maximum longitude: 21
+
+Maximum inclination angle: 65
+Minimum ddm_snr: 1
+Minimum sp_rx_gain: 0
+Maximum sp_rx_gain: 15
+
+Data fetching started: 11:30:56

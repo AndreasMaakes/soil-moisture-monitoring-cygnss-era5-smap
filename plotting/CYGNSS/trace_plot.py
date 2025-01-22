@@ -1,6 +1,6 @@
 import plotly.graph_objects as go
 import numpy as np
-from import_data import importData
+from CYGNSS.import_data import importData
 
 '''
 This function is used to plot the ground tracks of the CYGNSS spacecraft.

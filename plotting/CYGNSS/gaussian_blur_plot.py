@@ -2,7 +2,7 @@ import plotly.graph_objects as go
 from scipy.interpolate import griddata
 from scipy.ndimage import gaussian_filter
 import numpy as np
-from import_data import importData 
+from CYGNSS.import_data import importData 
 
 '''
 This function creates a scatter plot of the surface reflectivity data with the possibility to apply a Gaussian blur to it.

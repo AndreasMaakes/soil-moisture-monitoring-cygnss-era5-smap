@@ -1,7 +1,7 @@
-from mpl_toolkits.basemap import Basemap
+#from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
 import numpy as np
-from import_data import importData
+from plotting.CYGNSS.import_data import importData
 
 def satellite_image_with_axes(folder_name, saveplot):
     # Simulated latitude and longitude bounds
@@ -23,7 +23,7 @@ def satellite_image_with_axes(folder_name, saveplot):
     max_lon = np.max(lons)
     min_lon = np.min(lons)
     
-
+'''
     # Plotting the satellite image
     fig, ax = plt.subplots(figsize=(12, 8))
     m = Basemap(
@@ -47,3 +47,4 @@ def satellite_image_with_axes(folder_name, saveplot):
         plt.savefig(f'plotting/plots/{folder_name}_satellite_with_axes.png', dpi=300)
 
     plt.show()
+'''
