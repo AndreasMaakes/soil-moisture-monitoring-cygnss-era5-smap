@@ -1,6 +1,7 @@
 import os
 import xarray as xr
 import numpy as np
+import pandas as pd
 
 from scipy.interpolate import griddata
 from scipy.ndimage import gaussian_filter
@@ -29,9 +30,19 @@ def readERA5Data(folder_name):
 ds = xr.open_dataset('data/ERA5/Brazil/ERA5_Brazil_2024_07_24_24.nc', engine='netcdf4') 
 df = ds.to_dataframe().reset_index()
 
-lats = np.array(df['latitude'])
-lons = np.array(df['longitude'])
-soil_moisture = np.array(df['swvl1'])
+df['valid_time'] = pd.to_datetime(df['valid_time'])
+
+averaged_df = (
+    df.groupby(['latitude', 'longitude'])
+    .agg(average_moisture=('swvl1', 'mean'))
+    .reset_index()
+)
+
+print(averaged_df)
+
+lats = np.array(averaged_df['latitude'])
+lons = np.array(averaged_df['longitude'])
+soil_moisture = np.array(averaged_df['average_moisture'])
 
 
 
@@ -60,7 +71,6 @@ lon_flat = lon_grid.flatten()
 z_flat = grid_values_blurred.flatten()
 
 
-'''
 hovertext = [f'SR: {sr_val:.2f}' for sr_val in z_flat]
 
 # Create a scatter plot
@@ -71,7 +81,7 @@ mode='markers',
 text=hovertext,
 hoverinfo='text',
 marker=dict(
-    size=12,  # Adjust marker size
+    size=13,  # Adjust marker size
     color=z_flat,
     colorscale='portland_r', # Choose a colorscale
     colorbar=dict(title='SR (dB)'),
@@ -157,4 +167,4 @@ fig = go.Figure(data=[scatter], layout=layout)
 
 # Show the figure
 fig.show()
-
+'''
