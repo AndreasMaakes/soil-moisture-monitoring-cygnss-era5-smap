@@ -11,7 +11,7 @@ def data_fetching_era5(year, month, days, min_lat, max_lat, min_lon, max_lon, na
     dataset = "reanalysis-era5-single-levels"
     request = {
     "product_type": ["reanalysis"],
-    "variable": ["volumetric_soil_water_layer_1"],
+    "variable": ["volumetric_soil_water_layer_1","land_sea_mask"],
     "year": [year],
     "month": [month],
     "day": days,
@@ -59,7 +59,7 @@ min_lat = -15
 max_lat = -10
 min_lon = -55
 max_lon = -47
-name = "Sweden"
+name = "Brazil"
     
 data_fetching_era5(year, month, days, min_lat, max_lat, min_lon, max_lon, name)
 
