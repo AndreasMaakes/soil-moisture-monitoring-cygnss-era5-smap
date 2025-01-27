@@ -9,7 +9,7 @@ def data_filtering(df, max_lat: float, min_lat: float, max_lon: float, min_lon: 
     print("Dataframe length after geospatial filtering: ", len(df_filtered_spatial))
     
     print("Filtering data based on inclination angle")
-    df_filtered_incidence = df_filtered_spatial[(df["sp_inc_angle"] <= inc_angle)]
+    df_filtered_incidence = df_filtered_spatial[(df_filtered_spatial["sp_inc_angle"] <= inc_angle)]
     print("Dataframe length after inclination angle filtering: ", len(df_filtered_incidence))
     
     print("Filtering data based on ddm_snr")
