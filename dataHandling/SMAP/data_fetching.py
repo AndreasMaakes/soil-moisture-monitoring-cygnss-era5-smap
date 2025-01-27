@@ -3,7 +3,7 @@ import xarray as xr
 import numpy as np
 import h5py
 import pandas as pd
-from data_filtering import data_filtering_SMAP
+from .data_filtering import data_filtering_SMAP
 import os
 from datetime import datetime, timedelta
 
@@ -129,30 +129,3 @@ def data_fetching_smap(start_date: str, end_date: str, max_lat: float, min_lat: 
             print(f"File {file_name} created successfully.")
             
             
-
-name = "Brazil"
-min_lat = -15
-max_lat = -10
-min_lon = -55
-max_lon = -47
-
-data_fetching_smap("2019-02-01", "2019-02-02",  max_lat, min_lat, max_lon, min_lon, "Brazil")
-
-'''
-for ds in dataset:
-    
-    xr_ds = xr.open_dataset(ds, engine='h5netcdf', group='Soil_Moisture_Retrieval_Data_AM', phony_dims='sort').sel(variable='longitude')  # Open a specific dataset
-    
-    # Access specific variables
-    longitude = xr_ds['longitude']  # Replace with actual variable name if different
-    latitude = xr_ds['latitude']
-    soil_moisture = xr_ds['soil_moisture']  # Replace with actual variable name if different
-    soil_moisture_dca = xr_ds['soil_moisture_dca']  # Replace with actual variable name if different
-
-    # Print variable details (optional)
-    print(longitude)
-    print(latitude)
-    print(soil_moisture)
-    print(soil_moisture_dca)
-'''
-#xr_ds = xr.open_mfdataset(dataset, engine='h5netcdf') 

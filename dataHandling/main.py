@@ -1,4 +1,5 @@
 from CYGNSS.data_fetching import data_fetching
+from SMAP.data_fetching import data_fetching_smap
 '''
 This is the main function of the program. 
 This file is simply used to call the data_fetching function with the desired parameters, which are explained in the data_fetching.py file.
@@ -65,6 +66,13 @@ max_sp_rx_gain = 15
 inc_angle = 65
 '''
 
-data_fetching(start_date, end_date, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
+#data_fetching(start_date, end_date, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
 
+name = "Brazil"
+min_lat = -15
+max_lat = -10
+min_lon = -55
+max_lon = -47
+
+data_fetching_smap("2023-03-01", "2023-03-02",  max_lat, min_lat, max_lon, min_lon, "Brazil")
 
