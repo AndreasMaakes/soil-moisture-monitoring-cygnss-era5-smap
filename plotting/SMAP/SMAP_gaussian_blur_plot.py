@@ -1,90 +1,78 @@
-import xarray as xr
+import pandas as pd
 import numpy as np
 
 from scipy.interpolate import griddata
 from scipy.ndimage import gaussian_filter
 import plotly.graph_objects as go
-from import_data_SMAP import importDataSMAP
+from SMAP_import_data import importDataSMAP
+from SMAP_utils import SMAP_averaging_soil_moisture
 
 
 
-def ERA5_gaussian_blur_plot(folder_name, sigma):
 
-    ds = xr.open_dataset(f'data/SMAP/{folder_name}', engine='netcdf4') 
-    df = ds.to_dataframe().reset_index()
+def SMAP_gaussian_blur_plot(folder_name, sigma):
 
-
-    lats = np.array(df['latitude'])
+    #Importing the data
+    dataframes = importDataSMAP(folder_name)
+    
+    #Concating the dataframes to one single dataframe
+    df = pd.concat(dataframes)
+    #Averaging the soil moisture values
+    df = SMAP_averaging_soil_moisture(df)
+    
+    lats = np.array(df['latitude']) 
     lons = np.array(df['longitude'])
-    soil_moisture = np.array(df['soil_moisture'])
-
-    max_lat = np.max(lats)
-    min_lat = np.min(lats)
-    max_lon = np.max(lons)
-    min_lon = np.min(lons)
-
-
-    # Creating a grid
-    lat_step = 0.1  # Grid resolution for latitude
-    lon_step = 0.1 # Grid resolution for longitude
-    lat_grid = np.arange(min_lat, max_lat, lat_step)
-    lon_grid = np.arange(min_lon, max_lon, lon_step)
-    lon_grid, lat_grid = np.meshgrid(lon_grid, lat_grid)
-
-    #Interpolating using nearest neighbor
-    grid_values = griddata((lats, lons), soil_moisture, (lat_grid, lon_grid), method='nearest')
-
-    # Apply Gaussian filter
-    grid_values_blurred = gaussian_filter(grid_values, sigma=sigma)
-
-    # Flatten the grid to create the necessary structure
-    lat_flat = lat_grid.flatten()
-    lon_flat = lon_grid.flatten()
-    z_flat = grid_values_blurred.flatten()
-
-    hovertext = [f'VSWL: {sr_val:.2f}' for sr_val in z_flat]
-
-    # Create a scatter plot
+    soil_moisture = np.array(df['soil_moisture_avg'])
+    
+    #Hovertext to show the soil moisture values
+    hovertext = [f'SM: {sm:.2f}' for sm in soil_moisture]
+    
+      # Create a scatter plot
     scatter = go.Scatter(
-    x=lon_flat,
-    y=lat_flat,
-    mode='markers',
-    text=hovertext,
-    hoverinfo='text',
-    marker=dict(
-        size=13,  # Adjust marker size
-        color=z_flat,
-        colorscale='portland_r', # Choose a colorscale
-        colorbar=dict(title='VSWL  m^3 * m^(-3)'),
-        opacity=1,
+        x=lons,
+        y=lats,
+        mode='markers',
+        text=hovertext,
+        hoverinfo='text',
+        marker=dict(
+            size=6,
+            color=soil_moisture,
+            colorscale='portland_r',
+            colorbar=dict(title='SR (dB)'),
+            opacity=1,
+        )
     )
-    )
-
-    # Layout with Cartesian axes and centered title
+    
+    # Layout with Cartesian axes
     layout = go.Layout(
-    title=dict(
-        text="Volumetric soil water level 1 (0-7 cm)",
-        x=0.5,  # Center the title
-        xanchor='center',
-        font=dict(size=35)  # Adjust title font size
-    ),
-    xaxis=dict(
-        title="Longitude",
-        showgrid=True,
-        zeroline=False,
-    ),
-    yaxis=dict(
-        title="Latitude",
-        showgrid=True,
-        zeroline=False,
-    ),
-    height=1000,
-    width=1800,
-    plot_bgcolor='white',  # Set the plot background to white
-    paper_bgcolor='white',  # Set the outer paper background to white
-    font=dict(size=25)
-
+        title=dict(
+            text="Hello",
+            x=0.5,  # Center the title
+            xanchor='center',
+            font=dict(size=35)
+        ), 
+        xaxis=dict(
+            title="Longitude",
+            showgrid=True,
+            zeroline=False
+        ),
+        yaxis=dict(
+            title="Latitude",
+            showgrid=True,
+            zeroline=False
+        ),
+        height=1000,
+        width=1450,
+        font=dict(size=25),
+        plot_bgcolor='white',  # White background
+        paper_bgcolor='white'  # White outer background
     )
 
     fig = go.Figure(data=[scatter], layout=layout)
+
+    # Show the figure
     fig.show()
+    
+ 
+    
+SMAP_gaussian_blur_plot('Brazil', 1)

@@ -6,8 +6,8 @@ import pandas as pd
 from scipy.interpolate import griddata
 from scipy.ndimage import gaussian_filter
 import plotly.graph_objects as go
-from .data_manipulation import averaging_soil_moisture
-from .data_manipulation import apply_land_sea_mask
+from .ERA5_utils import averaging_soil_moisture
+from .ERA5_utils import apply_land_sea_mask
 
 
 def ERA5_gaussian_blur_plot(folder_name, sigma):
