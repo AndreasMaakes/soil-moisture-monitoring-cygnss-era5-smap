@@ -1,6 +1,6 @@
 from CYGNSS.trace_plot import trace_plot
 from CYGNSS.CYGNSS_gaussian_blur_plot import CYGNSS_gaussian_blur_plot
-from ERA5.ERA5_gaussian_blur_plot import ERA5_gaussian_blur_plot
+from ERA5.ERA5_gaussian_blur_plot_new import ERA5_gaussian_blur_plot
 
 '''
 This is the main plotting file in the program, which calls the plotting functions with the desired parameters.

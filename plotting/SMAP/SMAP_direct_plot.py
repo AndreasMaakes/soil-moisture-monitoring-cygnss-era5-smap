@@ -1,10 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd 
-import xarray as xr
 from SMAP_import_data import importDataSMAP
 from SMAP_utils import SMAP_averaging_soil_moisture
-from scipy.ndimage import gaussian_filter
 
 #Experimenting with raster plots in matplotlib
 
@@ -25,26 +23,21 @@ pivoted_data = df.pivot_table(
     values="soil_moisture_avg"
 )
 
-# Apply a Gaussian filter to the data
-smoothed_data = gaussian_filter(pivoted_data.values, sigma=1)
-
 # Create a meshgrid of latitudes and longitudes
 latitudes = pivoted_data.index.values
 longitudes = pivoted_data.columns.values
 lon_grid, lat_grid = np.meshgrid(longitudes, latitudes)
 
-# Plot the smoothed soil moisture data using pcolormesh
+# Plot the soil moisture data using pcolormesh
 plt.figure(figsize=(10, 8))
 mesh = plt.pcolormesh(
-    lon_grid, lat_grid, smoothed_data, 
+    lon_grid, lat_grid, pivoted_data.values, 
     shading='auto', cmap='viridis'
 )
-plt.colorbar(mesh, label='Soil Moisture (Smoothed)')
+plt.colorbar(mesh, label='Soil Moisture')
+plt.axis('equal')
 plt.xlabel('Longitude')
 plt.ylabel('Latitude')
-plt.title('Smoothed SMAP Soil Moisture')
-
-# Set aspect ratio to equal to ensure squares are not distorted
-plt.axis('equal')
-
+plt.title('Soil Moisture Map')
 plt.show()
+

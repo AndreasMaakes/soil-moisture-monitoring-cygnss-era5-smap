@@ -1,24 +1,25 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd 
+import os
 import xarray as xr
-from SMAP_import_data import importDataSMAP
-from SMAP_utils import SMAP_averaging_soil_moisture
+import numpy as np
+import pandas as pd
+
+from scipy.interpolate import griddata
 from scipy.ndimage import gaussian_filter
+import plotly.graph_objects as go
+from .ERA5_utils import averaging_soil_moisture
+from .ERA5_utils import apply_land_sea_mask
 
-#Experimenting with raster plots in matplotlib
+
+folder_name = 'Brazil'
+
+ds = xr.open_dataset(f'data/ERA5/{folder_name}', engine='netcdf4') 
+df = ds.to_dataframe().reset_index()
+
+averaged_df = averaging_soil_moisture(df)
+lsm_df = apply_land_sea_mask(averaged_df, 0.95)
 
 
-#Importing the data as a list of dataframes
-df = importDataSMAP('Brazil')
-
-#Concating the dataframes to one single dataframe
-df = pd.concat(df)
-
-#Averaging the soil moisture values
-df = SMAP_averaging_soil_moisture(df)
-
-# Create a pivot table with latitude as rows and longitude as columns
+    # Create a pivot table with latitude as rows and longitude as columns
 pivoted_data = df.pivot_table(
     index="latitude", 
     columns="longitude", 
