@@ -74,5 +74,5 @@ max_lat = -10
 min_lon = -55
 max_lon = -47
 
-data_fetching_smap("2023-03-01", "2023-03-02",  max_lat, min_lat, max_lon, min_lon, "Brazil")
+data_fetching_smap("2019-02-03", "2019-02-03",  max_lat, min_lat, max_lon, min_lon, "Brazil")
 
