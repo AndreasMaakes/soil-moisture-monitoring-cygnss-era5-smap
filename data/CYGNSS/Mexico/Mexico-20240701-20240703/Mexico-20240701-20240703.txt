@@ -1,0 +1,17 @@
+Area of interest: Mexico
+
+Start date: 20240701
+End date: 20240703
+
+Minimum latitude: 20
+Minimum longitude: -105
+Maximum latitude: 26
+Maximum longitude: -98
+
+Maximum inclination angle: 65
+Minimum ddm_snr: 1
+Minimum sp_rx_gain: 0
+Maximum sp_rx_gain: 15
+
+Data fetching started: 10:06:47
+Data fetching completed: 11:03:27

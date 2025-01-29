@@ -11,13 +11,13 @@ from .ERA5_utils import apply_land_sea_mask
 
 
 
-def ERA5_gaussian_blur_plot(folder_name, sigma):
+def ERA5_gaussian_blur_plot(folder_name, sigma, threshold):
 
     ds = xr.open_dataset(f'data/ERA5/{folder_name}', engine='netcdf4') 
     df = ds.to_dataframe().reset_index()
 
     averaged_df = averaging_soil_moisture(df)
-    lsm_df = apply_land_sea_mask(averaged_df, 0.95)
+    lsm_df = apply_land_sea_mask(averaged_df, threshold)
 
 
     # Create a pivot table with latitude as rows and longitude as columns
@@ -44,7 +44,7 @@ def ERA5_gaussian_blur_plot(folder_name, sigma):
     plt.colorbar(mesh, label='Soil Moisture (Smoothed)')
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')
-    plt.title('Smoothed SMAP Soil Moisture')
+    plt.title('Smoothed ERA5 Soil Moisture')
 
     # Set aspect ratio to equal to ensure squares are not distorted
     plt.axis('equal')

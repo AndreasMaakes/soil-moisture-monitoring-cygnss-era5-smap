@@ -33,7 +33,7 @@ Returns:
     The function returns nothing, but saves the data in the data folder, along with a txt files with metadata.
 '''
 
-def data_fetching(startDate: str, endDate: str, username: str, password: str, max_lat: float, min_lat: float, max_lon: float, min_lon: float, inc_angle: float, name: str, min_ddm_snr: float, min_sp_rx_gain: float, max_sp_rx_gain: float):
+def data_fetching_CYGNSS(startDate: str, endDate: str, username: str, password: str, max_lat: float, min_lat: float, max_lon: float, min_lon: float, inc_angle: float, name: str, min_ddm_snr: float, min_sp_rx_gain: float, max_sp_rx_gain: float):
     
     '''Create a list of dates between the start and end date using the create_dates_array function'''
     dates = create_dates_array(startDate, endDate)
@@ -42,7 +42,7 @@ def data_fetching(startDate: str, endDate: str, username: str, password: str, ma
     satellites = [f'cyg0{i}' for i in range(1, 9)]
 
     '''Define the base path for the data directory'''
-    base_data_path = '././data'
+    base_data_path = '././data/CYGNSS'
 
     '''Create or locate the area-specific folder'''
     area_folder_path = os.path.join(base_data_path, name)

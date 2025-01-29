@@ -13,7 +13,7 @@ def adjustSR(dataFrames, min_sr):
 def importData(folder_name):
     
     '''Data folder'''
-    basePath = f'../Prosjektoppgave/data/{folder_name}'
+    basePath = f'data/CYGNSS/{folder_name}'
     
     dataFrames = []
     '''Min SR is set to something ridiculously high to make sure that the first value is always lower'''    
