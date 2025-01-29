@@ -19,6 +19,7 @@ def ERA5_gaussian_blur_plot(folder_name, sigma, threshold):
     averaged_df = averaging_soil_moisture(df)
     lsm_df = apply_land_sea_mask(averaged_df, threshold)
 
+    #Hei
 
     # Create a pivot table with latitude as rows and longitude as columns
     pivoted_data = lsm_df.pivot_table(
