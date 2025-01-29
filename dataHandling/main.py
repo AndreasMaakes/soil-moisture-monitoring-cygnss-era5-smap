@@ -28,12 +28,13 @@ inc_angle = 65
 
 '''Area of interest'''
 
-name = "Mexico"
-min_lat = 20
-min_lon = -105
-max_lat = 26
-max_lon = -98
+name = "Argentina"
+min_lat = -30
+min_lon = -68
+max_lat = -25
+max_lon = -61
 
-data_fetching_smap("2024-07-04", "2024-07-05",  max_lat, min_lat, max_lon, min_lon, name)
+data_fetching_smap("2024-07-01", "2024-07-03",  max_lat, min_lat, max_lon, min_lon, name)
 data_fetching_era5("2024", "07", ["01","02","03"], min_lat, max_lat, min_lon, max_lon, name)
 data_fetching_CYGNSS("20240701", "20240703", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
+

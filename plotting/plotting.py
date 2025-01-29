@@ -27,10 +27,9 @@ Note: Both plotting options has the option to save the plot to a file. This is d
 '''
 
 
-#ERA5_gaussian_blur_plot("Mexico/ERA5_Mexico_2024_07_01_03.nc", 0.5, 0.7) 
-#SMAP_gaussian_blur_plot("Mexico", 0.5)
-CYGNSS_gaussian_blur_plot("Mexico/Mexico-20240701-20240703", 0)
+ERA5_gaussian_blur_plot("Argentina/ERA5_Argentina_2024_07_01_03.nc", 0.7, 0.9, 100) 
+#SMAP_gaussian_blur_plot("Argentina", 0.5)
+CYGNSS_gaussian_blur_plot("Argentina/Argentina-20240701-20240703", 0.7)
 #trace_plot("Mexico/Mexico-20240701-20240703", False)
-#CYGGIBOI("Mexico/Mexico-20240701-20240703", False, 0.5)
-
-
+#CYGGIBOI("Argentina/Argentina-20240701-20240703", False, 0.5)
+#trace_plot("Argentina/Argentina-20240701-20240703", False)

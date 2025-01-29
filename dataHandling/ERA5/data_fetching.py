@@ -51,16 +51,7 @@ def data_fetching_era5(year, month, days, min_lat, max_lat, min_lon, max_lon, na
     client = cdsapi.Client()
     client.retrieve(dataset, request).download(f"{area_folder_path}/{file_name}.nc")
 
-    
-year = "2024"
-month = "07"
-days = [24]
-min_lat = -15
-max_lat = -10
-min_lon = -55
-max_lon = -47
-name = "Brazil"
-    
+
 
 
 
