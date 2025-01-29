@@ -61,7 +61,7 @@ min_lon = -55
 max_lon = -47
 name = "Brazil"
     
-data_fetching_era5(year, month, days, min_lat, max_lat, min_lon, max_lon, name)
+
 
 
 

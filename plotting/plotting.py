@@ -1,6 +1,11 @@
 from CYGNSS.trace_plot import trace_plot
 from CYGNSS.CYGNSS_gaussian_blur_plot import CYGNSS_gaussian_blur_plot
+from CYGNSS.CYGNSS_gaussian_blur_plot_old import CYGNSS_gaussian_blur_plot as CYGGIBOI
 from ERA5.ERA5_gaussian_blur_plot import ERA5_gaussian_blur_plot
+from SMAP.SMAP_gaussian_blur_plot import SMAP_gaussian_blur_plot
+from CYGNSS.trace_plot import trace_plot
+
+
 
 '''
 This is the main plotting file in the program, which calls the plotting functions with the desired parameters.
@@ -21,10 +26,11 @@ Note: Both plotting options has the option to save the plot to a file. This is d
 
 '''
 
-'''Example of how to plot data for Brazil - 7 days'''
 
-#CYGNSS_gaussian_blur_plot("Brazil/Brazil-20240912-20240918", False, 1)
-#trace_plot("Chad/Chad-20240430-20240430", False)
-ERA5_gaussian_blur_plot("Brazil/ERA5_Brazil_2024_07_24_24.nc", 1)
+#ERA5_gaussian_blur_plot("Mexico/ERA5_Mexico_2024_07_01_03.nc", 0.5, 0.7) 
+#SMAP_gaussian_blur_plot("Mexico", 0.5)
+CYGNSS_gaussian_blur_plot("Mexico/Mexico-20240701-20240703", 0)
+#trace_plot("Mexico/Mexico-20240701-20240703", False)
+#CYGGIBOI("Mexico/Mexico-20240701-20240703", False, 0.5)
 
 
