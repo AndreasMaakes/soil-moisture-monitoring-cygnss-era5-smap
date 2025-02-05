@@ -34,7 +34,7 @@ min_lon = -68
 max_lat = -25
 max_lon = -61
 
-data_fetching_smap("2024-07-01", "2024-07-03",  max_lat, min_lat, max_lon, min_lon, name)
-data_fetching_era5("2024", "07", ["01","02","03"], min_lat, max_lat, min_lon, max_lon, name)
-data_fetching_CYGNSS("20240701", "20240703", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
+data_fetching_smap("2024-07-01", "2024-07-07",  max_lat, min_lat, max_lon, min_lon, name)
+data_fetching_era5("2024", "07", ["01","02","03", "04", "05", "06", "07"], min_lat, max_lat, min_lon, max_lon, name)
+#data_fetching_CYGNSS("20240701", "20240707", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
 

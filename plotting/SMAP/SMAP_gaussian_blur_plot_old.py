@@ -75,4 +75,3 @@ def SMAP_gaussian_blur_plot(folder_name, sigma):
     
  
     
-SMAP_gaussian_blur_plot('Brazil', 1)
