@@ -1,0 +1,17 @@
+Area of interest: Thailand
+
+Start date: 20200101
+End date: 20200107
+
+Minimum latitude: 14
+Minimum longitude: 99
+Maximum latitude: 18
+Maximum longitude: 105
+
+Maximum inclination angle: 65
+Minimum ddm_snr: 1
+Minimum sp_rx_gain: 0
+Maximum sp_rx_gain: 15
+
+Data fetching started: 15:16:58
+Data fetching completed: 18:26:34

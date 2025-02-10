@@ -5,7 +5,7 @@ from .import_data import importData
 from scipy.ndimage import gaussian_filter
 from scipy.interpolate import griddata
 
-def CYGNSS_gaussian_blur_plot(folder_name, sigma):
+def CYGNSS_gaussian_blur_plot(folder_name, sigma, grid_size):
     title = ""
     name = folder_name.split("/")[0]
 
@@ -17,7 +17,9 @@ def CYGNSS_gaussian_blur_plot(folder_name, sigma):
 
     # Import data from the folder
     dfs = importData(folder_name)
+    
     df = pd.concat(dfs)
+
 
     # Extract latitude, longitude, and surface reflectivity
     latitudes = df["sp_lat"].values
@@ -25,13 +27,13 @@ def CYGNSS_gaussian_blur_plot(folder_name, sigma):
     sr_values = df["sr"].values
 
     # Define the structured grid for interpolation
-    lat_grid = np.linspace(latitudes.min(), latitudes.max(), 100)  # 200 points in latitude
-    lon_grid = np.linspace(longitudes.min(), longitudes.max(), 100)  # 200 points in longitude
+    lat_grid = np.linspace(latitudes.min(), latitudes.max(), grid_size)  # 200 points in latitude
+    lon_grid = np.linspace(longitudes.min(), longitudes.max(),grid_size)  # 200 points in longitude
     lon_mesh, lat_mesh = np.meshgrid(lon_grid, lat_grid)
 
     # Interpolate data onto the structured grid
     sr_grid = griddata(
-        (longitudes, latitudes), sr_values, (lon_mesh, lat_mesh), method='nearest'
+        (longitudes, latitudes), sr_values, (lon_mesh, lat_mesh), method='linear'
     )
 
     # Apply Gaussian blur

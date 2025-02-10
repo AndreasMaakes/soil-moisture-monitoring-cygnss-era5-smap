@@ -1,0 +1,17 @@
+Area of interest: Western-Australia
+
+Start date: 20201001
+End date: 20201007
+
+Minimum latitude: -32
+Minimum longitude: 116
+Maximum latitude: -27
+Maximum longitude: 122
+
+Maximum inclination angle: 65
+Minimum ddm_snr: 1
+Minimum sp_rx_gain: 0
+Maximum sp_rx_gain: 15
+
+Data fetching started: 22:11:58
+Data fetching completed: 00:20:37

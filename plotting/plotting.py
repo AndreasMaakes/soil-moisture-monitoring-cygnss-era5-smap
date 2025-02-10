@@ -27,9 +27,55 @@ Note: Both plotting options has the option to save the plot to a file. This is d
 '''
 
 
-ERA5_gaussian_blur_plot("Argentina/ERA5_Argentina_2024_07_01_03.nc", 0.7, 0.9, 100) 
-#SMAP_gaussian_blur_plot("Argentina", 0.5)
-#CYGNSS_gaussian_blur_plot("Argentina/Argentina-20240701-20240707", 0.7)
-#trace_plot("Mexico/Mexico-20240701-20240703", False)
-#CYGGIBOI("Argentina/Argentina-20240701-20240703", False, 0.5)
-#trace_plot("Argentina/Argentina-20240701-20240707", False)
+
+
+#CYGNSS_gaussian_blur_plot("Iraq/Iraq-20240201-20240207", 2.5)
+#CYGGIBOI("Iraq/Iraq-20240201-20240207", False, 1.0)
+#SMAP_gaussian_blur_plot("Iraq", 2.0, 100)
+#ERA5_gaussian_blur_plot("Iraq/ERA5_Iraq_2024_02_01_07.nc", 2.0, 0.9, 100)
+
+#CYGNSS_gaussian_blur_plot("India/India-20200601-20200607", 0, 1000)
+#CYGGIBOI("India/India-20240201-20240207", False, 1.5)
+#SMAP_gaussian_blur_plot("India", 1.5, 100)
+#ERA5_gaussian_blur_plot("India/ERA5_India_2020_06_01_07.nc", 1.5, 0.9, 100)
+
+#CYGNSS_gaussian_blur_plot("Argentina/Argentina-20240701-20240707", 0, 1000)
+#CYGGIBOI("Argentina/Argentina-20240701-20240707", False, 1.0)
+#SMAP_gaussian_blur_plot("Argentina", 1.0, 100)
+#ERA5_gaussian_blur_plot("Argentina/ERA5_Argentina_2024_07_01_07.nc", 1.0, 0.9, 100)
+#trace_plot("Argentina/Argentina-20240701-20240707", True)
+
+#CYGNSS_gaussian_blur_plot("South-Australia/South-Australia-20240201-20240207", 0, 1000)
+#CYGGIBOI("South-Australia/South-Australia-20240201-20240207", False, 1.0)
+#SMAP_gaussian_blur_plot("South-Australia", 1.0, 100)
+#ERA5_gaussian_blur_plot("South-Australia/ERA5_South-Australia_2024_02_01_07.nc", 1.0, 0.9, 100)
+
+#CYGNSS_gaussian_blur_plot("Sudan/Sudan-20200701-20200707", 0, 1000)
+#CYGGIBOI("Sudan/Sudan-20240201-20240203", False, 1.5)
+#SMAP_gaussian_blur_plot("Sudan", 2, 25)
+#ERA5_gaussian_blur_plot("Sudan/ERA5_Sudan_2020_07_01_07.nc", 2, 0.9, 25)
+#trace_plot("Sudan/Sudan-20240201-20240203", True)
+
+#CYGNSS_gaussian_blur_plot("Western-Australia/Western-Australia-20201001-20201007", 2.5, 100)
+#trace_plot("Western-Australia/Western-Australia-20201001-20201007", False)
+#CYGGIBOI("Western-Australia/Western-Australia-20201001-20201007", False, 1.5)
+#SMAP_gaussian_blur_plot("Western-Australia", 2.5, 100)
+#ERA5_gaussian_blur_plot("Western-Australia/ERA5_Western-Australia_2020_10_01_07.nc", 2.5, 0.9, 100)
+
+#CYGNSS_gaussian_blur_plot("Sudan/Sudan-20200701-20200707", 1.5)
+#trace_plot("Sudan/Sudan-20200701-20200707", True)
+#SMAP_gaussian_blur_plot("Sudan", 1.5, 100)
+#ERA5_gaussian_blur_plot("Sudan/ERA5_Sudan_2020_07_01_07.nc", 1.5, 0.9, 100)
+
+#CYGNSS_gaussian_blur_plot("Sudan/Sudan-20201001-20201003", 3.0)
+#trace_plot("Sudan/Sudan-20201001-20201003", False)
+#SMAP_gaussian_blur_plot("Sudan", 2.0, 100)
+#ERA5_gaussian_blur_plot("Sudan/ERA5_Sudan_2020_10_01_03.nc", 2.0, 0.9, 100)
+
+#CYGNSS_gaussian_blur_plot("Thailand/Thailand-20200101-20200107", 2.0, 100)
+#SMAP_gaussian_blur_plot("Thailand", 2.0, 100)
+#ERA5_gaussian_blur_plot("Thailand/ERA5_Thailand_2020_01_01_07.nc", 2.0, 0.9, 100)
+
+CYGNSS_gaussian_blur_plot("India2/India2-20200101-20200107", 2, 100)
+SMAP_gaussian_blur_plot("India2", 2, 100)
+ERA5_gaussian_blur_plot("India2/ERA5_India2_2020_01_01_07.nc", 2, 0.9, 100)
