@@ -40,7 +40,7 @@ def data_fetching_era5(timeSeries: bool, startDate: str, endDate: str, min_lat, 
     '''Define the base path for the data directory'''
 
     if timeSeries:
-        base_data_path = f'data/TimeSeries/timeSeries-{startDate}-{endDate}/ERA5'
+        base_data_path = f'data/TimeSeries/timeSeries-{name}-{startDate}-{endDate}/ERA5'
         file_name = f"ERA5_{name}_{year}_{month}_{days[0]}_{days[-1]}"
         client = cdsapi.Client()
         client.retrieve(dataset, request).download(f"{base_data_path}/{file_name}.nc")

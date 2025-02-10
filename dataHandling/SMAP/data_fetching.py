@@ -110,7 +110,7 @@ def data_fetching_smap(Timeseries: bool, startDate: str, endDate: str, max_lat: 
             
             '''Define the base path for the data directory. Where it is saved depends on the Timeseries variable'''
             if Timeseries:
-                base_data_path = f'data/TimeSeries/TimeSeries-{startDate}-{endDate}/SMAP'
+                base_data_path = f'data/TimeSeries/TimeSeries-{name}-{startDate}-{endDate}/SMAP'
                 ds = xr.Dataset.from_dataframe(df_filtered)
                 file_name = f'{name}_{dates[count]}'
                 ds.to_netcdf(os.path.join(base_data_path, file_name + ".nc"))

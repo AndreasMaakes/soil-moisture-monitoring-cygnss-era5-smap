@@ -43,7 +43,7 @@ def data_fetching_CYGNSS(timeSeries: bool, startDate: str, endDate: str, usernam
     
     '''Define the base path for the data directory'''
     if timeSeries:
-        base_data_path = f'data/TimeSeries/TimeSeries-{startDate}-{endDate}/CYGNSS'
+        base_data_path = f'data/TimeSeries/TimeSeries-{name}-{startDate}-{endDate}/CYGNSS'
     else:
         base_data_path = 'data/CYGNSS'
         
@@ -98,6 +98,10 @@ def data_fetching_CYGNSS(timeSeries: bool, startDate: str, endDate: str, usernam
     It iterates over all the satellites and dates, fetching the data for each combination.
     It uses the tqdm library to monitor the progress of the whole process, visualized as a progress bar.
     '''
+    
+    '''Dataframe to store the data in if the timeseries variable is active'''
+    df_timeseries = pd.DataFrame({})
+
     with tqdm(total=total_iterations, desc="Progress: ", unit="files", colour = "green") as pbar:
         for sat in satellites:
             for date in dates:
@@ -210,26 +214,34 @@ def data_fetching_CYGNSS(timeSeries: bool, startDate: str, endDate: str, usernam
                         '''Calculate the surface reflectivity using the sr function'''
                         df_filtered["sr"] = df_filtered.apply(sr, axis=1)
                         
-                        '''Save the data'''
-                        ds = xr.Dataset.from_dataframe(df_filtered)
-                        
-                        '''Saving the data to the correct folder, depending on if the function is used for time series or not'''
+                        '''If timeseries booliean is True, append the dataframe instead of saving it'''
                         if timeSeries:
-                            ds.to_netcdf(f'{base_data_path}/{sat}_{date}.nc')
-                        else:
-                            ds.to_netcdf(f'{folder_path}/{sat}_{date}.nc')                        
                         
-                        '''Update the main progress bar'''
-                        pbar.update(1)
-                        print()
-                        print(f"Data fetched and filtered for {sat} on {date}")
+                            df_timeseries = pd.concat([df_timeseries,df_filtered])
+                            
+                            pbar.update(1)
+                            print(f"Data fetched and filtered for {sat} on {date}")
+                        else:
+                            '''Save the data'''
+                            ds = xr.Dataset.from_dataframe(df_filtered)
+                            
+                            '''Saving the data to the correct folder'''
+                            
+                            ds.to_netcdf(f'{folder_path}/{sat}_{date}.nc')                        
+                            
+                            '''Update the main progress bar'''
+                            pbar.update(1)
+                            print()
+                            print(f"Data fetched and filtered for {sat} on {date}")
                         
 
                 except HTTPError as e:
                     print(f"No data available for {sat} on {date}, skipping. Error: {e}")
                     pbar.update(1)  # Even if skipped, progressbar needs to be updated
-    
-    if not timeSeries:
+    if timeSeries:
+        df_timeseries = df_timeseries.reset_index(drop=True)
+        return df_timeseries
+    else:
         '''Log the completion time to the parameter file'''
         now = datetime.now()
         current_time = now.strftime("%H:%M:%S")

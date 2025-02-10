@@ -2,12 +2,12 @@ from SMAP.data_fetching import data_fetching_smap
 from ERA5.data_fetching import data_fetching_era5
 from CYGNSS.data_fetching import data_fetching_CYGNSS
 import os
-
+import xarray as xr
 
 
 def data_fetching_time_series(startDate, endDate, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain):
 
-    basePath = f'data/TimeSeries/TimeSeries-{startDate}-{endDate}'
+    basePath = f'data/TimeSeries/TimeSeries-{name}-{startDate}-{endDate}'
 
     if not os.path.exists(basePath):
             try:
@@ -21,8 +21,11 @@ def data_fetching_time_series(startDate, endDate, username, password, max_lat, m
             else:
                 print(f"Directory {basePath} already exists.")
                 
-    data_fetching_CYGNSS(True, startDate, endDate, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
-    data_fetching_era5(True, startDate,endDate, min_lat, max_lat, min_lon, max_lon, name)
-    data_fetching_smap(True, startDate, endDate,  max_lat, min_lat, max_lon, min_lon, name)            
+    df_cyg = data_fetching_CYGNSS(True, startDate, endDate, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
+    ds_cyg = xr.Dataset.from_dataframe(df_cyg)
+    ds_cyg.to_netcdf(f'{basePath}/CYGNSS/CYGNSS_{startDate}_{endDate}.nc')
+
+    #data_fetching_era5(True, startDate,endDate, min_lat, max_lat, min_lon, max_lon, name)
+    #data_fetching_smap(True, startDate, endDate,  max_lat, min_lat, max_lon, min_lon, name)            
     
     
