@@ -1,38 +1,48 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd 
+import pandas as pd
 import xarray as xr
 from .SMAP_import_data import importDataSMAP
 from .SMAP_utils import SMAP_averaging_soil_moisture
 from scipy.ndimage import gaussian_filter
+from scipy.interpolate import griddata
 
-def SMAP_gaussian_blur_plot(folder_name, sigma):
+def SMAP_gaussian_blur_plot(folder_name, sigma, grid_size):
 
-    #Importing the data as a list of dataframes
+    # Importing the data as a list of dataframes
     df = importDataSMAP(folder_name)
 
-    #Concating the dataframes to one single dataframe
+    # Concatenating the dataframes into one single dataframe
     df = pd.concat(df)
 
-    #Averaging the soil moisture values
+    # Averaging the soil moisture values
     df = SMAP_averaging_soil_moisture(df)
 
-    # Create a pivot table with latitude as rows and longitude as columns
-    pivoted_data = df.pivot_table(
-        index="latitude", 
-        columns="longitude", 
-        values="soil_moisture_avg"
+    # Extract latitude, longitude, and soil moisture values
+    latitudes = df["latitude"].values
+    longitudes = df["longitude"].values
+    moisture_values = df["soil_moisture_avg"].values
+
+    # Define new finer grid resolution
+    lat_min, lat_max = latitudes.min(), latitudes.max()
+    lon_min, lon_max = longitudes.min(), longitudes.max()
+
+    lat_new = np.linspace(lat_min, lat_max, grid_size)
+    lon_new = np.linspace(lon_min, lon_max, grid_size)
+    lon_grid, lat_grid = np.meshgrid(lon_new, lat_new)
+
+    # Interpolate soil moisture data onto new grid
+    moisture_grid = griddata(
+        (longitudes, latitudes), 
+        moisture_values, 
+        (lon_grid, lat_grid), 
+        method="linear"
     )
 
-    # Apply a Gaussian filter to the data
-    smoothed_data = gaussian_filter(pivoted_data.values, sigma=sigma)
+    # Apply Gaussian blur
+    smoothed_data = gaussian_filter(moisture_grid, sigma=sigma)
 
-    # Create a meshgrid of latitudes and longitudes
-    latitudes = pivoted_data.index.values
-    longitudes = pivoted_data.columns.values
-    lon_grid, lat_grid = np.meshgrid(longitudes, latitudes)
-
-    # Plot the smoothed soil moisture data using pcolormesh
+    # Plot the smoothed soil moisture data
     plt.figure(figsize=(10, 8))
     mesh = plt.pcolormesh(
         lon_grid, lat_grid, smoothed_data, 
@@ -46,4 +56,4 @@ def SMAP_gaussian_blur_plot(folder_name, sigma):
     # Set aspect ratio to equal to ensure squares are not distorted
     plt.axis('equal')
 
-    plt.show() 
+    plt.show()

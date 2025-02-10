@@ -1,0 +1,17 @@
+Area of interest: Iraq
+
+Start date: 20240201
+End date: 20240207
+
+Minimum latitude: 30.5
+Minimum longitude: 43
+Maximum latitude: 34.5
+Maximum longitude: 48
+
+Maximum inclination angle: 65
+Minimum ddm_snr: 1
+Minimum sp_rx_gain: 0
+Maximum sp_rx_gain: 15
+
+Data fetching started: 13:50:46
+Data fetching completed: 16:48:00

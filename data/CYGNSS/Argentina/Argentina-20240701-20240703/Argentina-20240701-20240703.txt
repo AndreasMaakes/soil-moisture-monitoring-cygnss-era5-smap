@@ -1,0 +1,17 @@
+Area of interest: Argentina
+
+Start date: 20240701
+End date: 20240703
+
+Minimum latitude: -30
+Minimum longitude: -68
+Maximum latitude: -25
+Maximum longitude: -61
+
+Maximum inclination angle: 65
+Minimum ddm_snr: 1
+Minimum sp_rx_gain: 0
+Maximum sp_rx_gain: 15
+
+Data fetching started: 11:42:11
+Data fetching completed: 12:39:54
