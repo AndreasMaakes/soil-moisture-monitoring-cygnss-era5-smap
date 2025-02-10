@@ -1,0 +1,17 @@
+Area of interest: Bolivia
+
+Start date: 20240701
+End date: 20240707
+
+Minimum latitude: -19
+Minimum longitude: -69
+Maximum latitude: -14
+Maximum longitude: -62
+
+Maximum inclination angle: 65
+Minimum ddm_snr: 1
+Minimum sp_rx_gain: 0
+Maximum sp_rx_gain: 15
+
+Data fetching started: 12:06:37
+Data fetching completed: 12:56:34

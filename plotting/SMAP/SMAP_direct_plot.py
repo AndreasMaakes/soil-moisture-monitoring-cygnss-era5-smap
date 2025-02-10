@@ -8,7 +8,7 @@ from SMAP_utils import SMAP_averaging_soil_moisture
 
 
 #Importing the data as a list of dataframes
-df = importDataSMAP('Brazil')
+df = importDataSMAP('China2')
 
 #Concating the dataframes to one single dataframe
 df = pd.concat(df)

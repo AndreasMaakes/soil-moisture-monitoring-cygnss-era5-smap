@@ -1,0 +1,17 @@
+Area of interest: Central_Africa
+
+Start date: 20240101
+End date: 20240103
+
+Minimum latitude: 4
+Minimum longitude: 16
+Maximum latitude: 19
+Maximum longitude: 33
+
+Maximum inclination angle: 65
+Minimum ddm_snr: 1
+Minimum sp_rx_gain: 0
+Maximum sp_rx_gain: 15
+
+Data fetching started: 11:44:03
+Data fetching completed: 12:55:08
