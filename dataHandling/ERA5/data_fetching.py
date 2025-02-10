@@ -1,5 +1,6 @@
 import cdsapi
 import os
+from create_dates_array import create_dates_array
 
 
 '''
@@ -7,7 +8,14 @@ Husk å skrive dokumentasjon om at api-kallet henter data fra et gitt sett med d
 NB: Nå hentes det for 24 timer
 '''
 
-def data_fetching_era5(year, month, days, min_lat, max_lat, min_lon, max_lon, name):
+def data_fetching_era5(timeSeries: bool, startDate: str, endDate: str, min_lat, max_lat, min_lon, max_lon, name):
+    
+    '''Create an array of dates between the start and end date'''
+    dates = create_dates_array(startDate, endDate, "era5")
+    year = dates[0]
+    month = dates[1]
+    days = dates[2]
+    
     dataset = "reanalysis-era5-single-levels"
     request = {
     "product_type": ["reanalysis"],
@@ -30,26 +38,31 @@ def data_fetching_era5(year, month, days, min_lat, max_lat, min_lon, max_lon, na
     "area": [max_lat, min_lon, min_lat, max_lon]
 }
     '''Define the base path for the data directory'''
-    
-    base_data_path = "data/ERA5"
-    
-    '''Create or locate the area-specific folder'''
-    area_folder_path = os.path.join(base_data_path, name)
-    if not os.path.exists(area_folder_path):
-        try:
-            os.mkdir(area_folder_path)
-            print(f"Directory {area_folder_path} created successfully.")
-        except OSError:
-            print(f"Creation of the directory {area_folder_path} failed.")
+
+    if timeSeries:
+        base_data_path = f'data/TimeSeries/timeSeries-{startDate}-{endDate}/ERA5'
+        file_name = f"ERA5_{name}_{year}_{month}_{days[0]}_{days[-1]}"
+        client = cdsapi.Client()
+        client.retrieve(dataset, request).download(f"{base_data_path}/{file_name}.nc")
+
+
     else:
-        print(f"Directory {area_folder_path} already exists.")
+        base_data_path = "data/ERA5"
+        '''Create or locate the area-specific folder'''
+        area_folder_path = os.path.join(base_data_path, name)
+        if not os.path.exists(area_folder_path):
+            try:
+                os.mkdir(area_folder_path)
+                print(f"Directory {area_folder_path} created successfully.")
+            except OSError:
+                print(f"Creation of the directory {area_folder_path} failed.")
+        else:
+            print(f"Directory {area_folder_path} already exists.")
 
-    '''Create a subfolder for this specific run inside the area-specific folder. Name it after the area, year, month and days'''
-    file_name = f"ERA5_{name}_{year}_{month}_{days[0]}_{days[-1]}"
-    
-
-    client = cdsapi.Client()
-    client.retrieve(dataset, request).download(f"{area_folder_path}/{file_name}.nc")
+        '''Create a subfolder for this specific run inside the area-specific folder. Name it after the area, year, month and days'''
+        file_name = f"ERA5_{name}_{year}_{month}_{days[0]}_{days[-1]}"
+        client = cdsapi.Client()
+        client.retrieve(dataset, request).download(f"{area_folder_path}/{file_name}.nc")
 
 
 
