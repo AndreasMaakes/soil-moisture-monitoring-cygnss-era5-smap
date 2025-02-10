@@ -26,7 +26,6 @@ inc_angle = 65
 
 
 
-'''Area of interest'''
 '''
 name = "Argentina"
 min_lat = -30
@@ -89,7 +88,48 @@ min_lon = 67
 max_lat = 28.5
 max_lon = 73
 
-data_fetching_smap("2020-01-01", "2020-01-07",  max_lat, min_lat, max_lon, min_lon, name)
-data_fetching_era5("2020", "01", ["01","02","03","04","05","06","07"], min_lat, max_lat, min_lon, max_lon, name)
-#data_fetching_CYGNSS("20200101", "20200107", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
+name = "Bolivia"
+min_lat = -19
+max_lat = -14
+min_lon = -69
+max_lon = -62
 
+name = "China2"
+min_lat = 42
+max_lat = 46
+min_lon = 123
+max_lon = 129
+
+name = "Aus1"
+min_lat = -21
+max_lat = -13.7
+min_lon = 130
+max_lon = 135
+
+name = "Senegal"
+min_lat = 12.6
+max_lat = 15.7
+min_lon = -16.2
+max_lon = -12.5
+
+name = "Texas"
+min_lat = 30
+max_lat = 33.4
+min_lon = -102.2
+max_lon = -94.5
+
+name = "Venezuela"
+min_lat = 3
+max_lat = 9
+min_lon = -70
+max_lon = -63
+
+name = "Central_Africa"
+min_lat = 4
+max_lat = 19
+min_lon = 16
+max_lon = 33
+
+data_fetching_smap("2024-07-04", "2024-07-05",  max_lat, min_lat, max_lon, min_lon, name)
+data_fetching_era5("2024", "07", ["01","02","03"], min_lat, max_lat, min_lon, max_lon, name)
+data_fetching_CYGNSS("20240701", "20240703", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
