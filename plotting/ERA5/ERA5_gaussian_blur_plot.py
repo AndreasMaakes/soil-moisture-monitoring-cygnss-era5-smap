@@ -5,13 +5,13 @@ import pandas as pd
 
 from scipy.interpolate import griddata
 from scipy.ndimage import gaussian_filter
-import plotly.graph_objects as go
+
 from .ERA5_utils import averaging_soil_moisture
 from .ERA5_utils import apply_land_sea_mask
 
 
 
-def ERA5_gaussian_blur_plot(folder_name, sigma, threshold):
+def ERA5_gaussian_blur_plot(folder_name, sigma, threshold, grid_size):
 
     ds = xr.open_dataset(f'data/ERA5/{folder_name}', engine='netcdf4') 
     df = ds.to_dataframe().reset_index()
@@ -19,23 +19,32 @@ def ERA5_gaussian_blur_plot(folder_name, sigma, threshold):
     averaged_df = averaging_soil_moisture(df)
     lsm_df = apply_land_sea_mask(averaged_df, threshold)
 
+# Extract latitude, longitude, and soil moisture values
+    latitudes = lsm_df["latitude"].values
+    longitudes = lsm_df["longitude"].values
+    moisture_values = lsm_df["average_moisture"].values
 
-    # Create a pivot table with latitude as rows and longitude as columns
-    pivoted_data = lsm_df.pivot_table(
-        index="latitude", 
-        columns="longitude", 
-        values="average_moisture"
+    # Define new grid resolution
+    lat_min, lat_max = latitudes.min(), latitudes.max()
+    lon_min, lon_max = longitudes.min(), longitudes.max()
+
+    # Create new grid with specified resolution
+    lat_new = np.linspace(lat_min, lat_max, grid_size)
+    lon_new = np.linspace(lon_min, lon_max, grid_size)
+    lon_grid, lat_grid = np.meshgrid(lon_new, lat_new)
+
+    # Interpolate soil moisture data onto new grid
+    moisture_grid = griddata(
+        (longitudes, latitudes), 
+        moisture_values, 
+        (lon_grid, lat_grid), 
+        method="linear"
     )
 
-    # Apply a Gaussian filter to the data
-    smoothed_data = gaussian_filter(pivoted_data.values, sigma=sigma)
+    # Apply Gaussian blur
+    smoothed_data = gaussian_filter(moisture_grid, sigma=sigma)
 
-    # Create a meshgrid of latitudes and longitudes
-    latitudes = pivoted_data.index.values
-    longitudes = pivoted_data.columns.values
-    lon_grid, lat_grid = np.meshgrid(longitudes, latitudes)
-
-    # Plot the smoothed soil moisture data using pcolormesh
+    # Plot the smoothed soil moisture data
     plt.figure(figsize=(10, 8))
     mesh = plt.pcolormesh(
         lon_grid, lat_grid, smoothed_data, 
@@ -46,10 +55,7 @@ def ERA5_gaussian_blur_plot(folder_name, sigma, threshold):
     plt.ylabel('Latitude')
     plt.title('Smoothed ERA5 Soil Moisture')
 
-    # Set aspect ratio to equal to ensure squares are not distorted
+    # Set aspect ratio to equal
     plt.axis('equal')
 
     plt.show()
-    
-    
-    
