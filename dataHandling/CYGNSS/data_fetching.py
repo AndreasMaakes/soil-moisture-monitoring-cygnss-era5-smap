@@ -41,7 +41,7 @@ def data_fetching_CYGNSS(timeSeries: bool, startDate: str, endDate: str, usernam
     '''Create a list of the CYGNSS satellites'''
     satellites = [f'cyg0{i}' for i in range(1, 9)]
     
-    '''Define the base path for the data directory'''
+    '''Define the base path for the data directory. NB: Timeseries saving is not done this way anymore'''
     if timeSeries:
         base_data_path = f'data/TimeSeries/TimeSeries-{name}-{startDate}-{endDate}/CYGNSS'
     else:
@@ -99,7 +99,7 @@ def data_fetching_CYGNSS(timeSeries: bool, startDate: str, endDate: str, usernam
     It uses the tqdm library to monitor the progress of the whole process, visualized as a progress bar.
     '''
     
-    '''Dataframe to store the data in if the timeseries variable is active'''
+    '''Dataframe to store the data in if the timeseries variable is active, to combine the files'''
     df_timeseries = pd.DataFrame({})
 
     with tqdm(total=total_iterations, desc="Progress: ", unit="files", colour = "green") as pbar:
@@ -217,7 +217,7 @@ def data_fetching_CYGNSS(timeSeries: bool, startDate: str, endDate: str, usernam
                         '''If timeseries booliean is True, append the dataframe instead of saving it'''
                         if timeSeries:
                         
-                            df_timeseries = pd.concat([df_timeseries,df_filtered])
+                            df_timeseries = pd.concat([df_timeseries, df_filtered])
                             
                             pbar.update(1)
                             print(f"Data fetched and filtered for {sat} on {date}")
@@ -238,9 +238,18 @@ def data_fetching_CYGNSS(timeSeries: bool, startDate: str, endDate: str, usernam
                 except HTTPError as e:
                     print(f"No data available for {sat} on {date}, skipping. Error: {e}")
                     pbar.update(1)  # Even if skipped, progressbar needs to be updated
+                    
+                    '''
+                    The behavior is different if the timeSeries variable is active.
+                    The gather all the data for the current start-end-date in a single file, and store it in the Timeseries folder.
+                    '''
     if timeSeries:
+        '''Reset the index of the dataframe'''
         df_timeseries = df_timeseries.reset_index(drop=True)
         return df_timeseries
+        
+        
+        '''Log the completion time to the parameter file. This is only done for non-timeseries runs'''
     else:
         '''Log the completion time to the parameter file'''
         now = datetime.now()

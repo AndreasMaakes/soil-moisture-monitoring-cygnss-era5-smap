@@ -134,10 +134,11 @@ max_lon = 33
 '''
 
 #data_fetching_smap(True, "20240701", "20240702",  max_lat, min_lat, max_lon, min_lon, name,)
-data_fetching_time_series("20240701", "20240701", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
+
 #data_fetching_era5(False, "20240701","20240702", min_lat, max_lat, min_lon, max_lon, name)
 #data_fetching_CYGNSS(False, "20240701", "20240703", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
 #data_fetching_time_series("20240701", "20240703", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
 
+#data_fetching_era5(False, "20240101", "20240103", 20, 22, 20, 22, "Bombaclaat")
 
-
+data_fetching_time_series("20240101", "20240213", 2, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)

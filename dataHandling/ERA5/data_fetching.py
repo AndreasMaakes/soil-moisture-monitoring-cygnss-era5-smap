@@ -8,7 +8,7 @@ Husk å skrive dokumentasjon om at api-kallet henter data fra et gitt sett med d
 NB: Nå hentes det for 24 timer
 '''
 
-def data_fetching_era5(timeSeries: bool, startDate: str, endDate: str, min_lat, max_lat, min_lon, max_lon, name):
+def data_fetching_era5(timeSeries: bool, startDate: str, endDate: str, min_lat, max_lat, min_lon, max_lon, name, basePath="data/ERA5"):
     
     '''Create an array of dates between the start and end date'''
     dates = create_dates_array(startDate, endDate, "era5")
@@ -40,16 +40,15 @@ def data_fetching_era5(timeSeries: bool, startDate: str, endDate: str, min_lat, 
     '''Define the base path for the data directory'''
 
     if timeSeries:
-        base_data_path = f'data/TimeSeries/timeSeries-{name}-{startDate}-{endDate}/ERA5'
-        file_name = f"ERA5_{name}_{year}_{month}_{days[0]}_{days[-1]}"
+        base_data_path = f'{basePath}/ERA5'
+        file_name = f"ERA5_{year}{month}{days[0]}_{year}{month}{days[-1]}"
         client = cdsapi.Client()
         client.retrieve(dataset, request).download(f"{base_data_path}/{file_name}.nc")
 
 
     else:
-        base_data_path = "data/ERA5"
         '''Create or locate the area-specific folder'''
-        area_folder_path = os.path.join(base_data_path, name)
+        area_folder_path = os.path.join(basePath, name)
         if not os.path.exists(area_folder_path):
             try:
                 os.mkdir(area_folder_path)
