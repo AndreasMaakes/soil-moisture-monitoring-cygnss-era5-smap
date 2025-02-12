@@ -10,7 +10,7 @@ from scipy.interpolate import griddata
 def SMAP_gaussian_blur_plot(folder_name, sigma, grid_size):
 
     # Importing the data as a list of dataframes
-    df = importDataSMAP(folder_name)
+    df = importDataSMAP(False, folder_name)
 
     # Concatenating the dataframes into one single dataframe
     df = pd.concat(df)
@@ -56,3 +56,4 @@ def SMAP_gaussian_blur_plot(folder_name, sigma, grid_size):
     # Set aspect ratio to equal to ensure squares are not distorted
     plt.axis('equal')
 
+    plt.show()
