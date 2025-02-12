@@ -4,6 +4,7 @@ from CYGNSS.CYGNSS_gaussian_blur_plot_old import CYGNSS_gaussian_blur_plot as CY
 from ERA5.ERA5_gaussian_blur_plot import ERA5_gaussian_blur_plot
 from SMAP.SMAP_gaussian_blur_plot import SMAP_gaussian_blur_plot
 from CYGNSS.trace_plot import trace_plot
+from plot_timeseries import plot_time_series
 
 
 
@@ -79,3 +80,5 @@ ERA5_gaussian_blur_plot("data/Timeseries/TimeSeries-Thailand-20240101-20241201/E
 #CYGNSS_gaussian_blur_plot("India2/India2-20200101-20200107", 2, 100)
 #SMAP_gaussian_blur_plot("India2", 2, 100)
 #ERA5_gaussian_blur_plot("India2/ERA5_India2_2020_01_01_07.nc", 2, 0.9, 100)
+
+plot_time_series("data/Timeseries/TimeSeries-Thailand-20240101-20241201", 15, 16, 103, 104)
