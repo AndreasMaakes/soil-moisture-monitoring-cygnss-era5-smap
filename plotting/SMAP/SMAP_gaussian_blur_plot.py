@@ -56,8 +56,3 @@ def SMAP_gaussian_blur_plot(folder_name, sigma, grid_size):
     # Set aspect ratio to equal to ensure squares are not distorted
     plt.axis('equal')
 
-<<<<<<< HEAD
-    plt.show()
-=======
-    plt.show()
->>>>>>> 9de64a3 (Downloaded much data)

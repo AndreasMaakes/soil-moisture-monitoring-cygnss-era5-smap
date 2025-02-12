@@ -2,10 +2,13 @@ import os
 import xarray as xr
 
 '''Function to import data from the data folder, using a given folder name. It returns an array of dataframes with the data in the folders.'''
-def importDataSMAP(folder_name):
+def importDataSMAP(Timeseries, folder_name):
     
     '''Data folder'''
-    basePath = f'data/SMAP/{folder_name}'
+    if Timeseries:
+        basePath = folder_name
+    else:
+        basePath = f'data/SMAP/{folder_name}'
     dataFrames = []
     
     '''Iterating through all files in the folder, and adding the data to the dataFrames array'''

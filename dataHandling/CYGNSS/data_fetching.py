@@ -9,7 +9,7 @@ import xarray as xr
 import os
 from .data_filtering import data_filtering
 from .calculate_sr import sr
-from .create_dates_array import create_dates_array
+from create_dates_array import create_dates_array
 
 
 '''This is the main function that handles the downloading of the data. This function also calls the data_filtering function to filter the data.
@@ -33,59 +33,62 @@ Returns:
     The function returns nothing, but saves the data in the data folder, along with a txt files with metadata.
 '''
 
-def data_fetching_CYGNSS(startDate: str, endDate: str, username: str, password: str, max_lat: float, min_lat: float, max_lon: float, min_lon: float, inc_angle: float, name: str, min_ddm_snr: float, min_sp_rx_gain: float, max_sp_rx_gain: float):
+def data_fetching_CYGNSS(timeSeries: bool, startDate: str, endDate: str, username: str, password: str, max_lat: float, min_lat: float, max_lon: float, min_lon: float, inc_angle: float, name: str, min_ddm_snr: float, min_sp_rx_gain: float, max_sp_rx_gain: float):
     
-    '''Create a list of dates between the start and end date using the create_dates_array function'''
-    dates = create_dates_array(startDate, endDate)
+    '''Create a list of dates between the start and end date using the create_dates_array function.'''
+    dates = create_dates_array(startDate, endDate, "cygnss")
     
     '''Create a list of the CYGNSS satellites'''
     satellites = [f'cyg0{i}' for i in range(1, 9)]
-
-    '''Define the base path for the data directory'''
-    base_data_path = '././data/CYGNSS'
-
-    '''Create or locate the area-specific folder'''
-    area_folder_path = os.path.join(base_data_path, name)
-    if not os.path.exists(area_folder_path):
-        try:
-            os.mkdir(area_folder_path)
-            print(f"Directory {area_folder_path} created successfully.")
-        except OSError:
-            print(f"Creation of the directory {area_folder_path} failed.")
+    
+    '''Define the base path for the data directory. NB: Timeseries saving is not done this way anymore'''
+    if timeSeries:
+        base_data_path = f'data/TimeSeries/TimeSeries-{name}-{startDate}-{endDate}/CYGNSS'
     else:
-        print(f"Directory {area_folder_path} already exists.")
+        base_data_path = 'data/CYGNSS'
+        
+        #Create or locate the area-specific folder
+        area_folder_path = os.path.join(base_data_path, name)
+        if not os.path.exists(area_folder_path):
+            try:
+                os.mkdir(area_folder_path)
+                print(f"Directory {area_folder_path} created successfully.")
+            except OSError:
+                print(f"Creation of the directory {area_folder_path} failed.")
+        else:
+            print(f"Directory {area_folder_path} already exists.")
 
-    '''Create a subfolder for this specific run inside the area-specific folder. Name it after the area, start date, and end date.'''
-    file_name = f'{name}-{startDate}-{endDate}'
-    folder_path = os.path.join(area_folder_path, file_name)
+        '''Create a subfolder for this specific run inside the area-specific folder. Name it after the area, start date, and end date.'''
+        file_name = f'{name}-{startDate}-{endDate}'
+        folder_path = os.path.join(area_folder_path, file_name)
 
-    if not os.path.exists(folder_path):
-        try:
-            os.mkdir(folder_path)
-            print(f"Directory {folder_path} created successfully.")
-        except OSError:
-            print(f"Creation of the directory {folder_path} failed.")
-    else:
-        print(f"Directory {folder_path} already exists.")
+        if not os.path.exists(folder_path):
+            try:
+                os.mkdir(folder_path)
+                print(f"Directory {folder_path} created successfully.")
+            except OSError:
+                print(f"Creation of the directory {folder_path} failed.")
+        else:
+            print(f"Directory {folder_path} already exists.")
 
-    '''Log the start of data fetching using the current time'''
-    now = datetime.now()
-    current_time = now.strftime("%H:%M:%S")
+        '''Log the start of data fetching using the current time'''
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
 
-    '''Write parameters to a text file in the subfolder (metadata)'''
-    parameter_txt_path = os.path.join(folder_path, f'{name}-{startDate}-{endDate}.txt')
-    with open(parameter_txt_path, "w") as parameter_txt:
-        parameter_txt.write(
-            f"Area of interest: {name}\n"
-            f"\nStart date: {startDate}\nEnd date: {endDate}\n"
-            f"\nMinimum latitude: {min_lat}\nMinimum longitude: {min_lon}\n"
-            f"Maximum latitude: {max_lat}\nMaximum longitude: {max_lon}\n"
-            f"\nMaximum inclination angle: {inc_angle}\n"
-            f"Minimum ddm_snr: {min_ddm_snr}\n"
-            f"Minimum sp_rx_gain: {min_sp_rx_gain}\n"
-            f"Maximum sp_rx_gain: {max_sp_rx_gain}\n"
-            f"\nData fetching started: {current_time}"
-        )
+        '''Write parameters to a text file in the subfolder (metadata)'''
+        parameter_txt_path = os.path.join(folder_path, f'{name}-{startDate}-{endDate}.txt')
+        with open(parameter_txt_path, "w") as parameter_txt:
+            parameter_txt.write(
+                f"Area of interest: {name}\n"
+                f"\nStart date: {startDate}\nEnd date: {endDate}\n"
+                f"\nMinimum latitude: {min_lat}\nMinimum longitude: {min_lon}\n"
+                f"Maximum latitude: {max_lat}\nMaximum longitude: {max_lon}\n"
+                f"\nMaximum inclination angle: {inc_angle}\n"
+                f"Minimum ddm_snr: {min_ddm_snr}\n"
+                f"Minimum sp_rx_gain: {min_sp_rx_gain}\n"
+                f"Maximum sp_rx_gain: {max_sp_rx_gain}\n"
+                f"\nData fetching started: {current_time}"
+            )
 
     '''Calculate the total number of iterations for progress tracking'''
     total_iterations = len(satellites) * len(dates)
@@ -95,6 +98,10 @@ def data_fetching_CYGNSS(startDate: str, endDate: str, username: str, password: 
     It iterates over all the satellites and dates, fetching the data for each combination.
     It uses the tqdm library to monitor the progress of the whole process, visualized as a progress bar.
     '''
+    
+    '''Dataframe to store the data in if the timeseries variable is active, to combine the files'''
+    df_timeseries = pd.DataFrame({})
+
     with tqdm(total=total_iterations, desc="Progress: ", unit="files", colour = "green") as pbar:
         for sat in satellites:
             for date in dates:
@@ -207,28 +214,51 @@ def data_fetching_CYGNSS(startDate: str, endDate: str, username: str, password: 
                         '''Calculate the surface reflectivity using the sr function'''
                         df_filtered["sr"] = df_filtered.apply(sr, axis=1)
                         
-                        '''Save the data'''
-                        ds = xr.Dataset.from_dataframe(df_filtered)
-                        ds.to_netcdf(f'{folder_path}/{sat}_{date}.nc')                        
+                        '''If timeseries booliean is True, append the dataframe instead of saving it'''
+                        if timeSeries:
                         
-                        '''Update the main progress bar'''
-                        pbar.update(1)
-                        print()
-                        print(f"Data fetched and filtered for {sat} on {date}")
+                            df_timeseries = pd.concat([df_timeseries, df_filtered])
+                            
+                            pbar.update(1)
+                            print(f"Data fetched and filtered for {sat} on {date}")
+                        else:
+                            '''Save the data'''
+                            ds = xr.Dataset.from_dataframe(df_filtered)
+                            
+                            '''Saving the data to the correct folder'''
+                            
+                            ds.to_netcdf(f'{folder_path}/{sat}_{date}.nc')                        
+                            
+                            '''Update the main progress bar'''
+                            pbar.update(1)
+                            print()
+                            print(f"Data fetched and filtered for {sat} on {date}")
                         
 
                 except HTTPError as e:
                     print(f"No data available for {sat} on {date}, skipping. Error: {e}")
                     pbar.update(1)  # Even if skipped, progressbar needs to be updated
-    
-    '''Log the completion time to the parameter file'''
-    now = datetime.now()
-    current_time = now.strftime("%H:%M:%S")
+                    
+                    '''
+                    The behavior is different if the timeSeries variable is active.
+                    The gather all the data for the current start-end-date in a single file, and store it in the Timeseries folder.
+                    '''
+    if timeSeries:
+        '''Reset the index of the dataframe'''
+        df_timeseries = df_timeseries.reset_index(drop=True)
+        return df_timeseries
+        
+        
+        '''Log the completion time to the parameter file. This is only done for non-timeseries runs'''
+    else:
+        '''Log the completion time to the parameter file'''
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
 
-    # Construct the path for the metadata file
-    parameter_txt_path = os.path.join(folder_path, f'{name}-{startDate}-{endDate}.txt')
+        # Construct the path for the metadata file
+        parameter_txt_path = os.path.join(folder_path, f'{name}-{startDate}-{endDate}.txt')
 
-    # Append the completion time to the parameter file
-    with open(parameter_txt_path, "a") as parameter_txt:
-        parameter_txt.write(f"\nData fetching completed: {current_time}")
+        # Append the completion time to the parameter file
+        with open(parameter_txt_path, "a") as parameter_txt:
+            parameter_txt.write(f"\nData fetching completed: {current_time}")
 

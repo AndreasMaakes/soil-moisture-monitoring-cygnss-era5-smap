@@ -65,7 +65,7 @@ Note: Both plotting options has the option to save the plot to a file. This is d
 #CYGNSS_gaussian_blur_plot("Sudan/Sudan-20200701-20200707", 1.5)
 #trace_plot("Sudan/Sudan-20200701-20200707", True)
 #SMAP_gaussian_blur_plot("Sudan", 1.5, 100)
-#ERA5_gaussian_blur_plot("Sudan/ERA5_Sudan_2020_07_01_07.nc", 1.5, 0.9, 100)
+ERA5_gaussian_blur_plot("data/Timeseries/TimeSeries-Thailand-20240101-20241201/ERA5/ERA5_20240101_20240102.nc", 0.9, )
 
 #CYGNSS_gaussian_blur_plot("Sudan/Sudan-20201001-20201003", 3.0)
 #trace_plot("Sudan/Sudan-20201001-20201003", False)
@@ -76,6 +76,6 @@ Note: Both plotting options has the option to save the plot to a file. This is d
 #SMAP_gaussian_blur_plot("Thailand", 2.0, 100)
 #ERA5_gaussian_blur_plot("Thailand/ERA5_Thailand_2020_01_01_07.nc", 2.0, 0.9, 100)
 
-CYGNSS_gaussian_blur_plot("India2/India2-20200101-20200107", 2, 100)
-SMAP_gaussian_blur_plot("India2", 2, 100)
-ERA5_gaussian_blur_plot("India2/ERA5_India2_2020_01_01_07.nc", 2, 0.9, 100)
+#CYGNSS_gaussian_blur_plot("India2/India2-20200101-20200107", 2, 100)
+#SMAP_gaussian_blur_plot("India2", 2, 100)
+#ERA5_gaussian_blur_plot("India2/ERA5_India2_2020_01_01_07.nc", 2, 0.9, 100)
