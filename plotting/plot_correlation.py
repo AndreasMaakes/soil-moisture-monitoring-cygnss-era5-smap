@@ -26,8 +26,8 @@ def regrid_dataframe(df, lat_bins, lon_bins, cygnss):
         df_grid = df.groupby(['lat_bin', 'lon_bin'])['soil_moisture_avg'].mean().reset_index()
     
     # Compute the center of each bin for plotting
-    df_grid['lat_center'] = df_grid['lat_bin'].apply(lambda x: x.left + 0.25)
-    df_grid['lon_center'] = df_grid['lon_bin'].apply(lambda x: x.left + 0.25)
+    df_grid['lat_center'] = df_grid['lat_bin'].apply(lambda x: x.left + 0.5)
+    df_grid['lon_center'] = df_grid['lon_bin'].apply(lambda x: x.left + 0.5)
     
     return df_grid
 
@@ -39,6 +39,13 @@ def SMAP_CYGNSS_correlation_plot(smap_folder, cygnss_folder):
     # CYGNSS data: Import and concatenate
     dfs_cygnss = importData(cygnss_folder)
     df_cygnss = pd.concat(dfs_cygnss)
+    
+    #Adjusting ddm_snr and sp_rx_gain max limits to increase correlation with SMAP
+    df_cygnss = df_cygnss[df_cygnss['ddm_snr'] >= 2]
+    df_cygnss = df_cygnss[df_cygnss['sp_rx_gain'] >= 13]
+    #df_cygnss = df_cygnss[df_cygnss['sp_inc_angle'] <= 40]
+    
+    
 
     # Determine the overall spatial domain
     lat_min = min(df_cygnss['sp_lat'].min(), df_smap['latitude'].min())
@@ -47,8 +54,8 @@ def SMAP_CYGNSS_correlation_plot(smap_folder, cygnss_folder):
     lon_max = max(df_cygnss['sp_lon'].max(), df_smap['longitude'].max())
 
     # Create bins with a 0.5° resolution
-    lat_bins = np.arange(lat_min, lat_max + 0.25, 0.25)
-    lon_bins = np.arange(lon_min, lon_max + 0.25, 0.25)
+    lat_bins = np.arange(lat_min, lat_max + 0.5, 0.5)
+    lon_bins = np.arange(lon_min, lon_max + 0.5, 0.5)
 
     df_cygnss_grid = regrid_dataframe(df_cygnss, lat_bins, lon_bins, True)    
     df_smap_grid   = regrid_dataframe(df_smap, lat_bins, lon_bins, False)

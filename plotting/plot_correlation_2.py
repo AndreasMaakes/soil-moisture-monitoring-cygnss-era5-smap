@@ -52,6 +52,10 @@ def SMAP_CYGNSS_correlation_matrix(smap_folder, cygnss_folder,
     # --- CYGNSS data ---
     dfs_cygnss = importDataCYGNSS(cygnss_folder)
     df_cygnss = pd.concat(dfs_cygnss)
+    
+    #Remove the ddm_snr below 2, and max_sp_rx_gain below 13 (This should happen in datafetching but for old data it is still existent)
+    df_cygnss = df_cygnss[df_cygnss['ddm_snr'] > 2]
+    df_cygnss = df_cygnss[df_cygnss['sp_rx_gain'] > 13]
     # Expected columns: 'sp_lat', 'sp_lon', 'sr'
     
     # -----------------------------------------------------------
@@ -180,5 +184,5 @@ def SMAP_CYGNSS_correlation_matrix(smap_folder, cygnss_folder,
 #                                smap_sigma=1, cygnss_sigma=1)
 # =============================================================================
 
-SMAP_CYGNSS_correlation_matrix("India2", "India2/India2-20200101-20200107", 100, 10, 0, 0)
+SMAP_CYGNSS_correlation_matrix("Thailand", "Thailand/Thailand-20200101-20200107", 100, 10, 0, 0)
 
