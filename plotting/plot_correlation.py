@@ -26,8 +26,8 @@ def regrid_dataframe(df, lat_bins, lon_bins, cygnss):
         df_grid = df.groupby(['lat_bin', 'lon_bin'])['soil_moisture_avg'].mean().reset_index()
     
     # Compute the center of each bin for plotting
-    df_grid['lat_center'] = df_grid['lat_bin'].apply(lambda x: x.left + 0.5/2)
-    df_grid['lon_center'] = df_grid['lon_bin'].apply(lambda x: x.left + 0.5/2)
+    df_grid['lat_center'] = df_grid['lat_bin'].apply(lambda x: x.left + 0.25)
+    df_grid['lon_center'] = df_grid['lon_bin'].apply(lambda x: x.left + 0.25)
     
     return df_grid
 
@@ -47,8 +47,8 @@ def SMAP_CYGNSS_correlation_plot(smap_folder, cygnss_folder):
     lon_max = max(df_cygnss['sp_lon'].max(), df_smap['longitude'].max())
 
     # Create bins with a 0.5° resolution
-    lat_bins = np.arange(lat_min, lat_max + 0.5, 0.5)
-    lon_bins = np.arange(lon_min, lon_max + 0.5, 0.5)
+    lat_bins = np.arange(lat_min, lat_max + 0.25, 0.25)
+    lon_bins = np.arange(lon_min, lon_max + 0.25, 0.25)
 
     df_cygnss_grid = regrid_dataframe(df_cygnss, lat_bins, lon_bins, True)    
     df_smap_grid   = regrid_dataframe(df_smap, lat_bins, lon_bins, False)
@@ -59,22 +59,25 @@ def SMAP_CYGNSS_correlation_plot(smap_folder, cygnss_folder):
     return df_merged
 
 # Get the merged data
-df_merged = SMAP_CYGNSS_correlation_plot("Bolivia", "Bolivia/Bolivia-20240701-20240707")
+df_merged = SMAP_CYGNSS_correlation_plot("India2", "India2/India2-20200101-20200107")
 
-# Calculate Pearson correlation
-r, p_value = pearsonr(df_merged['sr'], df_merged['soil_moisture_avg'])
+# Remove rows with NaN values in either soil moisture column
+df_valid = df_merged.dropna(subset=['sr', 'soil_moisture_avg'])
+
+# Calculate Pearson correlation on the valid data
+r, p_value = pearsonr(df_valid['sr'], df_valid['soil_moisture_avg'])
 print(f'Overall Pearson correlation: r = {r:.2f}, p = {p_value:.3f}')
 
-# Create the scatter plot
+# Create the scatter plot with valid data only
 plt.figure(figsize=(8,6))
-plt.scatter(df_merged['sr'], df_merged['soil_moisture_avg'], alpha=0.7, label='Data Points')
+plt.scatter(df_valid['sr'], df_valid['soil_moisture_avg'], alpha=0.7, label='Data Points')
 plt.xlabel('CYGNSS Soil Moisture')
 plt.ylabel('SMAP Soil Moisture')
 plt.title('Scatter Plot of Soil Moisture (CYGNSS vs SMAP)')
 
-# Use polyfit to compute the best fit line
-x = df_merged['sr']
-y = df_merged['soil_moisture_avg']
+# Use polyfit to compute the best fit line using the valid data
+x = df_valid['sr']
+y = df_valid['soil_moisture_avg']
 slope, intercept = np.polyfit(x, y, 1)
 x_fit = np.linspace(x.min(), x.max(), 100)
 y_fit = slope * x_fit + intercept
@@ -83,3 +86,5 @@ y_fit = slope * x_fit + intercept
 plt.plot(x_fit, y_fit, color='red', linewidth=2, label='Best Fit Line')
 plt.legend()
 plt.show()
+
+
