@@ -3,15 +3,16 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.ndimage import gaussian_filter
 from scipy.interpolate import griddata
+import xarray as xr
+from ERA5.ERA5_utils import apply_land_sea_mask, averaging_soil_moisture
 
 # Import functions for SMAP and CYGNSS data (adjust the import paths as needed)
 from SMAP.SMAP_import_data import importDataSMAP
 from SMAP.SMAP_utils import SMAP_averaging_soil_moisture
 from CYGNSS.import_data import importData as importDataCYGNSS
 
-def SMAP_CYGNSS_correlation_matrix(smap_folder, cygnss_folder, 
-                                  fine_grid_size=200, coarse_block_size=10, 
-                                  smap_sigma=0, cygnss_sigma=0):
+def correlation_matrix(smap_folder, cygnss_folder, era5_folder,
+                                  fine_grid_size, coarse_block_size, lsm_threshold):
     """
     Create a 2D correlation matrix between SMAP and CYGNSS data.
     
@@ -43,6 +44,7 @@ def SMAP_CYGNSS_correlation_matrix(smap_folder, cygnss_folder,
     # -----------------------------------------------------------
     # 1. Import and Preprocess the Data
     # -----------------------------------------------------------
+    
     # --- SMAP data ---
     dfs_smap = importDataSMAP(False, smap_folder)
     df_smap = pd.concat(dfs_smap)
@@ -53,19 +55,25 @@ def SMAP_CYGNSS_correlation_matrix(smap_folder, cygnss_folder,
     dfs_cygnss = importDataCYGNSS(cygnss_folder)
     df_cygnss = pd.concat(dfs_cygnss)
     
-    #Remove the ddm_snr below 2, and max_sp_rx_gain below 13 (This should happen in datafetching but for old data it is still existent)
+    # Remove the ddm_snr below 2, and max_sp_rx_gain below 13 (We can adjust these values)
     df_cygnss = df_cygnss[df_cygnss['ddm_snr'] > 2]
     df_cygnss = df_cygnss[df_cygnss['sp_rx_gain'] > 13]
     # Expected columns: 'sp_lat', 'sp_lon', 'sr'
     
+    # --- ERA5 data --- 
+    df_era5 = xr.open_dataset(f'data/ERA5/{era5_folder}').to_dataframe().reset_index()
+    df_era5_avg = averaging_soil_moisture(df_era5)
+    df_era5_lsm = apply_land_sea_mask(df_era5_avg, lsm_threshold)
+    # Expected columns: 'latitude', 'longitude', 'average_moisture'
+    
     # -----------------------------------------------------------
     # 2. Define a Common Fine Grid for Interpolation
     # -----------------------------------------------------------
-    # Determine the overall spatial extents (union of both datasets)
-    lat_min = min(df_smap_avg["latitude"].min(), df_cygnss["sp_lat"].min())
-    lat_max = max(df_smap_avg["latitude"].max(), df_cygnss["sp_lat"].max())
-    lon_min = min(df_smap_avg["longitude"].min(), df_cygnss["sp_lon"].min())
-    lon_max = max(df_smap_avg["longitude"].max(), df_cygnss["sp_lon"].max())
+    # Determine the overall spatial extents (union of the two datasets. ERA5 is not included because the Land Sea Mask might move the boundaries)
+    lat_min = min(df_smap_avg["latitude"].min(), df_cygnss["sp_lat"].min())  # df_era5_lsm["latitude"].min())
+    lat_max = max(df_smap_avg["latitude"].max(), df_cygnss["sp_lat"].max())  # df_era5_lsm["latitude"].max())
+    lon_min = min(df_smap_avg["longitude"].min(), df_cygnss["sp_lon"].min()) # df_era5_lsm["longitude"].min())
+    lon_max = max(df_smap_avg["longitude"].max(), df_cygnss["sp_lon"].max()) #df_era5_lsm["longitude"].max())
     
     # Create fine grid vectors
     lat_fine = np.linspace(lat_min, lat_max, fine_grid_size)
@@ -79,28 +87,33 @@ def SMAP_CYGNSS_correlation_matrix(smap_folder, cygnss_folder,
     smap_points = (df_smap_avg["longitude"].values, df_smap_avg["latitude"].values)
     smap_vals = df_smap_avg["soil_moisture_avg"].values
     smap_fine = griddata(smap_points, smap_vals, (lon_mesh, lat_mesh), method='linear')
-    if smap_sigma:
-        smap_fine = gaussian_filter(smap_fine, sigma=smap_sigma)
+    
     
     # --- CYGNSS ---
     cygnss_points = (df_cygnss["sp_lon"].values, df_cygnss["sp_lat"].values)
     cygnss_vals = df_cygnss["sr"].values
     cygnss_fine = griddata(cygnss_points, cygnss_vals, (lon_mesh, lat_mesh), method='linear')
-    if cygnss_sigma:
-        cygnss_fine = gaussian_filter(cygnss_fine, sigma=cygnss_sigma)
+    
+    # --- ERA5 ---
+    era5_points = (df_era5_lsm["longitude"].values, df_era5_lsm["latitude"].values)
+    era5_vals = df_era5_lsm["average_moisture"].values
+    era5_fine = griddata(era5_points, era5_vals, (lon_mesh, lat_mesh), method='linear')
+    
     
     # -----------------------------------------------------------
     # 4. Aggregate the Fine Grid into Coarse Cells & Compute Correlation
     # -----------------------------------------------------------
     # Determine number of coarse cells along each axis.
     coarse_n = fine_grid_size // coarse_block_size
-    corr_matrix = np.full((coarse_n, coarse_n), np.nan)
+    corr_matrix_smap_cygnss = np.full((coarse_n, coarse_n), np.nan)
+    corr_matrix_era5_cygnss = np.full((coarse_n, coarse_n), np.nan)
+    corr_matrix_smap_era5 = np.full((coarse_n, coarse_n), np.nan)
     
     # The spacing (in degrees) of the fine grid:
     dlon = (lon_max - lon_min) / (fine_grid_size - 1)
     dlat = (lat_max - lat_min) / (fine_grid_size - 1)
     
-    # Loop over each coarse cell (non-overlapping blocks)
+    # Loop over each coarse cell (non-overlapping blocks) for SMAP and CYGNSS.
     for i in range(coarse_n):
         for j in range(coarse_n):
             # Indices for this coarse block
@@ -114,29 +127,71 @@ def SMAP_CYGNSS_correlation_matrix(smap_folder, cygnss_folder,
             block_cygnss = cygnss_fine[i_start:i_end, j_start:j_end].flatten()
             
             # Compute correlation if there are at least two paired non-NaN values.
-            valid = ~np.isnan(block_smap) & ~np.isnan(block_cygnss)
+            valid = ~np.isnan(block_smap) & ~np.isnan(block_cygnss) 
             if np.sum(valid) >= 2:
                 corr = np.corrcoef(block_smap[valid], block_cygnss[valid])[0, 1]
-                corr_matrix[i, j] = corr
+                corr_matrix_smap_cygnss[i, j] = corr
             else:
-                corr_matrix[i, j] = np.nan
+                corr_matrix_smap_cygnss[i, j] = np.nan
+    # Loop over each coarse cell (non-overlapping blocks) for CYGNSS and ERA5.
+    
+    for i in range(coarse_n):
+        for j in range(coarse_n):
+            # Indices for this coarse block
+            i_start = i * coarse_block_size
+            i_end = (i + 1) * coarse_block_size
+            j_start = j * coarse_block_size
+            j_end = (j + 1) * coarse_block_size
+            
+            # Extract the block from each fine grid and flatten to 1D arrays
+            block_era5 = era5_fine[i_start:i_end, j_start:j_end].flatten()
+            block_cygnss = cygnss_fine[i_start:i_end, j_start:j_end].flatten()
+            
+            # Compute correlation if there are at least two paired non-NaN values.
+            valid = ~np.isnan(block_era5) & ~np.isnan(block_cygnss) 
+            if np.sum(valid) >= 2:
+                corr = np.corrcoef(block_era5[valid], block_cygnss[valid])[0, 1]
+                corr_matrix_era5_cygnss[i, j] = corr
+            else:
+                corr_matrix_era5_cygnss[i, j] = np.nan
+                
+    # Loop over each coarse cell (non-overlapping blocks) for SMAP and ERA5.
+    for i in range(coarse_n):
+        for j in range(coarse_n):
+            # Indices for this coarse block
+            i_start = i * coarse_block_size
+            i_end = (i + 1) * coarse_block_size
+            j_start = j * coarse_block_size
+            j_end = (j + 1) * coarse_block_size
+            
+            # Extract the block from each fine grid and flatten to 1D arrays
+            block_smap = smap_fine[i_start:i_end, j_start:j_end].flatten()
+            block_era5 = era5_fine[i_start:i_end, j_start:j_end].flatten()
+            
+            # Compute correlation if there are at least two paired non-NaN values.
+            valid = ~np.isnan(block_smap) & ~np.isnan(block_era5) 
+            if np.sum(valid) >= 2:
+                corr = np.corrcoef(block_smap[valid], block_era5[valid])[0, 1]
+                corr_matrix_smap_era5[i, j] = corr
+            else:
+                corr_matrix_smap_era5[i, j] = np.nan
     
     # -----------------------------------------------------------
-    # 5. Create Coordinates for the Coarse Cells and Plot the Matrix
+    # 5. Create Coordinates for the Coarse Cells and Plot the Matrix for SMAP and CYGNSS
     # -----------------------------------------------------------
     # Compute coarse cell centers in physical coordinates.
-    coarse_lon = np.linspace(lon_min + (coarse_block_size * dlon) / 2,
+    coarse_lon_smap_cygnss = np.linspace(lon_min + (coarse_block_size * dlon) / 2,
                              lon_max - (coarse_block_size * dlon) / 2,
                              coarse_n)
-    coarse_lat = np.linspace(lat_min + (coarse_block_size * dlat) / 2,
+    coarse_lat_smap_cygnss = np.linspace(lat_min + (coarse_block_size * dlat) / 2,
                              lat_max - (coarse_block_size * dlat) / 2,
                              coarse_n)
-    coarse_lon_mesh, coarse_lat_mesh = np.meshgrid(coarse_lon, coarse_lat)
+    coarse_lon_mesh_smap_cygnss, coarse_lat_mesh_smap_cygnss = np.meshgrid(coarse_lon_smap_cygnss, coarse_lat_smap_cygnss)
     
     plt.figure(figsize=(10, 8))
     # Plot the coarse correlation matrix.
-    mesh = plt.pcolormesh(coarse_lon_mesh, coarse_lat_mesh, corr_matrix, 
-                          shading='none', cmap='coolwarm', vmin=-1, vmax=1)
+    mesh = plt.pcolormesh(coarse_lon_mesh_smap_cygnss, coarse_lat_mesh_smap_cygnss, corr_matrix_smap_cygnss, 
+                          shading='auto', cmap='coolwarm', vmin=-1, vmax=1)
     plt.colorbar(mesh, label='Pearson Correlation')
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')
@@ -147,11 +202,11 @@ def SMAP_CYGNSS_correlation_matrix(smap_folder, cygnss_folder,
     # -----------------------------------------------------------
     for i in range(coarse_n):
         for j in range(coarse_n):
-            corr_val = corr_matrix[i, j]
+            corr_val = corr_matrix_smap_cygnss[i, j]
             if not np.isnan(corr_val):
                 # Use the corresponding coarse cell center coordinates.
-                x_coord = coarse_lon[j]
-                y_coord = coarse_lat[i]
+                x_coord = coarse_lon_smap_cygnss[j]
+                y_coord = coarse_lat_smap_cygnss[i]
                 plt.text(x_coord, y_coord, f"{corr_val:.2f}", 
                          ha='center', va='center', color='black', fontsize=10)
     
@@ -170,8 +225,112 @@ def SMAP_CYGNSS_correlation_matrix(smap_folder, cygnss_folder,
     # -----------------------------------------------------------
     plt.title(f'Correlation Matrix between SMAP and CYGNSS\nOverall Correlation: {overall_corr:.2f}', 
               fontsize=14, pad=20)
-    
     plt.show()
+    # -----------------------------------------------------------
+    # 9. Create Coordinates for the Coarse Cells and Plot the Matrix for CYGNSS and ERA5
+    # -----------------------------------------------------------
+    # Compute coarse cell centers in physical coordinates.
+    coarse_lon_era5_cygnss = np.linspace(lon_min + (coarse_block_size * dlon) / 2,
+                             lon_max - (coarse_block_size * dlon) / 2,
+                             coarse_n)
+    coarse_lat_era5_cygnss = np.linspace(lat_min + (coarse_block_size * dlat) / 2,
+                                lat_max - (coarse_block_size * dlat) / 2,
+                                coarse_n)
+    coarse_lon_mesh_era5_cygnss, coarse_lat_mesh_era5_cygnss = np.meshgrid(coarse_lon_era5_cygnss, coarse_lat_era5_cygnss)
+    
+    plt.figure(figsize=(10, 8))
+    # Plot the coarse correlation matrix.
+    mesh = plt.pcolormesh(coarse_lon_mesh_era5_cygnss, coarse_lat_mesh_era5_cygnss, corr_matrix_era5_cygnss, 
+                          shading='auto', cmap='coolwarm', vmin=-1, vmax=1)
+    plt.colorbar(mesh, label='Pearson Correlation')
+    plt.xlabel('Longitude')
+    plt.ylabel('Latitude')
+    plt.axis('equal')
+    
+    # -----------------------------------------------------------
+    # 10. Annotate Each Cell with the Correlation Value
+    # -----------------------------------------------------------
+    for i in range(coarse_n):
+        for j in range(coarse_n):
+            corr_val = corr_matrix_era5_cygnss[i, j]
+            if not np.isnan(corr_val):
+                # Use the corresponding coarse cell center coordinates.
+                x_coord = coarse_lon_era5_cygnss[j]
+                y_coord = coarse_lat_era5_cygnss[i]
+                plt.text(x_coord, y_coord, f"{corr_val:.2f}", 
+                         ha='center', va='center', color='black', fontsize=10)
+                
+    # -----------------------------------------------------------
+    # 11. Compute Overall Correlation using all fine-grid values that are valid for both datasets.
+    # -----------------------------------------------------------
+    valid = ~np.isnan(era5_fine) & ~np.isnan(cygnss_fine)
+    if np.sum(valid) >= 2:
+        overall_corr = np.corrcoef(era5_fine[valid].flatten(), 
+                                   cygnss_fine[valid].flatten())[0, 1]
+    else:
+        overall_corr = np.nan
+    
+    # -----------------------------------------------------------
+    # 12. Add the overall correlation to the plot title (e.g., below the main title)
+    # -----------------------------------------------------------
+    plt.title(f'Correlation Matrix between ERA5 and CYGNSS\nOverall Correlation: {overall_corr:.2f}', 
+              fontsize=14, pad=20)
+    plt.show()
+    
+    # -----------------------------------------------------------
+    # 13. Create Coordinates for the Coarse Cells and Plot the Matrix for SMAP and ERA5
+    # -----------------------------------------------------------
+    # Compute coarse cell centers in physical coordinates.
+    coarse_lon_smap_era5 = np.linspace(lon_min + (coarse_block_size * dlon) / 2,
+                             lon_max - (coarse_block_size * dlon) / 2,
+                             coarse_n)
+    coarse_lat_smap_era5 = np.linspace(lat_min + (coarse_block_size * dlat) / 2,
+                                lat_max - (coarse_block_size * dlat) / 2,
+                                coarse_n)
+    coarse_lon_mesh_smap_era5, coarse_lat_mesh_smap_era5 = np.meshgrid(coarse_lon_smap_era5, coarse_lat_smap_era5)
+    
+    plt.figure(figsize=(10, 8))
+    # Plot the coarse correlation matrix.
+    mesh = plt.pcolormesh(coarse_lon_mesh_smap_era5, coarse_lat_mesh_smap_era5, corr_matrix_smap_era5, 
+                          shading='auto', cmap='coolwarm', vmin=-1, vmax=1)
+    plt.colorbar(mesh, label='Pearson Correlation')
+    plt.xlabel('Longitude')
+    plt.ylabel('Latitude')
+    plt.axis('equal')
+    
+    # -----------------------------------------------------------
+    # 14. Annotate Each Cell with the Correlation Value
+    # -----------------------------------------------------------
+    
+    for i in range(coarse_n):
+        for j in range(coarse_n):
+            corr_val = corr_matrix_smap_era5[i, j]
+            if not np.isnan(corr_val):
+                # Use the corresponding coarse cell center coordinates.
+                x_coord = coarse_lon_smap_era5[j]
+                y_coord = coarse_lat_smap_era5[i]
+                plt.text(x_coord, y_coord, f"{corr_val:.2f}", 
+                         ha='center', va='center', color='black', fontsize=10)
+    
+    # -----------------------------------------------------------
+    # 15. Compute Overall Correlation using all fine-grid values that are valid for both datasets.
+    # -----------------------------------------------------------
+    valid = ~np.isnan(smap_fine) & ~np.isnan(era5_fine)
+    if np.sum(valid) >= 2:
+        overall_corr = np.corrcoef(smap_fine[valid].flatten(), 
+                                   era5_fine[valid].flatten())[0, 1]
+    else:
+        overall_corr = np.nan
+    
+    # -----------------------------------------------------------
+    # 16. Add the overall correlation to the plot title (e.g., below the main title)
+    # -----------------------------------------------------------
+    plt.title(f'Correlation Matrix between SMAP and ERA5\nOverall Correlation: {overall_corr:.2f}', 
+              fontsize=14, pad=20)
+    plt.show()
+    
+    
+    
 
 # =============================================================================
 # Example Usage:
@@ -184,5 +343,5 @@ def SMAP_CYGNSS_correlation_matrix(smap_folder, cygnss_folder,
 #                                smap_sigma=1, cygnss_sigma=1)
 # =============================================================================
 
-SMAP_CYGNSS_correlation_matrix("Thailand", "Thailand/Thailand-20200101-20200107", 100, 10, 0, 0)
+correlation_matrix("India2", "India2/India2-20200101-20200107", "India2/ERA5_India2_2020_01_01_07.nc", 100, 10, 0.95)
 
