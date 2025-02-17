@@ -76,5 +76,5 @@ def plot_time_series(folder_name, min_lat, max_lat, min_lon, max_lon):
     ax1.grid(True)
     plt.show()
 
-# Example usage:
-plot_time_series("data/Timeseries/TimeSeries-Thailand-20240101-20241201", 15, 16, 103, 104)
+
+
