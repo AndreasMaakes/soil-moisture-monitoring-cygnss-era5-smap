@@ -6,6 +6,7 @@ from SMAP.SMAP_gaussian_blur_plot import SMAP_gaussian_blur_plot
 from CYGNSS.trace_plot import trace_plot
 from plot_timeseries import plot_time_series
 from CYGNSS.CYGNSS_testing_limits import CYGNSS_gaussian_blur_plot as LETSGO
+from plot_correlation import correlation_plot, correlation_matrix
 
 
 
@@ -87,3 +88,6 @@ LETSGO("Thailand/Thailand-20200101-20200107", 2.0, 100)
 
 #plot_time_series("data/Timeseries/TimeSeries-Thailand-20240101-20241201", 15, 16, 103, 104)
 
+
+correlation_matrix("India2", "India2/India2-20200101-20200107", "India2/ERA5_India2_2020_01_01_07.nc", 100, 10, 0.95)
+correlation_plot( "India2", "India2/India2-20200101-20200107", "India2/ERA5_India2_2020_01_01_07.nc", 0.95)
