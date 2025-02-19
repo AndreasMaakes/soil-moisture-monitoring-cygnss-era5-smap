@@ -7,7 +7,7 @@ from CYGNSS.trace_plot import trace_plot
 from plot_timeseries import plot_time_series
 from CYGNSS.CYGNSS_testing_limits import CYGNSS_gaussian_blur_plot as LETSGO
 from plot_correlation import correlation_plot, correlation_matrix
-
+from horse import correlation_vs_tri
 
 
 '''
@@ -77,7 +77,7 @@ Note: Both plotting options has the option to save the plot to a file. This is d
 #ERA5_gaussian_blur_plot("Sudan/ERA5_Sudan_2020_10_01_03.nc", 2.0, 0.9, 100)
 
 #CYGNSS_gaussian_blur_plot("Thailand/Thailand-20200101-20200107", 2.0, 100)
-LETSGO("Thailand/Thailand-20200101-20200107", 2.0, 100)
+#LETSGO("Thailand/Thailand-20200101-20200107", 2.0, 100)
 #SMAP_gaussian_blur_plot("Thailand", 2.0, 100)
 #ERA5_gaussian_blur_plot("Thailand/ERA5_Thailand_2020_01_01_07.nc", 2.0, 0.9, 100)
 
@@ -89,5 +89,13 @@ LETSGO("Thailand/Thailand-20200101-20200107", 2.0, 100)
 #plot_time_series("data/Timeseries/TimeSeries-Thailand-20240101-20241201", 15, 16, 103, 104)
 
 
-correlation_matrix("India2", "India2/India2-20200101-20200107", "India2/ERA5_India2_2020_01_01_07.nc", 100, 10, 0.95)
-correlation_plot( "India2", "India2/India2-20200101-20200107", "India2/ERA5_India2_2020_01_01_07.nc", 0.95)
+#correlation_matrix("Bolivia", "Bolivia/Bolivia-20240701-20240707", "Bolivia/ERA5_Bolivia_2024_07_01_07.nc", 100, 15, 0.95)
+#correlation_matrix("Bolivia", "Bolivia/Bolivia-20240701-20240707", "Bolivia/ERA5_Bolivia_2024_07_01_07.nc", 1, 1, 0.95)
+#correlation_plot( "India2", "India2/India2-20200101-20200107", "India2/ERA5_India2_2020_01_01_07.nc", 0.95)
+
+#correlation_vs_tri("Bolivia", "Bolivia/Bolivia-20240701-20240707", "data/ASTGTM/Bolivia_downsampled.nc", 0.5, 0.5)
+#correlation_vs_tri("India2", "India2/India2-20200101-20200107", "India2/ERA5_India2_2020_01_01_07.nc", 0.95, "data/ASTGTM/Pakistan_downsampled.nc", 0.5, 0.5)
+#correlation_vs_tri("Thailand", "Thailand/Thailand-20200101-20200107", "Thailand/ERA5_Thailand_2020_01_01_07.nc", 0.95, "data/ASTGTM/Thailand_downsampled.nc", 0.5, 0.5)
+correlation_vs_tri("India", "India/India-20240201-20240207", "India/ERA5_India_2024_02_01_07.nc", 0.95, "data/ASTGTM/India_downsampled.nc", 0.5, 0.5)
+
+
