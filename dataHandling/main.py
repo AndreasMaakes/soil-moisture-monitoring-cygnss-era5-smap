@@ -1,7 +1,8 @@
 from SMAP.data_fetching import data_fetching_smap
-from ERA5.data_fetching import data_fetching_era5
+#from ERA5.data_fetching import data_fetching_era5
 from CYGNSS.data_fetching import data_fetching_CYGNSS
 from data_fetching_time_series import data_fetching_time_series
+
 '''
 This is the main function of the program. 
 This file is simply used to call the data_fetching function with the desired parameters, which are explained in the data_fetching.py file.
@@ -141,4 +142,4 @@ max_lon = 33
 
 #data_fetching_era5(False, "20240101", "20240103", 20, 22, 20, 22, "Bombaclaat")
 
-data_fetching_time_series("20240101", "20240213", 2, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
+data_fetching_time_series("20200226", "20201231", 3, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
