@@ -1,5 +1,5 @@
 from SMAP.data_fetching import data_fetching_smap
-from ERA5.data_fetching import data_fetching_era5
+#from ERA5.data_fetching import data_fetching_era5
 from CYGNSS.data_fetching import data_fetching_CYGNSS
 import os
 import xarray as xr
@@ -69,27 +69,32 @@ def data_fetching_time_series(startDate, endDate, num_days, username, password, 
             end_date = days[1]
        
         
-        
-        
-        
-        #Fetching the data from the current run as a dataframe
+         #SMAP data fetching
+
+         #Fetching the data from the current run as a dataframe
         df_cyg = data_fetching_CYGNSS(True, start_date, end_date, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
         #Converting the dataframe to a xarray dataset
         ds_cyg = xr.Dataset.from_dataframe(df_cyg)    
         #Saving the data to a NETCDF4 file in the correct folder
         ds_cyg.to_netcdf(f'{basePath}/CYGNSS/CYGNSS_{start_date}_{end_date}.nc')
         
-                
-        '''SMAP data fetching'''
-        
+        '''
         df_SMAP = data_fetching_smap(True, start_date, end_date,  max_lat, min_lat, max_lon, min_lon, name)
         ds_SMAP = xr.Dataset.from_dataframe(df_SMAP)
         ds_SMAP.to_netcdf(f'{basePath}/SMAP/SMAP_{start_date}_{end_date}.nc')
+        '''
         
-    
-        '''ERA5 data fetching'''
+        
+        
+                
+       
+        
+    '''
+        ERA5 data fetching
 
         data_fetching_era5(True, start_date, end_date, min_lat, max_lat, min_lon, max_lon, name, basePath)
+
+        '''
 
     
     

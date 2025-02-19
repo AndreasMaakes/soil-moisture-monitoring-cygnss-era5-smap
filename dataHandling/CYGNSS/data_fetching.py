@@ -10,6 +10,7 @@ import os
 from .data_filtering import data_filtering
 from .calculate_sr import sr
 from create_dates_array import create_dates_array
+import time
 
 
 '''This is the main function that handles the downloading of the data. This function also calls the data_filtering function to filter the data.
@@ -102,91 +103,92 @@ def data_fetching_CYGNSS(timeSeries: bool, startDate: str, endDate: str, usernam
     '''Dataframe to store the data in if the timeseries variable is active, to combine the files'''
     df_timeseries = pd.DataFrame({})
 
-    with tqdm(total=total_iterations, desc="Progress: ", unit="files", colour = "green") as pbar:
+    with tqdm(total=total_iterations, desc="Progress: ", unit="files", colour="green") as pbar:
         for sat in satellites:
             for date in dates:
-                try:
-                    '''Construct the URL for the current satellite and date'''
-                    url = f"https://opendap.earthdata.nasa.gov/collections/C2832195379-POCLOUD/granules/{sat}.ddmi.s{date}-000000-e{date}-235959.l1.power-brcs.a32.d33"
-                    
-                    '''Attempt to open the dataset'''
-                    dataset = open_url(url, session=setup_session(username, password), protocol='dap4')
-                    
-                    '''
-                    Fetching all 11 variable from the dataset
-                    Note: The tqdm progressbar is hardcoded to 11 variables, if additional variables are added the progressbar 
-                    needs to be updated accordingly.
-                    '''
-                    
-                    with tqdm(total=11, desc=f"Fetching data for {sat} on {date}", unit="steps", leave=False, colour = "yellow") as step_pbar:
-                        ddm_snr = np.array(dataset['ddm_snr'][:, 0]).ravel()
-                        ddm_snr = np.append(ddm_snr, np.array(dataset['ddm_snr'][:, 1]).ravel())
-                        ddm_snr = np.append(ddm_snr, np.array(dataset['ddm_snr'][:, 2]).ravel())
-                        ddm_snr = np.append(ddm_snr, np.array(dataset['ddm_snr'][:, 3]).ravel())
-                        step_pbar.update(1)
+                max_retries = 3       # Maximum number of retry attempts
+                retry_delay = 300       # Seconds to wait before retrying
+                attempt = 0
+                success = False     # Flag to indicate if data was successfully fetched and processed
 
-                        sp_lon = np.array(dataset['sp_lon'][:, 0]).ravel()
-                        sp_lon = np.append(sp_lon, np.array(dataset['sp_lon'][:, 1]).ravel())
-                        sp_lon = np.append(sp_lon, np.array(dataset['sp_lon'][:, 2]).ravel())
-                        sp_lon = np.append(sp_lon, np.array(dataset['sp_lon'][:, 3]).ravel())
-                        sp_lon[sp_lon > 180] -= 360  # Adjusting the longitude since it is in the range [-180, 180]
-                        step_pbar.update(1)
+                while attempt < max_retries and not success:
+                    try:
+                        # Construct the URL for the current satellite and date
+                        url = f"https://opendap.earthdata.nasa.gov/collections/C2832195379-POCLOUD/granules/{sat}.ddmi.s{date}-000000-e{date}-235959.l1.power-brcs.a32.d33"
+                        
+                        # Attempt to open the dataset
+                        dataset = open_url(url, session=setup_session(username, password), protocol='dap4')
+                        
+                        # Fetch the 11 variables using an inner progress bar
+                        with tqdm(total=11, desc=f"Fetching data for {sat} on {date}", unit="steps", leave=False, colour="yellow") as step_pbar:
+                            ddm_snr = np.array(dataset['ddm_snr'][:, 0]).ravel()
+                            ddm_snr = np.append(ddm_snr, np.array(dataset['ddm_snr'][:, 1]).ravel())
+                            ddm_snr = np.append(ddm_snr, np.array(dataset['ddm_snr'][:, 2]).ravel())
+                            ddm_snr = np.append(ddm_snr, np.array(dataset['ddm_snr'][:, 3]).ravel())
+                            step_pbar.update(1)
 
-                        sp_lat = np.array(dataset['sp_lat'][:, 0]).ravel()
-                        sp_lat = np.append(sp_lat, np.array(dataset['sp_lat'][:, 1]).ravel())   
-                        sp_lat = np.append(sp_lat, np.array(dataset['sp_lat'][:, 2]).ravel())
-                        sp_lat = np.append(sp_lat, np.array(dataset['sp_lat'][:, 3]).ravel())
-                        step_pbar.update(1)
+                            sp_lon = np.array(dataset['sp_lon'][:, 0]).ravel()
+                            sp_lon = np.append(sp_lon, np.array(dataset['sp_lon'][:, 1]).ravel())
+                            sp_lon = np.append(sp_lon, np.array(dataset['sp_lon'][:, 2]).ravel())
+                            sp_lon = np.append(sp_lon, np.array(dataset['sp_lon'][:, 3]).ravel())
+                            sp_lon[sp_lon > 180] -= 360
+                            step_pbar.update(1)
 
-                        gps_tx_power_db_w = np.array(dataset['gps_tx_power_db_w'][:, 0]).ravel()
-                        gps_tx_power_db_w = np.append(gps_tx_power_db_w, np.array(dataset['gps_tx_power_db_w'][:, 1]).ravel())
-                        gps_tx_power_db_w = np.append(gps_tx_power_db_w, np.array(dataset['gps_tx_power_db_w'][:, 2]).ravel())
-                        gps_tx_power_db_w = np.append(gps_tx_power_db_w, np.array(dataset['gps_tx_power_db_w'][:, 3]).ravel())
-                        step_pbar.update(1)
+                            sp_lat = np.array(dataset['sp_lat'][:, 0]).ravel()
+                            sp_lat = np.append(sp_lat, np.array(dataset['sp_lat'][:, 1]).ravel())   
+                            sp_lat = np.append(sp_lat, np.array(dataset['sp_lat'][:, 2]).ravel())
+                            sp_lat = np.append(sp_lat, np.array(dataset['sp_lat'][:, 3]).ravel())
+                            step_pbar.update(1)
 
-                        gps_ant_gain_db_i = np.array(dataset['gps_ant_gain_db_i'][:, 0]).ravel()
-                        gps_ant_gain_db_i = np.append(gps_ant_gain_db_i, np.array(dataset['gps_ant_gain_db_i'][:, 1]).ravel())
-                        gps_ant_gain_db_i = np.append(gps_ant_gain_db_i, np.array(dataset['gps_ant_gain_db_i'][:, 2]).ravel())
-                        gps_ant_gain_db_i = np.append(gps_ant_gain_db_i, np.array(dataset['gps_ant_gain_db_i'][:, 3]).ravel())
-                        step_pbar.update(1)
+                            gps_tx_power_db_w = np.array(dataset['gps_tx_power_db_w'][:, 0]).ravel()
+                            gps_tx_power_db_w = np.append(gps_tx_power_db_w, np.array(dataset['gps_tx_power_db_w'][:, 1]).ravel())
+                            gps_tx_power_db_w = np.append(gps_tx_power_db_w, np.array(dataset['gps_tx_power_db_w'][:, 2]).ravel())
+                            gps_tx_power_db_w = np.append(gps_tx_power_db_w, np.array(dataset['gps_tx_power_db_w'][:, 3]).ravel())
+                            step_pbar.update(1)
 
-                        sp_rx_gain = np.array(dataset['sp_rx_gain'][:, 0]).ravel()
-                        sp_rx_gain = np.append(sp_rx_gain, np.array(dataset['sp_rx_gain'][:, 1]).ravel())
-                        sp_rx_gain = np.append(sp_rx_gain, np.array(dataset['sp_rx_gain'][:, 2]).ravel())
-                        sp_rx_gain = np.append(sp_rx_gain, np.array(dataset['sp_rx_gain'][:, 3]).ravel())
-                        step_pbar.update(1)
+                            gps_ant_gain_db_i = np.array(dataset['gps_ant_gain_db_i'][:, 0]).ravel()
+                            gps_ant_gain_db_i = np.append(gps_ant_gain_db_i, np.array(dataset['gps_ant_gain_db_i'][:, 1]).ravel())
+                            gps_ant_gain_db_i = np.append(gps_ant_gain_db_i, np.array(dataset['gps_ant_gain_db_i'][:, 2]).ravel())
+                            gps_ant_gain_db_i = np.append(gps_ant_gain_db_i, np.array(dataset['gps_ant_gain_db_i'][:, 3]).ravel())
+                            step_pbar.update(1)
 
-                        tx_to_sp_range = np.array(dataset['tx_to_sp_range'][:, 0]).ravel()
-                        tx_to_sp_range = np.append(tx_to_sp_range, np.array(dataset['tx_to_sp_range'][:, 1]).ravel())
-                        tx_to_sp_range = np.append(tx_to_sp_range, np.array(dataset['tx_to_sp_range'][:, 2]).ravel())
-                        tx_to_sp_range = np.append(tx_to_sp_range, np.array(dataset['tx_to_sp_range'][:, 3]).ravel())
-                        step_pbar.update(1)
+                            sp_rx_gain = np.array(dataset['sp_rx_gain'][:, 0]).ravel()
+                            sp_rx_gain = np.append(sp_rx_gain, np.array(dataset['sp_rx_gain'][:, 1]).ravel())
+                            sp_rx_gain = np.append(sp_rx_gain, np.array(dataset['sp_rx_gain'][:, 2]).ravel())
+                            sp_rx_gain = np.append(sp_rx_gain, np.array(dataset['sp_rx_gain'][:, 3]).ravel())
+                            step_pbar.update(1)
 
-                        rx_to_sp_range = np.array(dataset['rx_to_sp_range'][:, 0]).ravel()
-                        rx_to_sp_range = np.append(rx_to_sp_range, np.array(dataset['rx_to_sp_range'][:, 1]).ravel())
-                        rx_to_sp_range = np.append(rx_to_sp_range, np.array(dataset['rx_to_sp_range'][:, 2]).ravel())
-                        rx_to_sp_range = np.append(rx_to_sp_range, np.array(dataset['rx_to_sp_range'][:, 3]).ravel())
-                        step_pbar.update(1)
+                            tx_to_sp_range = np.array(dataset['tx_to_sp_range'][:, 0]).ravel()
+                            tx_to_sp_range = np.append(tx_to_sp_range, np.array(dataset['tx_to_sp_range'][:, 1]).ravel())
+                            tx_to_sp_range = np.append(tx_to_sp_range, np.array(dataset['tx_to_sp_range'][:, 2]).ravel())
+                            tx_to_sp_range = np.append(tx_to_sp_range, np.array(dataset['tx_to_sp_range'][:, 3]).ravel())
+                            step_pbar.update(1)
 
-                        prn_code = np.array(dataset['prn_code'][:, 0]).ravel()
-                        prn_code = np.append(prn_code, np.array(dataset['prn_code'][:, 1]).ravel())
-                        prn_code = np.append(prn_code, np.array(dataset['prn_code'][:, 2]).ravel())
-                        prn_code = np.append(prn_code, np.array(dataset['prn_code'][:, 3]).ravel())
-                        step_pbar.update(1)
+                            rx_to_sp_range = np.array(dataset['rx_to_sp_range'][:, 0]).ravel()
+                            rx_to_sp_range = np.append(rx_to_sp_range, np.array(dataset['rx_to_sp_range'][:, 1]).ravel())
+                            rx_to_sp_range = np.append(rx_to_sp_range, np.array(dataset['rx_to_sp_range'][:, 2]).ravel())
+                            rx_to_sp_range = np.append(rx_to_sp_range, np.array(dataset['rx_to_sp_range'][:, 3]).ravel())
+                            step_pbar.update(1)
 
-                        sp_inc_angle = np.array(dataset['sp_inc_angle'][:, 0]).ravel()
-                        sp_inc_angle = np.append(sp_inc_angle, np.array(dataset['sp_inc_angle'][:, 1]).ravel())
-                        sp_inc_angle = np.append(sp_inc_angle, np.array(dataset['sp_inc_angle'][:, 2]).ravel())
-                        sp_inc_angle = np.append(sp_inc_angle, np.array(dataset['sp_inc_angle'][:, 3]).ravel())
-                        step_pbar.update(1)
+                            prn_code = np.array(dataset['prn_code'][:, 0]).ravel()
+                            prn_code = np.append(prn_code, np.array(dataset['prn_code'][:, 1]).ravel())
+                            prn_code = np.append(prn_code, np.array(dataset['prn_code'][:, 2]).ravel())
+                            prn_code = np.append(prn_code, np.array(dataset['prn_code'][:, 3]).ravel())
+                            step_pbar.update(1)
 
-                        quality_flags = np.array(dataset['quality_flags'][:, 0]).ravel()
-                        quality_flags = np.append(quality_flags, np.array(dataset['quality_flags'][:, 1]).ravel())
-                        quality_flags = np.append(quality_flags, np.array(dataset['quality_flags'][:, 2]).ravel())
-                        quality_flags = np.append(quality_flags, np.array(dataset['quality_flags'][:, 3]).ravel())
-                        step_pbar.update(1)
+                            sp_inc_angle = np.array(dataset['sp_inc_angle'][:, 0]).ravel()
+                            sp_inc_angle = np.append(sp_inc_angle, np.array(dataset['sp_inc_angle'][:, 1]).ravel())
+                            sp_inc_angle = np.append(sp_inc_angle, np.array(dataset['sp_inc_angle'][:, 2]).ravel())
+                            sp_inc_angle = np.append(sp_inc_angle, np.array(dataset['sp_inc_angle'][:, 3]).ravel())
+                            step_pbar.update(1)
 
-                        '''Create a dataframe with the data'''
+                            quality_flags = np.array(dataset['quality_flags'][:, 0]).ravel()
+                            quality_flags = np.append(quality_flags, np.array(dataset['quality_flags'][:, 1]).ravel())
+                            quality_flags = np.append(quality_flags, np.array(dataset['quality_flags'][:, 2]).ravel())
+                            quality_flags = np.append(quality_flags, np.array(dataset['quality_flags'][:, 3]).ravel())
+                            step_pbar.update(1)
+
+                        # Create a dataframe with the data
                         df = pd.DataFrame({
                             'ddm_snr': ddm_snr,
                             'sp_lon': sp_lon,
@@ -199,55 +201,53 @@ def data_fetching_CYGNSS(timeSeries: bool, startDate: str, endDate: str, usernam
                             'prn_code': prn_code,
                             'sp_inc_angle': sp_inc_angle,
                             'quality_flags': quality_flags
-                        })    
-                                                    
-                        '''Filter and process the data'''
+                        })
+                        
+                        # Filter and process the data
                         df_filtered = data_filtering(df, max_lat, min_lat, max_lon, min_lon, inc_angle, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
                         df_filtered = df_filtered.reset_index(drop=True)
                         
-                        '''Check if df_filtered is empty, if so, skip to the next iteration'''
                         if df_filtered.empty:
                             print(f"No data available after filtering for {sat} on {date}, skipping.")
-                            pbar.update(1)  # Update progress even if no data saved
-                            continue  # Skip to the next iteration
+                            pbar.update(1)
+                            success = True  # Mark as 'handled' even though it's empty
+                            continue
                         
-                        '''Calculate the surface reflectivity using the sr function'''
                         df_filtered["sr"] = df_filtered.apply(sr, axis=1)
                         
-                        '''If timeseries booliean is True, append the dataframe instead of saving it'''
                         if timeSeries:
-                        
                             df_timeseries = pd.concat([df_timeseries, df_filtered])
-                            
-                            pbar.update(1)
                             print(f"Data fetched and filtered for {sat} on {date}")
                         else:
-                            '''Save the data'''
                             ds = xr.Dataset.from_dataframe(df_filtered)
-                            
-                            '''Saving the data to the correct folder'''
-                            
                             ds.to_netcdf(f'{folder_path}/{sat}_{date}.nc')                        
-                            
-                            '''Update the main progress bar'''
-                            pbar.update(1)
-                            print()
                             print(f"Data fetched and filtered for {sat} on {date}")
                         
+                        pbar.update(1)
+                        success = True  # Exit the retry loop if successful
 
-                except HTTPError as e:
-                    print(f"No data available for {sat} on {date}, skipping. Error: {e}")
-                    pbar.update(1)  # Even if skipped, progressbar needs to be updated
-                    
-                    '''
-                    The behavior is different if the timeSeries variable is active.
-                    The gather all the data for the current start-end-date in a single file, and store it in the Timeseries folder.
-                    '''
+                    except HTTPError as e:
+                        print(f"No data available for {sat} on {date}, skipping. HTTPError: {e}")
+                        pbar.update(1)
+                        break
+                    except ConnectionResetError as e:
+                        attempt += 1
+                        print(f"Error for {sat} on {date} (attempt {attempt}/{max_retries}). Retrying in {retry_delay} seconds. Error: {e}")
+                        time.sleep(retry_delay)
+                        if attempt == max_retries:
+                            print(f"Max retries reached for {sat} on {date}. Skipping this dataset.")
+                            pbar.update(1)
+                    except Exception as e:
+                        attempt += 1
+                        print(f"Unexpected error for {sat} on {date} (attempt {attempt}/{max_retries}). Retrying in {retry_delay} seconds. Error: {e}")
+                        time.sleep(retry_delay)
+                        if attempt == max_retries:
+                            print(f"Max retries reached for {sat} on {date}. Skipping this dataset.")
+                            pbar.update(1)
     if timeSeries:
         '''Reset the index of the dataframe'''
         df_timeseries = df_timeseries.reset_index(drop=True)
         return df_timeseries
-        
         
         '''Log the completion time to the parameter file. This is only done for non-timeseries runs'''
     else:

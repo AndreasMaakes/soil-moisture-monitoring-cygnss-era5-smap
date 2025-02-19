@@ -7,10 +7,13 @@ from .data_filtering import data_filtering_SMAP
 import os
 from datetime import datetime, timedelta
 from create_dates_array import create_dates_array
+from dotenv import load_dotenv
+load_dotenv()
 
 def data_fetching_smap(Timeseries: bool, startDate: str, endDate: str, max_lat: float, min_lat: float, max_lon: float, min_lon: float, name: str):
-    # Log into earthaccess using username and password stored in .evn file
-    earthaccess.login()
+
+    # Log into earthaccess using username and password stored in .env file
+    earthaccess.login(strategy="environment")
     
     # Extracting the year, month, and days from the start and end date
     dates = create_dates_array(startDate, endDate, "smap")
