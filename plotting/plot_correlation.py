@@ -347,10 +347,3 @@ def correlation_matrix(smap_folder, cygnss_folder, era5_folder, lat_step, lon_st
 
 
 
-# For scatter plots:
-correlation_plot("India2", "India2/India2-20200101-20200107", 
-                   "India2/ERA5_India2_2020_01_01_07.nc", 0.5, 0.5, 0.95)
-
-# For correlation matrix (unchanged):
-correlation_matrix("India2", "India2/India2-20200101-20200107", 
-                   "India2/ERA5_India2_2020_01_01_07.nc", 0.5, 0.5, 0.95)
