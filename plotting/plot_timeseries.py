@@ -72,6 +72,22 @@ def plot_time_series(folder_name, min_lat, min_lon, max_lat, max_lon):
                 ]
                 avg_moisture = df_filtered["swvl1"].mean()  # Compute mean soil moisture
                 avg_moisture_values_ERA5.append(avg_moisture)
+    
+    #Loop over SMAP files
+    for file in os.listdir(basePath_SMAP):
+        if file.endswith(".nc"):
+            filePath = os.path.join(basePath_SMAP, file)
+            ds = xr.open_dataset(filePath, engine='netcdf4')
+            df = ds.to_dataframe().reset_index()
+            
+            
+            # Spatial filtering
+            df_filtered = df[
+                (df["latitude"] >= min_lat) & (df["latitude"] <= max_lat) &
+                (df["longitude"] >= min_lon) & (df["longitude"] <= max_lon)
+            ]
+            avg_moisture = df_filtered["soil_moisture"].mean()
+            avg_moisture_values_SMAP.append(avg_moisture)
       
     # Parse folder name to extract start and end dates
     parts = folder_name.split('-')
@@ -90,15 +106,20 @@ def plot_time_series(folder_name, min_lat, min_lon, max_lat, max_lon):
     fig, ax1 = plt.subplots(figsize=(10, 5))
     # Plot ERA5 data; note that we assume ERA5 values align with week numbers 1, 2, ...
     ax1.plot(np.arange(1, len(avg_moisture_values_ERA5) + 1), avg_moisture_values_ERA5,
-             marker='^', linestyle='-', color='g', label="ERA5")
+              linestyle='-', color='g', label="ERA5")
     
     ax1.set_xlabel("Week Start Date")
     ax1.set_ylabel("ERA5 & SMAP Soil Moisture (0-1)")
     
     # Create secondary y-axis for CYGNSS data (native scale)
     ax2 = ax1.twinx()
-    ax2.plot(weeks, avg_moisture_values_CYGNSS, marker='o', linestyle='-', color='b', label="CYGNSS")
+    ax2.plot(weeks, avg_moisture_values_CYGNSS,  linestyle='-', color='b', label="CYGNSS")
     ax2.set_ylabel("CYGNSS Soil Moisture")
+    
+    # Adding SMAP data as well
+    ax3 = ax1.twinx()
+    ax3.plot(np.arange(1, len(avg_moisture_values_SMAP) + 1), avg_moisture_values_SMAP,
+              linestyle='-', color='r', label="SMAP")
     
     # Add legends, title, and grid
     ax1.legend(loc="upper left")
@@ -110,4 +131,4 @@ def plot_time_series(folder_name, min_lat, min_lon, max_lat, max_lon):
 
 
 # Testing the function to see that it reads the files correctly
-plot_time_series("data/Timeseries/TimeSeries-Thailand-20200101-20200710", 16.5, 16.75, 101.5, 101.75)
+plot_time_series("data/Timeseries/TimeSeries-Thailand-20200101-20200710", 14, 14.5, 99.5, 100)

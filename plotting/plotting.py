@@ -5,8 +5,8 @@ from ERA5.ERA5_gaussian_blur_plot import ERA5_gaussian_blur_plot
 from SMAP.SMAP_gaussian_blur_plot import SMAP_gaussian_blur_plot
 from CYGNSS.trace_plot import trace_plot
 from plot_timeseries import plot_time_series
-from CYGNSS.CYGNSS_testing_limits import CYGNSS_gaussian_blur_plot as LETSGO
 from plot_correlation import correlation_plot, correlation_matrix
+from CYGNSS.CYGNSS_average_plot import CYGNSS_average_plot
 
 
 
@@ -95,3 +95,9 @@ Note: Both plotting options has the option to save the plot to a file. This is d
 correlation_matrix("Thailand", "Thailand/Thailand-20200101-20200107", "Thailand/ERA5_Thailand_2020_01_01_07.nc", 0.5, 0.5, 0.95)
 
 #CYGNSS_gaussian_blur_plot("India3/India3-20200101-20200131", 1, 50, smooth = False)
+
+#CYGNSS_gaussian_blur_plot("Sudan/Sudan-20200101-20200131", 1, 50, smooth = False)
+
+#CYGNSS_average_plot("Sudan/Sudan-20200101-20200131", 1.5, 0.25, 0.25, smooth = False)
+
+#plot_time_series("data/Timeseries/TimeSeries-Thailand-20200101-20200710", 15, 16, 103, 104)
