@@ -89,7 +89,7 @@ Note: Both plotting options has the option to save the plot to a file. This is d
 #plot_time_series("data/Timeseries/TimeSeries-Thailand-20240101-20241201", 15, 16, 103, 104)
 
 
-#correlation_matrix("India2", "India2/India2-20200101-20200107", "India2/ERA5_India2_2020_01_01_07.nc", 0.5, 0.5, 0.95)
+correlation_matrix("Thailand", "Thailand/Thailand-20200101-20200107", "Thailand/ERA5_Thailand_2020_01_01_07.nc", 0.5, 0.5, 0.95)
 #correlation_plot( "India2", "India2/India2-20200101-20200107", "India2/ERA5_India2_2020_01_01_07.nc", 0.5, 0.5, 0.95)
 
-CYGNSS_gaussian_blur_plot("India3/India3-20200101-20200131", 1, 50, smooth = False)
+#CYGNSS_gaussian_blur_plot("India3/India3-20200101-20200131", 1, 50, smooth = False)
