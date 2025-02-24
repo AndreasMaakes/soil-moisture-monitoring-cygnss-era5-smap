@@ -52,7 +52,7 @@ def merged_dataframe(smap_folder, cygnss_folder, era5_folder, lsm_threshold, lat
     df_cygnss = pd.concat(dfs_cygnss)
     # Adjust quality control limits
     df_cygnss = df_cygnss[df_cygnss['ddm_snr'] >= 2]
-    df_cygnss = df_cygnss[df_cygnss['sp_rx_gain'] >= 13]
+    
 
     # --- ERA5 ---
     df_era5 = xr.open_dataset(f'data/ERA5/{era5_folder}').to_dataframe().reset_index()

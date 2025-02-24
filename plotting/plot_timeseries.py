@@ -107,6 +107,9 @@ def plot_time_series(folder_name, min_lat, min_lon, max_lat, max_lon):
     # Plot ERA5 data; note that we assume ERA5 values align with week numbers 1, 2, ...
     ax1.plot(np.arange(1, len(avg_moisture_values_ERA5) + 1), avg_moisture_values_ERA5,
               linestyle='-', color='g', label="ERA5")
+     
+    ax1.plot(np.arange(1, len(avg_moisture_values_SMAP) + 1), avg_moisture_values_SMAP,
+              linestyle='-', color='r', label="SMAP")
     
     ax1.set_xlabel("Week Start Date")
     ax1.set_ylabel("ERA5 & SMAP Soil Moisture (0-1)")
@@ -116,11 +119,7 @@ def plot_time_series(folder_name, min_lat, min_lon, max_lat, max_lon):
     ax2.plot(weeks, avg_moisture_values_CYGNSS,  linestyle='-', color='b', label="CYGNSS")
     ax2.set_ylabel("CYGNSS Soil Moisture")
     
-    # Adding SMAP data as well
-    ax3 = ax1.twinx()
-    ax3.plot(np.arange(1, len(avg_moisture_values_SMAP) + 1), avg_moisture_values_SMAP,
-              linestyle='-', color='r', label="SMAP")
-    
+   
     # Add legends, title, and grid
     ax1.legend(loc="upper left")
     ax2.legend(loc="upper right")
@@ -130,5 +129,4 @@ def plot_time_series(folder_name, min_lat, min_lon, max_lat, max_lon):
     plt.show()
 
 
-# Testing the function to see that it reads the files correctly
-plot_time_series("data/Timeseries/TimeSeries-Thailand-20200101-20200710", 14, 14.5, 99.5, 100)
+
