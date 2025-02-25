@@ -21,7 +21,7 @@ def data_fetching_smap(Timeseries: bool, startDate: str, endDate: str, max_lat: 
     # Searching for the results using earthaccess API
     results = earthaccess.search_data(
         short_name='SPL3SMP',  # L3 36 km gridded SMAP short name
-        temporal=(dates[0], dates[1]),  # Temporal filter
+        temporal=(dates[0], dates[-1]),  # Temporal filter
         count=-1,
         provider="NSIDC_CPRD"  # Specifying the cloud-based provider
     )

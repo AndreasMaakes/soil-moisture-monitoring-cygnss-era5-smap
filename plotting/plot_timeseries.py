@@ -34,8 +34,9 @@ def plot_time_series(folder_name, min_lat, min_lon, max_lat, max_lon):
                 (df["sp_lon"] >= min_lon) & (df["sp_lon"] <= max_lon)
             ]
             # Filtering ddm_snr and sp_rx_gain
-            df_filtered = df_filtered[df_filtered['ddm_snr'] >= 2]
-            df_filtered = df_filtered[df_filtered['sp_rx_gain'] >= 13]
+            df_filtered = df_filtered[df_filtered['ddm_snr'] >= 4]
+            #df_filtered = df_filtered[df_filtered['sp_rx_gain'] <= 13]
+            
             
             # Adjust sr values
             min_sr = min(min_sr, df_filtered["sr"].min())  # Find the minimum sr value among all data
