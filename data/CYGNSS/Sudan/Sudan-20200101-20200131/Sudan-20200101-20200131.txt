@@ -1,0 +1,16 @@
+Area of interest: Sudan
+
+Start date: 20200101
+End date: 20200131
+
+Minimum latitude: 11
+Minimum longitude: 29
+Maximum latitude: 17
+Maximum longitude: 36
+
+Maximum inclination angle: 65
+Minimum ddm_snr: 1
+Minimum sp_rx_gain: 0
+Maximum sp_rx_gain: 15
+
+Data fetching started: 16:00:28
