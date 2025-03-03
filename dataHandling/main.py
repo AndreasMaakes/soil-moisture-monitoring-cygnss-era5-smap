@@ -1,7 +1,10 @@
 from SMAP.data_fetching import data_fetching_smap
 from ERA5.data_fetching import data_fetching_era5
+from ERA5.data_fetching import data_fetching_era5
 from CYGNSS.data_fetching import data_fetching_CYGNSS
 from data_fetching_time_series import data_fetching_time_series
+
+
 
 '''
 This is the main function of the program. 
@@ -62,21 +65,13 @@ max_lon = 149
 '''
 
 '''
-name = "Sudan"
-min_lat = 11
-min_lon = 29
-max_lat = 17
-max_lon = 36
-'''
-
-'''
 name = "Western-Australia"
 min_lat = -32
 min_lon = 116
 max_lat = -27
 max_lon = 122
 '''
-'''
+
 name = "Thailand"
 min_lat = 14
 min_lon = 99
@@ -85,12 +80,13 @@ max_lon = 105
 '''
 
 
-name = "India2"
+name = "Pakistan"
 min_lat = 25
 min_lon = 67
 max_lat = 28.5
 max_lon = 73
 
+'''
 '''
 name = "Bolivia"
 min_lat = -19
@@ -136,6 +132,7 @@ min_lat = 4
 max_lat = 19
 min_lon = 16
 max_lon = 33
+'''
 '''
 '''
 name = "India3"

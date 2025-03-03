@@ -114,7 +114,7 @@ def plot_time_series(folder_name, min_lat, min_lon, max_lat, max_lon):
     
     ax1.set_xlabel("Week Start Date")
     ax1.set_ylabel("ERA5 & SMAP Soil Moisture (0-1)")
-    
+
     # Create secondary y-axis for CYGNSS data (native scale)
     ax2 = ax1.twinx()
     ax2.plot(weeks, avg_moisture_values_CYGNSS,  linestyle='-', color='b', label="CYGNSS")
@@ -128,6 +128,3 @@ def plot_time_series(folder_name, min_lat, min_lon, max_lat, max_lon):
     plt.xticks(tick_positions, month_labels, rotation=45)
     ax1.grid(True)
     plt.show()
-
-
-

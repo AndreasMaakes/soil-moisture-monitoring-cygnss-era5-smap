@@ -1,5 +1,6 @@
 from SMAP.data_fetching import data_fetching_smap
 from ERA5.data_fetching import data_fetching_era5
+from ERA5.data_fetching import data_fetching_era5
 from CYGNSS.data_fetching import data_fetching_CYGNSS
 import os
 import xarray as xr
@@ -33,7 +34,7 @@ def generate_weekly_intervals(start_date, end_date, num_days):
         intervals.append((current_start.strftime("%Y%m%d"), current_end.strftime("%Y%m%d")))
 
         # Move to the same weekday next week
-        current_start += datetime.timedelta(weeks=1)
+        current_start += datetime.timedelta(weeks=2)
 
     return intervals
 
