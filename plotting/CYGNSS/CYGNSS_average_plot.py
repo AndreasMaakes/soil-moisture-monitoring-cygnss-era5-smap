@@ -50,7 +50,7 @@ def CYGNSS_average_plot(folder_name, sigma, step_size_lon, step_size_lat, smooth
         points = np.column_stack((lon_mesh[mask], lat_mesh[mask]))
         values = stat[mask]
         # Interpolate missing values using nearest-neighbor.
-        stat = griddata(points, values, (lon_mesh, lat_mesh), method='nearest')
+        stat = griddata(points, values, (lon_mesh, lat_mesh), method='linear')
     
     # Optionally apply Gaussian smoothing if sigma > 0.
     if sigma > 0:
