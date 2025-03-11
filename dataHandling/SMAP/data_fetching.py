@@ -36,38 +36,19 @@ def data_fetching_smap(Timeseries: bool, startDate: str, endDate: str, max_lat: 
     
     # Extracting the year, month, and days from the start and end date
     dates = create_dates_array(startDate, endDate, "smap")
-
-    retries = 0  # Initialize retry counter
-    while retries < 3:
-        try:
-            print(f"Attempt {retries + 1} to fetch SMAP data...")
-            
-            # Searching for results using Earthaccess API
-            results = earthaccess.search_data(
-                short_name='SPL3SMP',
-                temporal=(dates[0], dates[-1]),  # Temporal filter
-                count=-1,
-                provider="NSIDC_CPRD"
-            )
-            
-            # Opening the result - this yields a list of HTTP file system objects
-            dataset = earthaccess.open(results)
-            
-            # Successfully retrieved data, so we break out of the retry loop
-            break  
-        
-        except HTTPError as e:
-            if e.response.status_code == 504:
-                print(f"504 Gateway Time-out error. Retrying in {300 // 60} minutes... (Attempt {retries + 1}/{3})")
-                time.sleep(300)  # Wait for 5 minutes before retrying
-                retries += 1
-            else:
-                raise  # If it's another error, raise it immediately
-
-    if retries == 3:
-        raise RuntimeError("Failed to fetch SMAP data after multiple attempts due to repeated timeouts.")
-
-    # Continue with data processing
+    
+    # Searching for the results using earthaccess API
+    results = earthaccess.search_data(
+        short_name='SPL3SMP',  # L3 36 km gridded SMAP short name
+        temporal=(dates[0], dates[-1]),  # Temporal filter
+        count=-1,
+        provider="NSIDC_CPRD"  # Specifying the cloud-based provider
+    )
+    
+    # Opening the result - this yields a list of HTTP file system objects
+    dataset = earthaccess.open(results)
+    
+    # Counting files processed
     count = 0
     df_timeseries = pd.DataFrame({})
 

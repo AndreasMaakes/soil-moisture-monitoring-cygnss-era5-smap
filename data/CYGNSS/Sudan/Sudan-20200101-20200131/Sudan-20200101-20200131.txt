@@ -9,6 +9,14 @@ Maximum latitude: 17
 Maximum longitude: 36
 
 Maximum inclination angle: 65
+
+Minimum ddm_snr: 2
+Minimum sp_rx_gain: 0
+Maximum sp_rx_gain: 13
+
+Data fetching started: 17:27:42
+Data fetching completed: 07:39:04
+=======
 Minimum ddm_snr: 1
 Minimum sp_rx_gain: 0
 Maximum sp_rx_gain: 15

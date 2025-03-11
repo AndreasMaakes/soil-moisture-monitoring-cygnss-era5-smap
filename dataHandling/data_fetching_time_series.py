@@ -87,12 +87,3 @@ def data_fetching_time_series(startDate, endDate, num_days, username, password, 
         #ERA5 data fetching
 
         data_fetching_era5(True, start_date, end_date, min_lat, max_lat, min_lon, max_lon, name, basePath)
-
-
-    
-    
-    
-    
-       
-    
-    
