@@ -1,6 +1,7 @@
 import plotly.graph_objects as go
 import numpy as np
 from CYGNSS.import_data import importData
+from SMAP.SMAP_import_data import importDataSMAP
 
 '''
 This function is used to plot the ground tracks of the CYGNSS spacecraft.
@@ -19,15 +20,15 @@ def trace_plot(folder_name, saveplot):
     title = f'CYGNSS ground tracks - {name} - September 2024'
 
     # Import data
-    dataFrames = importData(folder_name)
+    dataFrames = importDataSMAP(False, folder_name)
     lats = np.array([])
     lons = np.array([])
     srs = np.array([])
 
     for df in dataFrames:
-        lat = np.array(df['sp_lat'])
-        lon = np.array(df['sp_lon'])
-        sr = np.array(df['sr'])
+        lat = np.array(df['latitude'])
+        lon = np.array(df['longitude'])
+        sr = np.array(df['soil_moisture'])
     
         lats = np.append(lats, lat)
         lons = np.append(lons, lon)
