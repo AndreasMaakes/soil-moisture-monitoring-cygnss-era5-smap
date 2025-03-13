@@ -50,7 +50,8 @@ def merged_dataframe(smap_folder, cygnss_folder, era5_folder, lsm_threshold, lat
     # --- CYGNSS ---
     dfs_cygnss = importData(cygnss_folder)
     df_cygnss = pd.concat(dfs_cygnss)
-    # Adjust quality control limits
+    # Adjust ddm_snr to be >= 2 or whatever threshold is desired. This could be done in datafetching but we have chose to rather to it 
+    # here to see how the correlation changes when we change the ddm_snr threshold
     df_cygnss = df_cygnss[df_cygnss['ddm_snr'] >= 2]
     
 
@@ -160,190 +161,187 @@ def correlation_plot(smap_folder, cygnss_folder, era5_folder,  lat_step, lon_ste
     plt.legend()
     plt.show()
 
-def correlation_matrix(smap_folder, cygnss_folder, era5_folder, lat_step, lon_step, lsm_threshold):
+def regrid_dataframe(df, lat_bins, lon_bins, data_source):
+    if data_source == "CYGNSS":
+        df = df.copy()  # avoid modifying the original dataframe
+        df['lat_bin'] = pd.cut(df['sp_lat'], bins=lat_bins, right=False)
+        df['lon_bin'] = pd.cut(df['sp_lon'], bins=lon_bins, right=False)
+        df_grid = df.groupby(['lat_bin', 'lon_bin'])['sr'].mean().reset_index()
+    elif data_source == "SMAP":
+        df = df.copy()
+        df['lat_bin'] = pd.cut(df['latitude'], bins=lat_bins, right=False)
+        df['lon_bin'] = pd.cut(df['longitude'], bins=lon_bins, right=False)
+        df_grid = df.groupby(['lat_bin', 'lon_bin'])['soil_moisture_avg'].mean().reset_index()
+    elif data_source == "ERA5":
+        df = df.copy()
+        df['lat_bin'] = pd.cut(df['latitude'], bins=lat_bins, right=False)
+        df['lon_bin'] = pd.cut(df['longitude'], bins=lon_bins, right=False)
+        df_grid = df.groupby(['lat_bin', 'lon_bin'])['average_moisture'].mean().reset_index()
+    else:
+        print("Invalid data source provided")
+        return None
+
+    # Compute the bin width from the provided bin edges.
+    lat_bin_width = lat_bins[1] - lat_bins[0]
+    lon_bin_width = lon_bins[1] - lon_bins[0]
+    # Compute the center of each bin
+    df_grid['lat_center'] = df_grid['lat_bin'].apply(lambda x: float(x.left) + lat_bin_width / 2)
+    df_grid['lon_center'] = df_grid['lon_bin'].apply(lambda x: float(x.left) + lon_bin_width / 2)
+    
+    return df_grid
+
+def spatial_correlation_matrix(smap_folder, cygnss_folder, era5_folder,
+                               lat_step, lon_step, lsm_threshold,
+                               window=1, min_points=3):
     """
-    Create 2D correlation matrices between SMAP, CYGNSS, and ERA5 data using a user‐specified 
-    latitude and longitude step size (in degrees) to define the spatial bins.
-    
-    This function:
-      1. Imports SMAP, CYGNSS, and ERA5 data and preprocesses them.
-      2. Interpolates each dataset onto a common, “fine” grid (with a resolution 10× finer 
-         than the bin (cell) size).
-      3. Divides the domain into bins (starting at the minimum lat/lon) of size lat_step x lon_step.
-      4. In each bin, computes the Pearson correlation coefficient between the two datasets,
-         using all the fine-grid points that fall within the bin.
-      5. Computes an overall correlation using binned data (to be consistent with your scatter plot).
-      6. Plots a pcolormesh of the correlation matrix with the correlation value printed inside 
-         each bin and the overall correlation in the title.
-    
+    Computes local (moving-window) spatial Pearson correlations for:
+      - CYGNSS vs SMAP and 
+      - CYGNSS vs ERA5
+    using your gridded data (via merged_dataframe).
+
+    The data are first gridded (using your existing regrid_dataframe function via merged_dataframe)
+    and then for each grid cell a neighborhood (defined by 'window' cells in each direction) is used
+    to compute a local Pearson correlation. The result is pivoted into matrices (with lat/lon axes)
+    and then each is plotted in a separate figure with the correlation printed inside each cell.
+
     Parameters:
-      smap_folder : str
-          Folder (or identifier) for SMAP data.
-      cygnss_folder : str
-          Folder (or identifier) for CYGNSS data.
-      era5_folder : str
-          Identifier for the ERA5 dataset (assumed to be in data/ERA5/).
-      lat_step : float
-          Step size in latitude (degrees) for the correlation bins.
-      lon_step : float
-          Step size in longitude (degrees) for the correlation bins.
-      lsm_threshold : float
-          Threshold value used by apply_land_sea_mask() for ERA5 data.
+      smap_folder   : Folder containing SMAP data.
+      cygnss_folder : Folder containing CYGNSS data.
+      era5_folder   : Folder containing ERA5 data.
+      lat_step      : Grid resolution (degrees) in latitude.
+      lon_step      : Grid resolution (degrees) in longitude.
+      lsm_threshold : Land-sea mask threshold for ERA5.
+      window        : Number of grid cells (in each direction) for the moving window.
+                      (window=1 gives a 3x3 neighborhood)
+      min_points    : Minimum number of grid cells in the neighborhood required to compute a correlation.
+    
+    Returns:
+      Two pivot DataFrames (matrices) for the local correlation values:
+         - pivot_CS: CYGNSS vs SMAP
+         - pivot_CE: CYGNSS vs ERA5
     """
-    
-    # ============================================================
-    # 1. Import and Preprocess the Data
-    # ============================================================
-    # --- SMAP data ---
-    dfs_smap = importDataSMAP(False, smap_folder)
-    df_smap = pd.concat(dfs_smap)
-    df_smap_avg = SMAP_averaging_soil_moisture(df_smap)
-    
-    # --- CYGNSS data ---
-    dfs_cygnss = importData(cygnss_folder)
-    df_cygnss = pd.concat(dfs_cygnss)
-    #df_cygnss = df_cygnss[df_cygnss['ddm_snr'] > 2]
-    #df_cygnss = df_cygnss[df_cygnss['sp_rx_gain'] < 13]
-    
-    # --- ERA5 data ---
-    ds_era5 = xr.open_dataset(f'data/ERA5/{era5_folder}')
-    df_era5 = ds_era5.to_dataframe().reset_index()
-    df_era5_avg = averaging_soil_moisture(df_era5)
-    df_era5_lsm = apply_land_sea_mask(df_era5_avg, lsm_threshold)
-    
-    # ============================================================
-    # 2. Define the Overall Spatial Extents and Create a Fine Grid
-    # ============================================================
-    # Use union of SMAP, CYGNSS, and ERA5
-    lat_min = min(df_smap_avg["latitude"].min(), df_cygnss["sp_lat"].min(), df_era5_lsm["latitude"].min())
-    lat_max = max(df_smap_avg["latitude"].max(), df_cygnss["sp_lat"].max(), df_era5_lsm["latitude"].max())
-    lon_min = min(df_smap_avg["longitude"].min(), df_cygnss["sp_lon"].min(), df_era5_lsm["longitude"].min())
-    lon_max = max(df_smap_avg["longitude"].max(), df_cygnss["sp_lon"].max(), df_era5_lsm["longitude"].max())
-    
-    # Create a fine grid with resolution 10× finer than the bin size
-    interp_factor = 10
-    fine_lat_step = lat_step / interp_factor
-    fine_lon_step = lon_step / interp_factor
-    lat_fine = np.arange(lat_min, lat_max + fine_lat_step, fine_lat_step)
-    lon_fine = np.arange(lon_min, lon_max + fine_lon_step, fine_lon_step)
-    lon_mesh, lat_mesh = np.meshgrid(lon_fine, lat_fine)
-    
-    # ============================================================
-    # 3. Interpolate Each Dataset onto the Fine Grid
-    # ============================================================
-    smap_points = (df_smap_avg["longitude"].values, df_smap_avg["latitude"].values)
-    smap_vals = df_smap_avg["soil_moisture_avg"].values
-    smap_fine = griddata(smap_points, smap_vals, (lon_mesh, lat_mesh), method='linear')
-    
-    cygnss_points = (df_cygnss["sp_lon"].values, df_cygnss["sp_lat"].values)
-    cygnss_vals = df_cygnss["sr"].values
-    cygnss_fine = griddata(cygnss_points, cygnss_vals, (lon_mesh, lat_mesh), method='linear')
-    
-    era5_points = (df_era5_lsm["longitude"].values, df_era5_lsm["latitude"].values)
-    era5_vals = df_era5_lsm["average_moisture"].values
-    era5_fine = griddata(era5_points, era5_vals, (lon_mesh, lat_mesh), method='linear')
-    
-    # ============================================================
-    # 4. Define Correlation Bins Using the Specified Step Size
-    # ============================================================
-    lat_edges = np.arange(lat_min, lat_max, lat_step)
-    lon_edges = np.arange(lon_min, lon_max, lon_step)
-    n_lat_bins = len(lat_edges)
-    n_lon_bins = len(lon_edges)
-    lat_centers = lat_edges + lat_step/2
-    lon_centers = lon_edges + lon_step/2
-    
-    # Initialize correlation matrices (per bin)
-    corr_matrix_smap_cygnss = np.full((n_lat_bins, n_lon_bins), np.nan)
-    corr_matrix_era5_cygnss = np.full((n_lat_bins, n_lon_bins), np.nan)
-    corr_matrix_smap_era5   = np.full((n_lat_bins, n_lon_bins), np.nan)
-    
-    # ============================================================
-    # 5. Compute the Correlation in Each Bin (using fine grid interpolation)
-    # ============================================================
-    for i in range(n_lat_bins):
-        for j in range(n_lon_bins):
-            lat_lower = lat_edges[i]
-            lat_upper = lat_lower + lat_step
-            lon_lower = lon_edges[j]
-            lon_upper = lon_lower + lon_step
-            mask = ((lat_mesh >= lat_lower) & (lat_mesh < lat_upper) &
-                    (lon_mesh >= lon_lower) & (lon_mesh < lon_upper))
-            
-            # SMAP vs CYGNSS
-            block_smap = smap_fine[mask].flatten()
-            block_cygnss = cygnss_fine[mask].flatten()
-            valid = ~np.isnan(block_smap) & ~np.isnan(block_cygnss)
-            if np.sum(valid) >= 2:
-                corr_matrix_smap_cygnss[i, j] = np.corrcoef(block_smap[valid], block_cygnss[valid])[0, 1]
-            
-            # ERA5 vs CYGNSS
-            block_era5 = era5_fine[mask].flatten()
-            block_cygnss = cygnss_fine[mask].flatten()
-            valid = ~np.isnan(block_era5) & ~np.isnan(block_cygnss)
-            if np.sum(valid) >= 2:
-                corr_matrix_era5_cygnss[i, j] = np.corrcoef(block_era5[valid], block_cygnss[valid])[0, 1]
-            
-            # SMAP vs ERA5
-            block_smap = smap_fine[mask].flatten()
-            block_era5 = era5_fine[mask].flatten()
-            valid = ~np.isnan(block_smap) & ~np.isnan(block_era5)
-            if np.sum(valid) >= 2:
-                corr_matrix_smap_era5[i, j] = np.corrcoef(block_smap[valid], block_era5[valid])[0, 1]
-    
-    # ============================================================
-    # 6. Compute Overall Correlations from the Binned Data (to match correlation_plot)
-    # ============================================================
-      # assuming merged_dataframe is accessible
-    df_merged_CYGNSS_SMAP, df_merged_CYGNSS_ERA5, df_merged_SMAP_ERA5 = merged_dataframe(
+    import numpy as np
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    from scipy.stats import pearsonr
+
+    # Get gridded data using your existing merged_dataframe function.
+    # (It returns three DataFrames: CYGNSS vs SMAP, CYGNSS vs ERA5, and SMAP vs ERA5)
+    df_merged_CYGNSS_SMAP, df_merged_CYGNSS_ERA5, _ = merged_dataframe(
         smap_folder, cygnss_folder, era5_folder, lsm_threshold, lat_step, lon_step)
     
-    df_valid_CYGNSS_SMAP = df_merged_CYGNSS_SMAP.dropna(subset=['sr', 'soil_moisture_avg'])
-    overall_smap_cygnss = np.corrcoef(df_valid_CYGNSS_SMAP['sr'], df_valid_CYGNSS_SMAP['soil_moisture_avg'])[0,1]
+    # Convert the grid cell centers to float (if they are still categorical)
+    df_merged_CYGNSS_SMAP['lat_center'] = df_merged_CYGNSS_SMAP['lat_center'].astype(float)
+    df_merged_CYGNSS_SMAP['lon_center'] = df_merged_CYGNSS_SMAP['lon_center'].astype(float)
+    df_merged_CYGNSS_ERA5['lat_center'] = df_merged_CYGNSS_ERA5['lat_center'].astype(float)
+    df_merged_CYGNSS_ERA5['lon_center'] = df_merged_CYGNSS_ERA5['lon_center'].astype(float)
     
-    df_valid_CYGNSS_ERA5 = df_merged_CYGNSS_ERA5.dropna(subset=['sr', 'average_moisture'])
-    overall_era5_cygnss = np.corrcoef(df_valid_CYGNSS_ERA5['sr'], df_valid_CYGNSS_ERA5['average_moisture'])[0,1]
+    # Drop grid cells where either sensor's value is missing
+    df_valid_CS = df_merged_CYGNSS_SMAP.dropna(subset=['sr', 'soil_moisture_avg']).reset_index(drop=True)
+    df_valid_CE = df_merged_CYGNSS_ERA5.dropna(subset=['sr', 'average_moisture']).reset_index(drop=True)
     
-    df_valid_SMAP_ERA5 = df_merged_SMAP_ERA5.dropna(subset=['soil_moisture_avg', 'average_moisture'])
-    overall_smap_era5 = np.corrcoef(df_valid_SMAP_ERA5['soil_moisture_avg'], df_valid_SMAP_ERA5['average_moisture'])[0,1]
+    # Compute local correlation for CYGNSS vs SMAP
+    local_corr_CS = []
+    for idx, row in df_valid_CS.iterrows():
+        center_lat = row['lat_center']
+        center_lon = row['lon_center']
+        # Define neighborhood boundaries
+        lat_min_win = center_lat - window * lat_step
+        lat_max_win = center_lat + window * lat_step
+        lon_min_win = center_lon - window * lon_step
+        lon_max_win = center_lon + window * lon_step
+        
+        neighborhood = df_valid_CS[
+            (df_valid_CS['lat_center'] >= lat_min_win) &
+            (df_valid_CS['lat_center'] <= lat_max_win) &
+            (df_valid_CS['lon_center'] >= lon_min_win) &
+            (df_valid_CS['lon_center'] <= lon_max_win)
+        ]
+        
+        if len(neighborhood) >= min_points:
+            r_local, _ = pearsonr(neighborhood['sr'], neighborhood['soil_moisture_avg'])
+        else:
+            r_local = np.nan
+        local_corr_CS.append(r_local)
+    df_valid_CS['local_corr'] = local_corr_CS
+
+    # Compute local correlation for CYGNSS vs ERA5
+    local_corr_CE = []
+    for idx, row in df_valid_CE.iterrows():
+        center_lat = row['lat_center']
+        center_lon = row['lon_center']
+        lat_min_win = center_lat - window * lat_step
+        lat_max_win = center_lat + window * lat_step
+        lon_min_win = center_lon - window * lon_step
+        lon_max_win = center_lon + window * lon_step
+        
+        neighborhood = df_valid_CE[
+            (df_valid_CE['lat_center'] >= lat_min_win) &
+            (df_valid_CE['lat_center'] <= lat_max_win) &
+            (df_valid_CE['lon_center'] >= lon_min_win) &
+            (df_valid_CE['lon_center'] <= lon_max_win)
+        ]
+        
+        if len(neighborhood) >= min_points:
+            r_local, _ = pearsonr(neighborhood['sr'], neighborhood['average_moisture'])
+        else:
+            r_local = np.nan
+        local_corr_CE.append(r_local)
+    df_valid_CE['local_corr'] = local_corr_CE
+
+    # Create pivot tables (matrices) with lat_center as rows and lon_center as columns.
+    pivot_CS = df_valid_CS.pivot(index='lat_center', columns='lon_center', values='local_corr')
+    pivot_CE = df_valid_CE.pivot(index='lat_center', columns='lon_center', values='local_corr')
     
-    # ============================================================
-    # 7. Plotting Function for a Given Correlation Matrix
-    # ============================================================
-    def plot_corr_matrix(corr_matrix, lon_edges, lat_edges, lon_centers, lat_centers, title_str, overall_val):
-        plt.figure(figsize=(10, 8))
-        mesh = plt.pcolormesh(lon_edges, lat_edges, corr_matrix, shading='auto', 
-                              cmap='coolwarm', vmin=-1, vmax=1)
-        plt.colorbar(mesh, label='Pearson Correlation')
-        plt.xlabel('Longitude')
-        plt.ylabel('Latitude')
-        plt.axis('equal')
-        for i in range(corr_matrix.shape[0]):
-            for j in range(corr_matrix.shape[1]):
-                corr_val = corr_matrix[i, j]
-                if not np.isnan(corr_val):
-                    plt.text(lon_centers[j], lat_centers[i], f"{corr_val:.2f}",
-                             ha='center', va='center', color='black', fontsize=10)
-        plt.title(f'{title_str}\nOverall Correlation: {overall_val:.2f}', fontsize=14, pad=20)
-        plt.show()
+    pivot_CS = pivot_CS.sort_index(ascending=True)
+    pivot_CE = pivot_CE.sort_index(ascending=True)
     
-    lat_edges_plot = np.append(lat_edges, lat_edges[-1] + lat_step)
-    lon_edges_plot = np.append(lon_edges, lon_edges[-1] + lon_step)
+    # ---------------------------
+    # Plot for CYGNSS vs SMAP
+    # ---------------------------
+    plt.figure(figsize=(8, 6))
+    # Calculate extent so that grid cells are centered properly
+    extent_CS = [pivot_CS.columns.min()-lon_step/2, pivot_CS.columns.max()+lon_step/2,
+                 pivot_CS.index.min()-lat_step/2, pivot_CS.index.max()+lat_step/2]
+    plt.imshow(pivot_CS, origin='lower', aspect='auto', extent=extent_CS, cmap='coolwarm')
+    # Annotate each cell with its correlation value
+    for lat in pivot_CS.index:
+        for lon in pivot_CS.columns:
+            value = pivot_CS.loc[lat, lon]
+            if pd.notna(value):
+                plt.text(lon, lat, f'{value:.2f}', ha='center', va='center', fontsize=10, color='black')
+    plt.xlabel('Longitude')
+    plt.ylabel('Latitude')
+    plt.title('Local Correlation: CYGNSS vs SMAP')
+    plt.show()
     
-    # ============================================================
-    # 8. Plot the Three Correlation Matrices
-    # ============================================================
-    plot_corr_matrix(corr_matrix_smap_cygnss, lon_edges_plot, lat_edges_plot, 
-                     lon_centers, lat_centers,
-                     'Correlation Matrix between SMAP and CYGNSS', overall_smap_cygnss)
+    # ---------------------------
+    # Plot for CYGNSS vs ERA5
+    # ---------------------------
+    plt.figure(figsize=(8, 6))
+    extent_CE = [pivot_CE.columns.min()-lon_step/2, pivot_CE.columns.max()+lon_step/2,
+                 pivot_CE.index.min()-lat_step/2, pivot_CE.index.max()+lat_step/2]
+    plt.imshow(pivot_CE, origin='lower', aspect='auto', extent=extent_CE, cmap='coolwarm')
+    for lat in pivot_CE.index:
+        for lon in pivot_CE.columns:
+            value = pivot_CE.loc[lat, lon]
+            if pd.notna(value):
+                plt.text(lon, lat, f'{value:.2f}', ha='center', va='center', fontsize=10, color='black')
+    plt.xlabel('Longitude')
+    plt.ylabel('Latitude')
+    plt.title('Local Correlation: CYGNSS vs ERA5')
+    plt.show()
     
-    plot_corr_matrix(corr_matrix_era5_cygnss, lon_edges_plot, lat_edges_plot, 
-                     lon_centers, lat_centers,
-                     'Correlation Matrix between ERA5 and CYGNSS', overall_era5_cygnss)
-    
-    plot_corr_matrix(corr_matrix_smap_era5, lon_edges_plot, lat_edges_plot, 
-                     lon_centers, lat_centers,
-                     'Correlation Matrix between SMAP and ERA5', overall_smap_era5)
+    return pivot_CS, pivot_CE
+
+# Example usage:
+# pivot_CS, pivot_CE = spatial_correlation_matrix("India2", 
+#                                                  "India2/India2-20200101-20200131", 
+#                                                  "India2/ERA5_India2_2020_01_01_31.nc", 
+#                                                  lat_step=0.5, lon_step=0.5, lsm_threshold=0.9,
+#                                                  window=1, min_points=3)
 
 
+
+spatial_correlation_matrix("Bolivia", "Bolivia/Bolivia-20240701-20240707", "Bolivia/ERA5_Bolivia_2024_07_01_07.nc", 0.5, 0.5, 0.9, window=1, min_points=3)
 
