@@ -62,7 +62,7 @@ def apply_gaussian_to_grid(df_grid, value_column, lat_bins, lon_bins, sigma):
     
     return df_blurred
 
-
+    
 #####################################
 # Gridding and Merging Functions
 #####################################
@@ -106,11 +106,16 @@ def merged_dataframe(smap_folder, cygnss_folder, era5_folder, lsm_threshold, lat
     dfs_smap = importDataSMAP(False, smap_folder)
     df_smap1 = pd.concat(dfs_smap)
     df_smap = SMAP_averaging_soil_moisture(df_smap1)
+    
+    #df_smap = df_smap[(df_smap["longitude"] >= 68) & (df_smap["longitude"] <= 68.5) & (df_smap["latitude"] >= 27) & (df_smap["latitude"] <= 27.5)]
+    
+
 
     # --- CYGNSS ---
     dfs_cygnss = importData(cygnss_folder)
     df_cygnss = pd.concat(dfs_cygnss)
     df_cygnss = df_cygnss[df_cygnss['ddm_snr'] >= 2]  # apply ddm_snr threshold
+    #df_cygnss = df_cygnss[(df_cygnss["sp_lon"] >= 68) & (df_cygnss["sp_lon"] <= 68.5) & (df_cygnss["sp_lat"] >= 27) & (df_cygnss["sp_lat"] <= 27.5)]
 
     # --- ERA5 ---
     df_era5 = xr.open_dataset(f'data/ERA5/{era5_folder}').to_dataframe().reset_index()
@@ -226,7 +231,7 @@ def correlation_plot(smap_folder, cygnss_folder, era5_folder, lat_step, lon_step
     plt.legend()
     plt.show()
 
-def spatial_correlation_matrix(smap_folder, cygnss_folder, era5_folder,
+def spatial_correlation_matrix_old(smap_folder, cygnss_folder, era5_folder,
                                lat_step, lon_step, lsm_threshold,
                                window=1, min_points=3, gaussian_sigma=0):
     """
@@ -345,7 +350,173 @@ def spatial_correlation_matrix(smap_folder, cygnss_folder, era5_folder,
 #                            window=1, min_points=3, gaussian_sigma=0)
 #
 # To test with a Gaussian blur (e.g., sigma=1), call:
-spatial_correlation_matrix("India2", 
+
+'''
+spatial_correlation_matrix_old("India2", 
                            "India2/India2-20200101-20200131", 
                            "India2/ERA5_India2_2020_01_01_31.nc", 
                            0.5, 0.5, 0.9, window=1, min_points=3, gaussian_sigma=3)
+'''
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.stats import pearsonr
+
+###############################################
+# Helper Functions for Local Correlation
+###############################################
+
+def compute_local_correlation(merged_df, col1, col2, window_size=3):
+    """
+    Compute a spatial map of Pearson correlation coefficients using a moving window.
+
+    Parameters:
+      merged_df : DataFrame with columns 'lat_center', 'lon_center', col1, col2.
+      col1, col2: Names of the columns to correlate (e.g., 'sr' and 'soil_moisture_avg').
+      window_size: Size of the moving window (should be odd, e.g., 3 means a 3x3 window).
+
+    Returns:
+      lat_centers : Sorted unique latitude centers.
+      lon_centers : Sorted unique longitude centers.
+      corr_matrix: 2D numpy array with the local correlation coefficients.
+    """
+    # Pivot the merged dataframe into 2D arrays
+    pivot1 = merged_df.pivot(index='lat_center', columns='lon_center', values=col1)
+    pivot2 = merged_df.pivot(index='lat_center', columns='lon_center', values=col2)
+
+    lat_centers = pivot1.index.values
+    lon_centers = pivot1.columns.values
+    n_lat, n_lon = pivot1.shape
+
+    # Initialize the output correlation matrix with NaNs
+    corr_matrix = np.full((n_lat, n_lon), np.nan)
+    half_window = window_size // 2
+
+    # Loop over each grid cell
+    for i in range(n_lat):
+        for j in range(n_lon):
+            # Determine indices for the local window
+            i_min = max(0, i - half_window)
+            i_max = min(n_lat, i + half_window + 1)
+            j_min = max(0, j - half_window)
+            j_max = min(n_lon, j + half_window + 1)
+
+            # Extract local window values for each sensor
+            window1 = pivot1.iloc[i_min:i_max, j_min:j_max].values.flatten()
+            window2 = pivot2.iloc[i_min:i_max, j_min:j_max].values.flatten()
+
+            # Filter out pairs where either value is NaN
+            valid = (~np.isnan(window1)) & (~np.isnan(window2))
+            if np.sum(valid) >= 2:  # Need at least two valid pairs for Pearson correlation
+                r = np.corrcoef(window1[valid], window2[valid])[0, 1]
+                corr_matrix[i, j] = r
+            else:
+                corr_matrix[i, j] = np.nan
+
+    return lat_centers, lon_centers, corr_matrix
+
+def plot_spatial_correlation(lat_centers, lon_centers, corr_matrix, title):
+    """
+    Plot the spatial correlation matrix with latitude and longitude on the axes,
+    and print the correlation value in each grid cell.
+
+    Parameters:
+      lat_centers : 1D array of latitude centers.
+      lon_centers : 1D array of longitude centers.
+      corr_matrix : 2D array of correlation coefficients.
+      title       : Title for the plot.
+    """
+    plt.figure(figsize=(8, 6))
+    # Calculate spacing (assumes uniform spacing)
+    if len(lat_centers) > 1:
+        lat_spacing = lat_centers[1] - lat_centers[0]
+    else:
+        lat_spacing = 1
+    if len(lon_centers) > 1:
+        lon_spacing = lon_centers[1] - lon_centers[0]
+    else:
+        lon_spacing = 1
+
+    # Compute extent for imshow so that cell centers match lat_centers and lon_centers.
+    extent = [lon_centers[0] - lon_spacing/2, lon_centers[-1] + lon_spacing/2,
+              lat_centers[0] - lat_spacing/2, lat_centers[-1] + lat_spacing/2]
+
+    # Display the correlation matrix using imshow.
+    img = plt.imshow(corr_matrix, origin='lower', extent=extent, cmap='viridis', aspect='auto')
+    plt.xlabel('Longitude')
+    plt.ylabel('Latitude')
+    plt.title(title)
+    plt.colorbar(img, label='Pearson r')
+
+    # Annotate each cell with its correlation value.
+    for i, lat in enumerate(lat_centers):
+        for j, lon in enumerate(lon_centers):
+            value = corr_matrix[i, j]
+            if not np.isnan(value):
+                plt.text(lon, lat, f"{value:.2f}", ha='center', va='center', color='black', fontsize=8)
+    plt.show()
+
+###############################################
+# Main Function: Spatial Correlation Matrix
+###############################################
+
+def spatial_correlation_matrix(smap_folder, cygnss_folder, era5_folder,
+                               lsm_threshold, lat_step, lon_step,
+                               gaussian_sigma=0, window_size=3):
+    """
+    Create and plot spatial correlation matrices for:
+      - CYGNSS vs SMAP
+      - CYGNSS vs ERA5
+
+    This function:
+      1. Loads and regrids data from the three sensors using your merged_dataframe function.
+      2. Computes and prints the overall (global) Pearson correlation coefficients.
+      3. Computes local Pearson correlations using a moving window (adjustable via window_size).
+      4. Plots the spatial correlation matrices with latitude and longitude axes.
+         Each grid cell is annotated with its correlation value.
+
+    Parameters:
+      smap_folder, cygnss_folder, era5_folder: Paths to your data folders.
+      lsm_threshold : Land-sea mask threshold.
+      lat_step, lon_step: Binning step sizes.
+      gaussian_sigma: Sigma for optional Gaussian blur applied to the gridded data.
+      window_size : Size of the moving window (e.g., 3 for a 3x3 grid).
+    """
+    # Regrid and merge the datasets
+    df_merged_CYGNSS_SMAP, df_merged_CYGNSS_ERA5, _ = merged_dataframe(
+        smap_folder, cygnss_folder, era5_folder, lsm_threshold, lat_step, lon_step, gaussian_sigma=gaussian_sigma)
+
+    # --- CYGNSS vs SMAP ---
+    df_valid_smap = df_merged_CYGNSS_SMAP.dropna(subset=['sr', 'soil_moisture_avg'])
+    r_global_smap, p_global_smap = pearsonr(df_valid_smap['sr'], df_valid_smap['soil_moisture_avg'])
+    print(f'Overall Pearson correlation for CYGNSS/SMAP: r = {r_global_smap:.2f}, p = {p_global_smap:.3f}')
+
+    lat_centers, lon_centers, corr_matrix_smap = compute_local_correlation(
+        df_merged_CYGNSS_SMAP, 'sr', 'soil_moisture_avg', window_size=window_size)
+    plot_spatial_correlation(lat_centers, lon_centers, corr_matrix_smap,
+                             f'Local Pearson Correlation (CYGNSS vs SMAP) - Window {window_size}x{window_size}')
+
+    # --- CYGNSS vs ERA5 ---
+    df_valid_era5 = df_merged_CYGNSS_ERA5.dropna(subset=['sr', 'average_moisture'])
+    r_global_era5, p_global_era5 = pearsonr(df_valid_era5['sr'], df_valid_era5['average_moisture'])
+    print(f'Overall Pearson correlation for CYGNSS/ERA5: r = {r_global_era5:.2f}, p = {p_global_era5:.3f}')
+
+    lat_centers_era5, lon_centers_era5, corr_matrix_era5 = compute_local_correlation(
+        df_merged_CYGNSS_ERA5, 'sr', 'average_moisture', window_size=window_size)
+    plot_spatial_correlation(lat_centers_era5, lon_centers_era5, corr_matrix_era5,
+                             f'Local Pearson Correlation (CYGNSS vs ERA5) - Window {window_size}x{window_size}')
+
+# Example call:
+# spatial_correlation_matrix(smap_folder="path_to_smap_data",
+#                            cygnss_folder="path_to_cygnss_data",
+#                            era5_folder="path_to_era5_data",
+#                            lsm_threshold=0.5,
+#                            lat_step=0.1,
+#                            lon_step=0.1,
+#                            gaussian_sigma=1,
+#                            window_size=3)
+
+spatial_correlation_matrix("India2",
+                           "India2/India2-20200101-20200131",
+                           "India2/ERA5_India2_2020_01_01_31.nc",
+                           0.9, 0.5, 0.5, 0, 3)

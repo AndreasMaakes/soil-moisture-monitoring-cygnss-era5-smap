@@ -33,11 +33,11 @@ Note: Both plotting options has the option to save the plot to a file. This is d
 
 
 
-#SMAP_gaussian_blur_plot("India2", 3, 0.1, 0.1)
+#SMAP_gaussian_blur_plot("India2", 0, 0.5, 0.5)
 #CYGNSS_gaussian_blur_plot("Western-Australia/Western-Australia-20200101-20200131", 0, 2000, True)
-#CYGNSS_average_plot("India2/India2-20200101-20200131", 3, 0.1, 0.1,  False)
+#CYGNSS_average_plot("India2/India2-20200101-20200131", 0, 0.5, 0.5,  False)
 #ERA5_gaussian_blur_plot("India2/ERA5_India2_2020_01_01_31.nc", 2.0, 0.9, 50)
 #correlation_matrix("India2", "India2/India2-20200101-20200131", "India2/ERA5_India2_2020_01_01_31.nc", 0.5, 0.5, 0.9)
-correlation_plot("India2", "India2/India2-20200101-20200131", "India2/ERA5_India2_2020_01_01_31.nc", 0.5, 0.5, 0.9, gaussian_sigma=3)
+correlation_plot("India2", "India2/India2-20200101-20200131", "India2/ERA5_India2_2020_01_01_31.nc", 0.5, 0.5, 0.9, gaussian_sigma=2)
 #plot_time_series("data/Timeseries/TimeSeries-Pakistan-20220101-20241231", 25, 69, 25.5, 69.5, gaussian_sigma=3)
 
