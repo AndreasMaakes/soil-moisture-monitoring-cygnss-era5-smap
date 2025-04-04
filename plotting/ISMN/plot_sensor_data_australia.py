@@ -35,8 +35,10 @@ def plot_soil_moisture(folder_path, sigma=0):
     # Compute the overall weekly average across sensors (ignoring NaN where data is missing).
     combined['mean_moisture'] = combined.mean(axis=1)
     
-    # Remove weeks where the overall weekly average moisture is above 1.
-    filtered = combined[combined['mean_moisture'] <= 1]
+    # Filter for dates between August 1, 2018 and August 1, 2020 and for mean moisture <= 1.
+    start_date = pd.Timestamp('2018-08-01')
+    end_date = pd.Timestamp('2020-08-01')
+    filtered = combined[(combined.index >= start_date) & (combined.index <= end_date) & (combined['mean_moisture'] <= 1)]
     
     # Optionally apply Gaussian blur if sigma > 0.
     if sigma > 0:
@@ -61,6 +63,5 @@ def plot_soil_moisture(folder_path, sigma=0):
     plt.show()
 
 
-#Calling the function
-#Blabla
-plot_soil_moisture("data\ISMN\Ghana", sigma=1)
+# Calling the function with the updated filtering
+plot_soil_moisture("data/ISMN/Eastern-Australia", sigma=1)
