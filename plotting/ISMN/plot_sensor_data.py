@@ -61,6 +61,5 @@ def plot_soil_moisture(folder_path, sigma=0):
     plt.show()
 
 
-#Calling the function
-#Blabla
-plot_soil_moisture("data\ISMN\Ghana", sigma=1)
+#Calling the function 
+plot_soil_moisture("data\ISMN\Eastern-Australia", sigma=0)

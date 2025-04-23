@@ -7,6 +7,7 @@ from CYGNSS.trace_plot import trace_plot
 from plot_timeseries import plot_time_series
 from plot_correlation import correlation_plot, spatial_correlation_matrix
 from CYGNSS.CYGNSS_average_plot import CYGNSS_average_plot
+from ERA5.ERA5_gaussian_blur_plot_new import ERA5_regrid_and_blur
 
 
 
@@ -33,11 +34,12 @@ Note: Both plotting options has the option to save the plot to a file. This is d
 
 
 
-#SMAP_gaussian_blur_plot("India2", 0, 0.5, 0.5)
+#SMAP_gaussian_blur_plot("India2", 0, 0.05, 0.05)
 #CYGNSS_gaussian_blur_plot("Western-Australia/Western-Australia-20200101-20200131", 0, 2000, True)
-#CYGNSS_average_plot("India2/India2-20200101-20200131", 0, 0.5, 0.5,  False)
-#ERA5_gaussian_blur_plot("India2/ERA5_India2_2020_01_01_31.nc", 2.0, 0.9, 50)
+#CYGNSS_average_plot("India2/India2-20200101-20200107", 2.0, 0.05, 0.05,  False)
+#ERA5_gaussian_blur_plot("Pakistan/ERA5_Pakistan20200701_20200707.nc", 0, 0.9, 50)
+#ERA5_regrid_and_blur("Pakistan/ERA5_Pakistan_20200101_20200107.nc", 2.0, 0.6, 0.05, 0.05)
 #correlation_matrix("India2", "India2/India2-20200101-20200131", "India2/ERA5_India2_2020_01_01_31.nc", 0.5, 0.5, 0.9)
-correlation_plot("India2", "India2/India2-20200101-20200131", "India2/ERA5_India2_2020_01_01_31.nc", 0.5, 0.5, 0.9, gaussian_sigma=2)
-#plot_time_series("data/Timeseries/TimeSeries-Pakistan-20220101-20241231", 25, 69, 25.5, 69.5, gaussian_sigma=3)
+#correlation_plot("India2", "India2/India2-20200101-20200131", "India2/ERA5_India2_2020_01_01_31.nc", 0.5, 0.5, 0.9, gaussian_sigma=2)
+plot_time_series("data/Timeseries/TimeSeries-Pakistan-20220101-20241231", 25, 69, 25.5, 69.5, gaussian_sigma=3)
 

@@ -516,7 +516,10 @@ def spatial_correlation_matrix(smap_folder, cygnss_folder, era5_folder,
 #                            gaussian_sigma=1,
 #                            window_size=3)
 
+'''
 spatial_correlation_matrix("India2",
                            "India2/India2-20200101-20200131",
                            "India2/ERA5_India2_2020_01_01_31.nc",
                            0.9, 0.5, 0.5, 0, 3)
+                           
+                           '''

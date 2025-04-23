@@ -1,70 +1,85 @@
 import cdsapi
 import os
+import xarray as xr
 from create_dates_array import create_dates_array
 
+def data_fetching_era5(timeSeries: bool,
+                       startDate: str,
+                       endDate: str,
+                       min_lat, max_lat,
+                       min_lon, max_lon,
+                       name: str,
+                       basePath: str = "data/ERA5"):
+    """
+    1) Downloads ERA5-Land soil moisture and land_sea_mask via two separate .nc downloads.
+    2) Opens, interpolates the mask onto the soil-moisture grid, merges into one Dataset.
+    3) Writes out a single NetCDF and removes the two intermediate files.
+    """
 
-'''
-Husk å skrive dokumentasjon om at api-kallet henter data fra et gitt sett med dager og måneder, så start-og end date funksjonaliteten er ikke lik som for CYGNSS.
-NB: Nå hentes det for 24 timer
-'''
-
-def data_fetching_era5(timeSeries: bool, startDate: str, endDate: str, min_lat, max_lat, min_lon, max_lon, name, basePath="data/ERA5"):
-    
-    '''Create an array of dates between the start and end date'''
-    dates = create_dates_array(startDate, endDate, "era5")
-    year = dates[0]
-    month = dates[1]
-    days = dates[2]
-    
-    dataset = "reanalysis-era5-single-levels"
-    request = {
-    "product_type": ["reanalysis"],
-    "variable": ["volumetric_soil_water_layer_1","land_sea_mask"],
-    "year": [year],
-    "month": [month],
-    "day": days,
-    "time": [
-        "00:00", "01:00", "02:00",
-        "03:00", "04:00", "05:00",
-        "06:00", "07:00", "08:00",
-        "09:00", "10:00", "11:00",
-        "12:00", "13:00", "14:00",
-        "15:00", "16:00", "17:00",
-        "18:00", "19:00", "20:00",
-        "21:00", "22:00", "23:00"
-    ],
-    "data_format": "netcdf",
-    "download_format": "unarchived",
-    "area": [max_lat, min_lon, min_lat, max_lon]
-}
-    '''Define the base path for the data directory'''
+    # --- 1) Dates & output paths ---
+    year, month, days = create_dates_array(startDate, endDate, "era5")
+    datestr = f"{year}{month}{days[0]}_{year}{month}{days[-1]}"
 
     if timeSeries:
-        base_data_path = f'{basePath}/ERA5'
-        file_name = f"ERA5_{year}{month}{days[0]}_{year}{month}{days[-1]}"
-        client = cdsapi.Client()
-        client.retrieve(dataset, request).download(f"{base_data_path}/{file_name}.nc")
-
-
+        out_dir = os.path.join(basePath, "ERA5")
+        prefix  = f"ERA5_{datestr}"
     else:
-        '''Create or locate the area-specific folder'''
-        area_folder_path = os.path.join(basePath, name)
-        if not os.path.exists(area_folder_path):
-            try:
-                os.mkdir(area_folder_path)
-                print(f"Directory {area_folder_path} created successfully.")
-            except OSError:
-                print(f"Creation of the directory {area_folder_path} failed.")
-        else:
-            print(f"Directory {area_folder_path} already exists.")
+        out_dir = os.path.join(basePath, name)
+        prefix  = f"ERA5_{name}_{datestr}"
 
-        '''Create a subfolder for this specific run inside the area-specific folder. Name it after the area, year, month and days'''
-        file_name = f"ERA5_{name}_{year}_{month}_{days[0]}_{days[-1]}"
-        client = cdsapi.Client()
-        client.retrieve(dataset, request).download(f"{area_folder_path}/{file_name}.nc")
+    os.makedirs(out_dir, exist_ok=True)
 
+    # --- 2) CDS client and time list ---
+    client = cdsapi.Client()
+    times  = [f"{h:02d}:00" for h in range(24)]
+    area   = [max_lat, min_lon, min_lat, max_lon]
 
+    # --- 3) Download each variable into its own file ---
+    vars_to_fetch = {
+        "volumetric_soil_water_layer_1": f"{prefix}_swvl1.nc",
+        "land_sea_mask":                f"{prefix}_lsm.nc"
+    }
 
+    for var, fname in vars_to_fetch.items():
+        req = {
+            "variable":        [var],
+            "year":            [year],
+            "month":           [month],
+            "day":             days,
+            "time":            times,
+            "data_format":     "netcdf",
+            "download_format": "unarchived",
+            "area":            area,
+        }
+        target_path = os.path.join(out_dir, fname)
+        print(f"Downloading {var} → {target_path}")
+        client.retrieve("reanalysis-era5-land", req).download(target_path)
 
+    # --- 4) Open both files ---
+    swvl1_path = os.path.join(out_dir, vars_to_fetch["volumetric_soil_water_layer_1"])
+    lsm_path   = os.path.join(out_dir, vars_to_fetch["land_sea_mask"])
 
+    ds_sw  = xr.open_dataset(swvl1_path, engine="netcdf4")
+    ds_lsm = xr.open_dataset(lsm_path,   engine="netcdf4")
 
+    # --- 5) Interpolate mask onto the soil-moisture grid ---
+    ds_lsm2 = ds_lsm.interp(
+        latitude  = ds_sw.latitude,
+        longitude = ds_sw.longitude,
+        method    = "nearest"
+    )
+
+    # --- 6) Merge and write final file ---
+    merged_path = os.path.join(out_dir, f"{prefix}.nc")
+    xr.merge([ds_sw, ds_lsm2]).to_netcdf(merged_path)
+    print(f"Wrote merged file → {merged_path}")
+    
+    # -- - 6.5) Close datasets to free up memory ---
+    ds_sw.close()
+    ds_lsm.close()
+    ds_lsm2.close() 
+
+    # --- 7) Clean up intermediate files ---
+    os.remove(swvl1_path)
+    os.remove(lsm_path)
+    print("Deleted intermediate files.")

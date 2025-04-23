@@ -68,7 +68,7 @@ def data_fetching_time_series(startDate, endDate, num_days, username, password, 
         else:
             end_date = days[1]
        
-        
+        '''
          #SMAP data fetching
 
          #Fetching the data from the current run as a dataframe
@@ -82,7 +82,7 @@ def data_fetching_time_series(startDate, endDate, num_days, username, password, 
         df_SMAP = data_fetching_smap(True, start_date, end_date,  max_lat, min_lat, max_lon, min_lon, name)
         ds_SMAP = xr.Dataset.from_dataframe(df_SMAP)
         ds_SMAP.to_netcdf(f'{basePath}/SMAP/SMAP_{start_date}_{end_date}.nc')
-        
+        '''
         
         #ERA5 data fetching
 
