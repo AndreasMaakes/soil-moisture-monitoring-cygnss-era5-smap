@@ -81,7 +81,7 @@ max_lon = 105
 '''
 
 
-name = "Pakistan"
+name = "Pakistan_9km_smap"
 min_lat = 25
 min_lon = 67
 max_lat = 28.5
@@ -151,28 +151,12 @@ max_lat = -34.6
 max_lon = 147.6
 '''
 
-'''
-name = "Ghana"
-min_lat = 6
-min_lon = -3.2
-max_lat = 11.2
-max_lon = 0.2
-'''
-
-name = "Uruguay"
-min_lat = -34
-min_lon = -58
-max_lat = -32
-max_lon = -54
-
-data_fetching_CYGNSS(False, "20200101", "20200107", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
-#data_fetching_smap(False, "20200101", "20200131",  max_lat, min_lat, max_lon, min_lon, name)
+#data_fetching_CYGNSS(False, "20200101", "20200131", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
+data_fetching_smap(False, "20200101", "20200131",  max_lat, min_lat, max_lon, min_lon, name)
 #data_fetching_era5(False, "20200101","20200131", min_lat, max_lat, min_lon, max_lon, name)
 #data_fetching_time_series("20240701", "20240703", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
 
 #data_fetching_era5(False, "20240101", "20240103", 20, 22, 20, 22, "Bombaclaat")
-
-#data_fetching_time_series("20201124", "20211231", 3, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
-
+#data_fetching_time_series("20200511", "20200801", 3, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
 
 

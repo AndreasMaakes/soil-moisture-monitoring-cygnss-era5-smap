@@ -39,7 +39,7 @@ def data_fetching_smap(Timeseries: bool, startDate: str, endDate: str, max_lat: 
     
     # Searching for the results using earthaccess API
     results = earthaccess.search_data(
-        short_name='SPL3SMP',  # L3 36 km gridded SMAP short name
+        short_name='SPL3SMP_E',  # L3 36 km gridded SMAP short name SPL3SMP
         temporal=(dates[0], dates[-1]),  # Temporal filter
         count=-1,
         provider="NSIDC_CPRD"  # Specifying the cloud-based provider
@@ -107,3 +107,6 @@ def data_fetching_smap(Timeseries: bool, startDate: str, endDate: str, max_lat: 
 
     if Timeseries:
         return df_timeseries.reset_index(drop=True)
+
+
+#data_fetching_smap(False, "20200101", "20200131",  28.5, 25, 73, 67, "Paki_smap_9km")
