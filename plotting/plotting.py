@@ -7,6 +7,7 @@ from CYGNSS.trace_plot import trace_plot
 from plot_timeseries import plot_time_series
 from plot_correlation import correlation_plot, spatial_correlation_matrix
 from CYGNSS.CYGNSS_average_plot import CYGNSS_average_plot
+from CYGNSS.cygnss_grid_comparison import trace_plot_2 
 
 
 
@@ -36,8 +37,9 @@ Note: Both plotting options has the option to save the plot to a file. This is d
 #SMAP_gaussian_blur_plot("Pakistan_9km_smap", 0, 0.08, 0.08)
 #CYGNSS_gaussian_blur_plot("Western-Australia/Western-Australia-20200101-20200131", 0, 2000, True)
 #CYGNSS_average_plot("India2/India2-20200101-20200131", 0, 0.5, 0.5,  False)
-ERA5_gaussian_blur_plot("India2/ERA5_India2_2020_01_01_07.nc", 0, 0.9, 30)
+#ERA5_gaussian_blur_plot("India2/ERA5_India2_2020_01_01_07.nc", 0, 0.9, 30)
 #correlation_matrix("India2", "India2/India2-20200101-20200131", "India2/ERA5_India2_2020_01_01_31.nc", 0.5, 0.5, 0.9)
 #correlation_plot("India2", "India2/India2-20200101-20200131", "India2/ERA5_India2_2020_01_01_31.nc", 0.5, 0.5, 0.9, gaussian_sigma=2)
 #plot_time_series("data/Timeseries/TimeSeries-Australia-20180801-20200801", -35.4, 145.8, -34.6, 147.6, gaussian_sigma=5)
 
+trace_plot_2('India2/India2-20200101-20200107', saveplot=False)
