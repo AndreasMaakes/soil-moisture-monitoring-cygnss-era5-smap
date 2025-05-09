@@ -40,9 +40,9 @@ Note: Both plotting options has the option to save the plot to a file. This is d
 #CYGNSS_average_plot("India2/India2-20200101-20200107", 2.0, 0.05, 0.05,  False)
 #ERA5_gaussian_blur_plot("Pakistan/ERA5_Pakistan20200701_20200707.nc", 0, 0.9, 50)
 #ERA5_regrid_and_blur("Pakistan/ERA5_Pakistan_20200101_20200107.nc", 2.0, 0.6, 0.05, 0.05)
-#correlation_matrix("India2", "India2/India2-20200101-20200131", "India2/ERA5_India2_2020_01_01_31.nc", 0.5, 0.5, 0.9)
+#spatial_correlation_matrix("India2", "India2/India2-20200101-20200131", "India2/ERA5_India2_2020_01_01_31.nc", 1.0, 1.0, 0.9)
 #correlation_plot("India2", "India2/India2-20200101-20200131", "India2/ERA5_India2_2020_01_01_31.nc", 0.5, 0.5, 0.9, gaussian_sigma=2)
 
-plot_time_series("data/Timeseries/TimeSeries-Pakistan-20220101-20241231", 25, 69, 25.5, 69.5, gaussian_sigma=2)
+#plot_time_series("data/Timeseries/TimeSeries-Pakistan-20220101-20241231", 27, 67, 28.5, 68.5, gaussian_sigma=2, interpolate_cygnss=False)
 
-time_series_correlation("data/Timeseries/TimeSeries-Pakistan-20220101-20241231", 25, 69, 25.5, 69.5, gaussian_sigma=1)
+time_series_correlation("data/Timeseries/TimeSeries-Pakistan-20220101-20241231", 27, 67, 28.5, 68.5, gaussian_sigma=2)

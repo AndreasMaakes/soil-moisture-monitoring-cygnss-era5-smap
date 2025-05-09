@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.dates as mdates
 from scipy.ndimage import gaussian_filter1d  # Import gaussian_filter1d
 
-def plot_time_series(folder_name, min_lat, min_lon, max_lat, max_lon, gaussian_sigma=0):
+def plot_time_series(folder_name, min_lat, min_lon, max_lat, max_lon, gaussian_sigma=0, interpolate_cygnss=False):
     '''Data folder paths'''
     basePath_ERA5 = f'{folder_name}/ERA5'
     basePath_SMAP = f'{folder_name}/SMAP'
@@ -108,6 +108,13 @@ def plot_time_series(folder_name, min_lat, min_lon, max_lat, max_lon, gaussian_s
     df_cygnss = pd.DataFrame(cygnss_data, columns=["date", "cygnss_sr"])
     df_cygnss.set_index("date", inplace=True)
     df_cygnss.sort_index(inplace=True)
+    
+    if interpolate_cygnss == True:
+        # linearly interpolate any NaNs in the 'cygnss_sr' series
+        df_cygnss["cygnss_sr"] = df_cygnss["cygnss_sr"] \
+            .interpolate(method="linear")  
+    
+    
 
     # ========== Apply Gaussian Blur ==========
     # The gaussian_sigma parameter controls the standard deviation of the blur.

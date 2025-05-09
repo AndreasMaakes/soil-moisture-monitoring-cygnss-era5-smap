@@ -109,6 +109,10 @@ def time_series_correlation(folder_name, min_lat, min_lon, max_lat, max_lon, gau
     df_cygnss = pd.DataFrame(cygnss_data, columns=["date", "cygnss_sr"])
     df_cygnss.set_index("date", inplace=True)
     df_cygnss.sort_index(inplace=True)
+    
+    # linearly interpolate any NaNs in the 'cygnss_sr' series - this can happen when looking at a small area
+    df_cygnss["cygnss_sr"] = df_cygnss["cygnss_sr"] \
+        .interpolate(method="time")  
 
     # ========== Apply Gaussian Blur ==========
     # The gaussian_sigma parameter controls the standard deviation of the blur.
