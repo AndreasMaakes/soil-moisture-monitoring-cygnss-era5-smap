@@ -267,10 +267,10 @@ scatter_corr_vs_veg(
     smap_folder="India2",
     cygnss_folder="India2/India2-20200101-20200131",
     era5_folder="India2/ERA5_India2_2020_01_01_31.nc",
-    veg_file="data/Vegetation/vegetation.nc",  # path to your ERA5 vegetation file
+    veg_file="data/Vegetation/vegetation_era5_land.nc",  # path to your ERA5 vegetation file
     lsm_threshold=0.9,
-    lat_step=0.5,
-    lon_step=0.5,
-    gaussian_sigma=2.5,
+    lat_step=0.25,
+    lon_step=0.25,
+    gaussian_sigma=0.5,
     window_size=3
 )
