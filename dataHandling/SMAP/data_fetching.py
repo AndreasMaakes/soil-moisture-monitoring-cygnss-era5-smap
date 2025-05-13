@@ -13,11 +13,19 @@ from requests.exceptions import HTTPError
 
 load_dotenv()
 
-
-def data_fetching_smap(Timeseries: bool, startDate: str, endDate: str, max_lat: float, min_lat: float, max_lon: float, min_lon: float, name: str):
+def data_fetching_smap(
+    Timeseries: bool,
+    startDate: str,
+    endDate: str,
+    max_lat: float,
+    min_lat: float,
+    max_lon: float,
+    min_lon: float,
+    name: str
+):
     """
     Fetches SMAP data using Earthaccess with a 5-minute wait between retries if a timeout occurs.
-    
+
     :param Timeseries: Boolean, if True, returns a combined DataFrame for all time intervals.
     :param startDate: Start date in "YYYYMMDD" format.
     :param endDate: End date in "YYYYMMDD" format.
@@ -26,87 +34,92 @@ def data_fetching_smap(Timeseries: bool, startDate: str, endDate: str, max_lat: 
     :param max_lon: Maximum longitude.
     :param min_lon: Minimum longitude.
     :param name: Name identifier for saving the files.
-    :param max_retries: Maximum number of retry attempts in case of a failure.
-    :param wait_time: Wait time in seconds before retrying (default: 300 seconds / 5 minutes).
     :return: DataFrame if Timeseries is True, otherwise None.
     """
 
-    # Log into Earthaccess using credentials from .env file
     earthaccess.login(strategy="environment")
-    
-    # Extracting the year, month, and days from the start and end date
     dates = create_dates_array(startDate, endDate, "smap")
-    
-    # Searching for the results using earthaccess API
     results = earthaccess.search_data(
-        short_name='SPL3SMP_E',  # L3 36 km gridded SMAP short name SPL3SMP
-        temporal=(dates[0], dates[-1]),  # Temporal filter
+        short_name='SPL3SMP_E',
+        temporal=(dates[0], dates[-1]),
         count=-1,
-        provider="NSIDC_CPRD"  # Specifying the cloud-based provider
+        provider="NSIDC_CPRD"
     )
-    
-    # Opening the result - this yields a list of HTTP file system objects
     dataset = earthaccess.open(results)
-    
-    # Counting files processed
-    count = 0
+
     df_timeseries = pd.DataFrame({})
 
-    for ds in dataset:
+    if not Timeseries:
+        # Single output folder for all date files
+        base_data_path = "data/SMAP"
+        folder_name = f"{name}-{startDate}-{endDate}"
+        output_folder = os.path.join(base_data_path, folder_name)
+        os.makedirs(output_folder, exist_ok=True)
+
+    for idx, ds in enumerate(dataset):
         print(f"Processing file: {ds}")
         with h5py.File(ds, 'r') as f:
             group_AM = f['Soil_Moisture_Retrieval_Data_AM']
             group_PM = f['Soil_Moisture_Retrieval_Data_PM']
 
-            latitude_AM = group_AM['latitude'][...].flatten()
-            longitude_AM = group_AM['longitude'][...].flatten()
-            soil_moisture_AM = group_AM['soil_moisture'][...].flatten()
+            # AM arrays
+            latitude_AM          = group_AM['latitude'][...].flatten()
+            longitude_AM         = group_AM['longitude'][...].flatten()
+            soil_moisture_AM     = group_AM['soil_moisture'][...].flatten()
             soil_moisture_dca_AM = group_AM['soil_moisture_dca'][...].flatten()
+            surface_flag_AM      = group_AM['surface_flag'][...].flatten()
+            roughness_AM            = group_AM['roughness_coefficient'][...].flatten()
+            vegetation_opacity_AM   = group_AM['vegetation_opacity'][...].flatten()
+            static_water_fraction_AM = group_AM['static_water_body_fraction'][...].flatten()
 
-            latitude_PM = group_PM['latitude_pm'][...].flatten()
-            longitude_PM = group_PM['longitude_pm'][...].flatten()
-            soil_moisture_PM = group_PM['soil_moisture_pm'][...].flatten()
+            # PM arrays (rename to same column name)
+            latitude_PM          = group_PM['latitude_pm'][...].flatten()
+            longitude_PM         = group_PM['longitude_pm'][...].flatten()
+            soil_moisture_PM     = group_PM['soil_moisture_pm'][...].flatten()
             soil_moisture_dca_PM = group_PM['soil_moisture_dca_pm'][...].flatten()
+            surface_flag_PM      = group_PM['surface_flag_pm'][...].flatten()
+            roughness_PM            = group_PM['roughness_coefficient_pm'][...].flatten()
+            vegetation_opacity_PM   = group_PM['vegetation_opacity_pm'][...].flatten()
+            static_water_fraction_PM = group_PM['static_water_body_fraction_pm'][...].flatten()
 
+            # Build DataFrames with consistent column names
             df_AM = pd.DataFrame({
-                'latitude': latitude_AM, 
+                'latitude': latitude_AM,
                 'longitude': longitude_AM,
                 'soil_moisture': soil_moisture_AM,
-                'soil_moisture_dca': soil_moisture_dca_AM
+                'soil_moisture_dca': soil_moisture_dca_AM,
+                'surface_flag': surface_flag_AM,
+                'roughness_coefficient': roughness_AM,
+                'vegetation_opacity': vegetation_opacity_AM,
+                'static_water_body_fraction': static_water_fraction_AM
             })
 
             df_PM = pd.DataFrame({
-                'latitude': latitude_PM, 
+                'latitude': latitude_PM,
                 'longitude': longitude_PM,
                 'soil_moisture': soil_moisture_PM,
-                'soil_moisture_dca': soil_moisture_dca_PM
+                'soil_moisture_dca': soil_moisture_dca_PM,
+                'surface_flag': surface_flag_PM,
+                'roughness_coefficient': roughness_PM,
+                'vegetation_opacity': vegetation_opacity_PM,
+                'static_water_body_fraction': static_water_fraction_PM
             })
 
-            df_combined = pd.concat([df_AM, df_PM])
-            df_filtered = data_filtering_SMAP(df_combined, max_lat, min_lat, max_lon, min_lon).reset_index(drop=True)
+            # Combine and filter
+            df_combined = pd.concat([df_AM, df_PM], ignore_index=True)
+            df_filtered = data_filtering_SMAP(
+                df_combined, max_lat, min_lat, max_lon, min_lon
+            ).reset_index(drop=True)
 
             if Timeseries:
-                df_timeseries = pd.concat([df_timeseries, df_filtered])
+                df_timeseries = pd.concat([df_timeseries, df_filtered], ignore_index=True)
             else:
-                base_data_path = "data/SMAP"
-                area_folder_path = os.path.join(base_data_path, name)
-                if not os.path.exists(area_folder_path):
-                    os.mkdir(area_folder_path)
-
-                file_name = f'{name}_{dates[count]}'
-                folder_path = os.path.join(area_folder_path, file_name)
-
-                if not os.path.exists(folder_path):
-                    os.mkdir(folder_path)
-
+                # Save each date to a single folder
+                current_date = dates[idx]
+                file_name = f"{name}_{current_date}.nc"
                 ds_xr = xr.Dataset.from_dataframe(df_filtered)
-                ds_xr.to_netcdf(os.path.join(folder_path, file_name + ".nc"))
-                print(f"File {file_name} created successfully.")
-
-            count += 1
+                ds_xr.to_netcdf(os.path.join(output_folder, file_name))
+                print(f"File {file_name} created in {output_folder}.")
 
     if Timeseries:
         return df_timeseries.reset_index(drop=True)
-
-
-#data_fetching_smap(False, "20200101", "20200131",  28.5, 25, 73, 67, "Paki_smap_9km")

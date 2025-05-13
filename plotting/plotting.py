@@ -8,6 +8,7 @@ from plot_timeseries import plot_time_series
 from plot_correlation import correlation_plot, spatial_correlation_matrix
 from CYGNSS.CYGNSS_average_plot import CYGNSS_average_plot
 from CYGNSS.cygnss_grid_comparison import trace_plot_2 
+from SMAP.suitability_map import SMAP_surface_flags_suitability
 
 
 
@@ -42,4 +43,9 @@ Note: Both plotting options has the option to save the plot to a file. This is d
 #correlation_plot("India2", "India2/India2-20200101-20200131", "India2/ERA5_India2_2020_01_01_31.nc", 0.5, 0.5, 0.9, gaussian_sigma=2)
 #plot_time_series("data/Timeseries/TimeSeries-Australia-20180801-20200801", -35.4, 145.8, -34.6, 147.6, gaussian_sigma=5)
 
-trace_plot_2('India2/India2-20200101-20200107', saveplot=False)
+#trace_plot_2('India2/India2-20200101-20200107', saveplot=False)
+
+SMAP_surface_flags_suitability(
+    "suitability_map_data-20200320-20200327", 0.1, 0.1,
+    sigma=1.5, weights=[1,1.5,2,1]
+)
