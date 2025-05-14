@@ -151,3 +151,103 @@ def plot_time_series(folder_name, min_lat, min_lon, max_lat, max_lon, gaussian_s
     ax1.set_title("Soil Moisture Time Series (ERA5, SMAP, CYGNSS)")
     ax1.grid(True)
     plt.show()
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+import glob
+import xarray as xr
+from scipy.ndimage import gaussian_filter1d
+import matplotlib.dates as mdates
+
+def plot_cygnss_ismn_time_series_dual_axis(cygnss_folder, ismn_folder, sigma=0):
+    # ===== CYGNSS =====
+    cygnss_data = []
+    for file in os.listdir(cygnss_folder):
+        if file.endswith(".nc"):
+            file_path = os.path.join(cygnss_folder, file)
+            parts = os.path.splitext(file)[0].split("_")
+            date_val = pd.to_datetime(parts[1], format="%Y%m%d")
+
+            ds = xr.open_dataset(file_path, engine="netcdf4")
+            df = ds.to_dataframe().reset_index()
+            
+            df_filtered = df[df["ddm_snr"] >= 2]
+
+            if not df_filtered.empty:
+                min_sr = df_filtered["sr"].min()
+                df_filtered["sr"] = df_filtered["sr"] - min_sr
+                avg_sr = df_filtered["sr"].mean()
+                cygnss_data.append((date_val, avg_sr))
+
+    df_cygnss = pd.DataFrame(cygnss_data, columns=["date", "cygnss_sr"]).set_index("date").sort_index()
+
+    # ===== ISMN =====
+    file_list = glob.glob(os.path.join(ismn_folder, "*.stm"))
+    weekly_series_list = []
+    for file in file_list:
+        df = pd.read_csv(file, delim_whitespace=True, skiprows=1, header=None,
+                         names=["date", "time", "moisture", "unit1", "unit2"])
+        df = df[df["moisture"] >= 0]
+        df["datetime"] = pd.to_datetime(df["date"] + " " + df["time"], format="%Y/%m/%d %H:%M")
+        df.set_index("datetime", inplace=True)
+        weekly_avg = df["moisture"].resample("W").mean()
+        weekly_series_list.append(weekly_avg)
+
+    combined = pd.concat(weekly_series_list, axis=1)
+    combined["mean_moisture"] = combined.mean(axis=1)
+    df_ismn = combined[combined["mean_moisture"] <= 1][["mean_moisture"]]
+
+    # ===== Time Alignment =====
+    common_start = max(df_cygnss.index.min(), df_ismn.index.min())
+    common_end = min(df_cygnss.index.max(), df_ismn.index.max())
+    df_cygnss = df_cygnss[(df_cygnss.index >= common_start) & (df_cygnss.index <= common_end)]
+    df_ismn = df_ismn[(df_ismn.index >= common_start) & (df_ismn.index <= common_end)]
+
+    # ===== Optional Gaussian Smoothing =====
+    if sigma > 0:
+        if not df_cygnss.empty:
+            df_cygnss["cygnss_sr"] = gaussian_filter1d(df_cygnss["cygnss_sr"].values, sigma=sigma)
+        if not df_ismn.empty:
+            df_ismn["mean_moisture"] = gaussian_filter1d(df_ismn["mean_moisture"].values, sigma=sigma)
+
+    # ===== Plotting with Dual Y-Axis =====
+    fig, ax1 = plt.subplots(figsize=(10, 5))
+
+    # Left axis: ISMN
+    if not df_ismn.empty:
+        ax1.plot(df_ismn.index, df_ismn["mean_moisture"], label="ISMN Moisture", color="orange", marker="o")
+        ax1.set_ylabel("ISMN Soil Moisture (0–1)", color="orange")
+        ax1.tick_params(axis="y", labelcolor="orange")
+
+    # Right axis: CYGNSS
+    ax2 = ax1.twinx()
+    if not df_cygnss.empty:
+        ax2.plot(df_cygnss.index, df_cygnss["cygnss_sr"], label="CYGNSS SR", color="blue", marker="o")
+        ax2.set_ylabel("CYGNSS Surface Reflectivity (dB)", color="blue")
+        ax2.tick_params(axis="y", labelcolor="blue")
+
+    ax1.set_xlabel("Date")
+    ax1.set_title("CYGNSS Surface Reflectivity and ISMN Soil Moisture Time Series")
+    ax1.xaxis.set_major_locator(mdates.MonthLocator(interval=2))
+    ax1.xaxis.set_major_formatter(mdates.DateFormatter("%b %Y"))
+    fig.autofmt_xdate()
+    ax1.grid(True)
+
+    # Create a unified legend
+    lines_1, labels_1 = ax1.get_legend_handles_labels()
+    lines_2, labels_2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc="upper left")
+
+    plt.tight_layout()
+    plt.show()
+
+
+plot_cygnss_ismn_time_series_dual_axis(
+    cygnss_folder="data\Timeseries\TimeSeries-Ghana-20190101-20211231\CYGNSS",
+    ismn_folder="data/ISMN/Ghana",
+    sigma=2  
+)
+
+

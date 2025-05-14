@@ -62,4 +62,4 @@ def plot_soil_moisture(folder_path, sigma=0):
 
 
 #Calling the function 
-plot_soil_moisture("data\ISMN\Eastern-Australia", sigma=0)
+plot_soil_moisture("data\ISMN\Ghana", sigma=2)
