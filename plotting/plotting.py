@@ -46,6 +46,5 @@ Note: Both plotting options has the option to save the plot to a file. This is d
 #trace_plot_2('India2/India2-20200101-20200107', saveplot=False)
 
 SMAP_surface_flags_suitability(
-    "suitability_map_data-20200320-20200327", 0.1, 0.1,
-    sigma=1.5, weights=[1,1.5,2,1]
-)
+    "suitability_map_new-20200320-20200326", 0.1, 0.1,
+    sigma=None, weights=[0.2,0.3,0.3,0.2])

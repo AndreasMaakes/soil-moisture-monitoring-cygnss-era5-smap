@@ -13,6 +13,13 @@ from requests.exceptions import HTTPError
 
 load_dotenv()
 
+def scale(h5var):
+    """Read raw bytes, apply CF scale_factor & add_offset (if present)."""
+    raw = h5var[...].astype(float).flatten()
+    sf  = h5var.attrs.get('scale_factor', 1.0)
+    ao  = h5var.attrs.get('add_offset',   0.0)
+    return raw * sf + ao
+
 def data_fetching_smap(
     Timeseries: bool,
     startDate: str,
@@ -68,9 +75,9 @@ def data_fetching_smap(
             soil_moisture_AM     = group_AM['soil_moisture'][...].flatten()
             soil_moisture_dca_AM = group_AM['soil_moisture_dca'][...].flatten()
             surface_flag_AM      = group_AM['surface_flag'][...].flatten()
-            roughness_AM            = group_AM['roughness_coefficient'][...].flatten()
-            vegetation_opacity_AM   = group_AM['vegetation_opacity'][...].flatten()
-            static_water_fraction_AM = group_AM['static_water_body_fraction'][...].flatten()
+            roughness_AM          = scale(group_AM['roughness_coefficient'])
+            vegetation_opacity_AM = scale(group_AM['vegetation_opacity'])
+            static_water_fraction_AM = scale(group_AM['static_water_body_fraction'])
 
             # PM arrays (rename to same column name)
             latitude_PM          = group_PM['latitude_pm'][...].flatten()
@@ -78,9 +85,9 @@ def data_fetching_smap(
             soil_moisture_PM     = group_PM['soil_moisture_pm'][...].flatten()
             soil_moisture_dca_PM = group_PM['soil_moisture_dca_pm'][...].flatten()
             surface_flag_PM      = group_PM['surface_flag_pm'][...].flatten()
-            roughness_PM            = group_PM['roughness_coefficient_pm'][...].flatten()
-            vegetation_opacity_PM   = group_PM['vegetation_opacity_pm'][...].flatten()
-            static_water_fraction_PM = group_PM['static_water_body_fraction_pm'][...].flatten()
+            roughness_PM          = scale(group_PM['roughness_coefficient_pm'])
+            vegetation_opacity_PM = scale(group_PM['vegetation_opacity_pm'])
+            static_water_fraction_PM = scale(group_PM['static_water_body_fraction_pm'])
 
             # Build DataFrames with consistent column names
             df_AM = pd.DataFrame({
