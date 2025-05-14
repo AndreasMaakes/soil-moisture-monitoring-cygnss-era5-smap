@@ -89,6 +89,9 @@ def plot_time_series(folder_name, min_lat, min_lon, max_lat, max_lon, gaussian_s
                     (df["sp_lon"] >= min_lon) & (df["sp_lon"] <= max_lon)
                 ]
                 df_filtered = df_filtered[df_filtered['ddm_snr'] >= 4]
+                df_filtered = df_filtered[df_filtered['sp_rx_gain'] >= 0]
+                df_filtered = df_filtered[df_filtered['sp_rx_gain'] <= 13]  
+                df_filtered = df_filtered[df_filtered['sp_inc_angle'] <= 45]
 
                 min_sr_file = df_filtered["sr"].min()
                 df_filtered["sr"] = df_filtered["sr"] - min_sr_file
@@ -173,7 +176,13 @@ def plot_cygnss_ismn_time_series_dual_axis(cygnss_folder, ismn_folder, sigma=0):
             ds = xr.open_dataset(file_path, engine="netcdf4")
             df = ds.to_dataframe().reset_index()
             
+            
             df_filtered = df[df["ddm_snr"] >= 2]
+            df_filtered = df_filtered[df_filtered["sp_rx_gain"] >= 0]
+            df_filtered = df_filtered[df_filtered["sp_rx_gain"] <= 13]
+            df_filtered = df_filtered[df_filtered["sp_inc_angle"] <= 45]
+            
+            
 
             if not df_filtered.empty:
                 min_sr = df_filtered["sr"].min()
