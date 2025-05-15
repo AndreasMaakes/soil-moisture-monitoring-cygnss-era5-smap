@@ -114,7 +114,10 @@ def merged_dataframe(smap_folder, cygnss_folder, era5_folder, lsm_threshold, lat
     # --- CYGNSS ---
     dfs_cygnss = importData(cygnss_folder)
     df_cygnss = pd.concat(dfs_cygnss)
-    df_cygnss = df_cygnss[df_cygnss['ddm_snr'] >= 2]  # apply ddm_snr threshold
+    df_cygnss = df_cygnss[df_cygnss['ddm_snr'] >= 2]  
+    df_cygnss = df_cygnss[df_cygnss["sp_rx_gain"] >= 0]
+    df_cygnss = df_cygnss[df_cygnss["sp_rx_gain"] <= 13]
+    df_cygnss = df_cygnss[df_cygnss["sp_inc_angle"] <= 45]
     #df_cygnss = df_cygnss[(df_cygnss["sp_lon"] >= 68) & (df_cygnss["sp_lon"] <= 68.5) & (df_cygnss["sp_lat"] >= 27) & (df_cygnss["sp_lat"] <= 27.5)]
 
     # --- ERA5 ---
@@ -442,7 +445,7 @@ def plot_spatial_correlation(lat_centers, lon_centers, corr_matrix, title):
               lat_centers[0] - lat_spacing/2, lat_centers[-1] + lat_spacing/2]
 
     # Display the correlation matrix using imshow.
-    img = plt.imshow(corr_matrix, origin='lower', extent=extent, cmap='viridis', aspect='auto')
+    img = plt.imshow(corr_matrix, origin='lower', extent=extent, cmap='Spectral', aspect='auto')
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')
     plt.title(title)

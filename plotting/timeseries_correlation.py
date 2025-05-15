@@ -90,7 +90,10 @@ def time_series_correlation(folder_name, min_lat, min_lon, max_lat, max_lon, gau
                     (df["sp_lat"] >= min_lat) & (df["sp_lat"] <= max_lat) &
                     (df["sp_lon"] >= min_lon) & (df["sp_lon"] <= max_lon)
                 ]
-                df_filtered = df_filtered[df_filtered['ddm_snr'] >= 4]
+                df_filtered = df_filtered[df_filtered['ddm_snr'] >= 2]
+                df_filtered = df_filtered[df_filtered["sp_rx_gain"] >= 0]
+                df_filtered = df_filtered[df_filtered["sp_rx_gain"] <= 13]
+                df_filtered = df_filtered[df_filtered["sp_inc_angle"] <= 45]
 
                 min_sr_file = df_filtered["sr"].min()
                 df_filtered["sr"] = df_filtered["sr"] - min_sr_file

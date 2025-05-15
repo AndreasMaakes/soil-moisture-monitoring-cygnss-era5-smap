@@ -24,8 +24,10 @@ def CYGNSS_average_plot(folder_name, sigma, step_size_lon, step_size_lat, smooth
     sr_values = df["sr"].values
 
     # Dropping DDM_SNR and SP_RX_GAIN below thresholds.
-    df = df[df['ddm_snr'] > 2]
-    df = df[df['sp_rx_gain'] < 13]
+    df = df[df['ddm_snr'] >= 2]
+    df = df[df['sp_rx_gain'] <= 13]
+    df = df[df['sp_rx_gain'] >= 0]
+    df = df[df["sp_inc_angle"] <= 45]
 
     # Define grid bin edges based on the desired step sizes.
     lat_edges = np.arange(latitudes.min(), latitudes.max() + step_size_lat, step_size_lat)

@@ -164,7 +164,7 @@ import xarray as xr
 from scipy.ndimage import gaussian_filter1d
 import matplotlib.dates as mdates
 
-def plot_cygnss_ismn_time_series_dual_axis(cygnss_folder, ismn_folder, sigma=0):
+def plot_cygnss_ismn_time_series(cygnss_folder, ismn_folder, sigma=0):
     # ===== CYGNSS =====
     cygnss_data = []
     for file in os.listdir(cygnss_folder):
@@ -177,7 +177,7 @@ def plot_cygnss_ismn_time_series_dual_axis(cygnss_folder, ismn_folder, sigma=0):
             df = ds.to_dataframe().reset_index()
             
             
-            df_filtered = df[df["ddm_snr"] >= 2]
+            df_filtered = df[df["ddm_snr"] >= 4]
             df_filtered = df_filtered[df_filtered["sp_rx_gain"] >= 0]
             df_filtered = df_filtered[df_filtered["sp_rx_gain"] <= 13]
             df_filtered = df_filtered[df_filtered["sp_inc_angle"] <= 45]
@@ -253,10 +253,9 @@ def plot_cygnss_ismn_time_series_dual_axis(cygnss_folder, ismn_folder, sigma=0):
     plt.show()
 
 
-plot_cygnss_ismn_time_series_dual_axis(
-    cygnss_folder="data\Timeseries\TimeSeries-Ghana-20190101-20211231\CYGNSS",
-    ismn_folder="data/ISMN/Ghana",
-    sigma=2  
-)
+plot_cygnss_ismn_time_series(
+    cygnss_folder="data\Timeseries\TimeSeries-Australia-20180801-20200801/CYGNSS",
+    ismn_folder="data/ISMN/Australia",
+    sigma=2)
 
 
