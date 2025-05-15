@@ -177,7 +177,7 @@ def plot_cygnss_ismn_time_series(cygnss_folder, ismn_folder, sigma=0):
             df = ds.to_dataframe().reset_index()
             
             
-            df_filtered = df[df["ddm_snr"] >= 4]
+            df_filtered = df[df["ddm_snr"] >= 3]
             df_filtered = df_filtered[df_filtered["sp_rx_gain"] >= 0]
             df_filtered = df_filtered[df_filtered["sp_rx_gain"] <= 13]
             df_filtered = df_filtered[df_filtered["sp_inc_angle"] <= 45]
@@ -196,7 +196,7 @@ def plot_cygnss_ismn_time_series(cygnss_folder, ismn_folder, sigma=0):
     file_list = glob.glob(os.path.join(ismn_folder, "*.stm"))
     weekly_series_list = []
     for file in file_list:
-        df = pd.read_csv(file, delim_whitespace=True, skiprows=1, header=None,
+        df = pd.read_csv(file, sep=r"\s+", skiprows=1, header=None,
                          names=["date", "time", "moisture", "unit1", "unit2"])
         df = df[df["moisture"] >= 0]
         df["datetime"] = pd.to_datetime(df["date"] + " " + df["time"], format="%Y/%m/%d %H:%M")
@@ -254,8 +254,8 @@ def plot_cygnss_ismn_time_series(cygnss_folder, ismn_folder, sigma=0):
 
 
 plot_cygnss_ismn_time_series(
-    cygnss_folder="data\Timeseries\TimeSeries-Australia-20180801-20200801/CYGNSS",
-    ismn_folder="data/ISMN/Australia",
-    sigma=2)
+    cygnss_folder="data\Timeseries\TimeSeries-Ghana-20190101-20211231/CYGNSS",
+    ismn_folder="data/ISMN/Ghana",
+    sigma=3)
 
 
