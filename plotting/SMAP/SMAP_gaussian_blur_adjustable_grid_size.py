@@ -10,7 +10,7 @@ from scipy.interpolate import griddata
 def SMAP_gaussian_blur_plot(folder_name, sigma, grid_size):
 
     # Importing the data as a list of dataframes
-    df = importDataSMAP(folder_name)
+    df = importDataSMAP(False, folder_name)
 
     # Concatenating the dataframes into one single dataframe
     df = pd.concat(df)
@@ -27,8 +27,8 @@ def SMAP_gaussian_blur_plot(folder_name, sigma, grid_size):
     lat_min, lat_max = latitudes.min(), latitudes.max()
     lon_min, lon_max = longitudes.min(), longitudes.max()
 
-    lat_new = np.linspace(lat_min, lat_max, grid_size)
-    lon_new = np.linspace(lon_min, lon_max, grid_size)
+    lat_new = np.arange(lat_min, lat_max + grid_size, grid_size)
+    lon_new = np.arange(lon_min, lon_max + grid_size, grid_size)
     lon_grid, lat_grid = np.meshgrid(lon_new, lat_new)
 
     # Interpolate soil moisture data onto new grid

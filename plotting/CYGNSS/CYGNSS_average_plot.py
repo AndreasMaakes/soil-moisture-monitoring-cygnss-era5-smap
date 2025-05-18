@@ -5,6 +5,8 @@ from .import_data import importData
 from scipy.ndimage import gaussian_filter
 from scipy.stats import binned_statistic_2d
 from scipy.interpolate import griddata  # Import for interpolation
+from matplotlib.ticker import MultipleLocator
+
 
 def CYGNSS_average_plot(folder_name, sigma, step_size_lon, step_size_lat, smooth):
     # Create a title based on whether smoothing is applied.
@@ -18,6 +20,13 @@ def CYGNSS_average_plot(folder_name, sigma, step_size_lon, step_size_lat, smooth
     dfs = importData(folder_name)
     df = pd.concat(dfs)
 
+    min_lat, max_lat = -30.5, -28.5
+    min_lon, max_lon = 118, 121
+    df = df[
+        (df['sp_lat'] >= min_lat) & (df['sp_lat'] <= max_lat) &
+        (df['sp_lon'] >= min_lon) & (df['sp_lon'] <= max_lon)
+    ]
+
     # Extract the latitude, longitude, and surface reflectivity values.
     latitudes = df["sp_lat"].values
     longitudes = df["sp_lon"].values
@@ -28,8 +37,11 @@ def CYGNSS_average_plot(folder_name, sigma, step_size_lon, step_size_lat, smooth
     df = df[df['sp_rx_gain'] < 13]
 
     # Define grid bin edges based on the desired step sizes.
-    lat_edges = np.arange(latitudes.min(), latitudes.max() + step_size_lat, step_size_lat)
-    lon_edges = np.arange(longitudes.min(), longitudes.max() + step_size_lon, step_size_lon)
+    lat_edges = np.arange(min_lat, max_lat + step_size_lat, step_size_lat)
+    lon_edges = np.arange(min_lon, max_lon + step_size_lon, step_size_lon)
+
+    #lat_edges = np.arange(latitudes.min(), latitudes.max() + step_size_lat, step_size_lat)
+    #lon_edges = np.arange(longitudes.min(), longitudes.max() + step_size_lon, step_size_lon)
 
     # Bin the data: average the 'sr' values that fall within each grid cell.
     stat, _, _, _ = binned_statistic_2d(
@@ -56,25 +68,53 @@ def CYGNSS_average_plot(folder_name, sigma, step_size_lon, step_size_lat, smooth
     if sigma > 0:
         stat = gaussian_filter(stat, sigma=sigma)
 
-    plt.figure(figsize=(10, 8))
+    fig, ax = plt.subplots(figsize=(10, 10))
+
     if smooth:
-        # Use imshow with bilinear interpolation.
-        mesh = plt.imshow(
-            stat, 
-            origin='lower', 
-            extent=[lon_edges[0], lon_edges[-1], lat_edges[0], lat_edges[-1]], 
-            cmap='viridis', 
-            interpolation='bilinear'
+        mesh = ax.imshow(
+            stat,
+            origin='lower',
+            extent=[lon_edges[0], lon_edges[-1], lat_edges[0], lat_edges[-1]],
+            cmap='viridis',
+            interpolation='bilinear',
+            aspect='auto'
         )
     else:
-        # Use pcolormesh with the bin edges.
-        mesh = plt.pcolormesh(
+        mesh = ax.pcolormesh(
             lon_edges, lat_edges, stat, shading='auto', cmap="viridis"
         )
-        
-    plt.colorbar(mesh, label='SR')
-    plt.xlabel('Longitude')
-    plt.ylabel('Latitude')
-    plt.title(title)
-    plt.axis('equal')
+
+    # Colorbar below or beside plot
+    cbar = fig.colorbar(mesh, ax=ax, pad=0.03)
+    cbar.set_label('SR', fontsize=32, labelpad=24)
+    cbar.ax.tick_params(labelsize=28)
+
+    # Axis labels
+    ax.set_xlabel('Longitude [degrees]', fontsize=32, labelpad=20)
+    ax.set_ylabel('Latitude [degrees]', fontsize=32, labelpad=20)
+
+    # Tick label font size and padding
+    ax.tick_params(axis='x', labelsize=28, pad=10)  # pad increases distance from axis
+    ax.tick_params(axis='y', labelsize=28, pad=10)
+
+    # Title
+    ax.set_title("Satellite Image - Lake Barlee", fontsize=35, pad=30)
+
+    # Tick intervals
+    ax.xaxis.set_major_locator(MultipleLocator(1))
+    ax.yaxis.set_major_locator(MultipleLocator(1))
+
+    fig.tight_layout()
+    plt.show()
+
+
+    plt.xlabel('Longitude [degrees]', fontsize=32, labelpad=20)
+    plt.ylabel('Latitude [degrees]', fontsize=32, labelpad=20)
+    plt.xticks(fontsize=28)
+    plt.yticks(fontsize=28)
+    plt.title("CYGNSS SR - Lake Barlee - January & February 2020", fontsize=35, pad=20)
+
+    plt.tight_layout()  # <- Also helps remove white space
+    plt.gca().xaxis.set_major_locator(MultipleLocator(1))
+    plt.gca().yaxis.set_major_locator(MultipleLocator(1))
     plt.show()

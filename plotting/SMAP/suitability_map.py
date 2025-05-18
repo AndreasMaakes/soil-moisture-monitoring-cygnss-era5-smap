@@ -37,8 +37,6 @@ def SMAP_surface_flags_suitability(
         'static_water', 'urban', 'mountainous',
         'vegetation_opacity', 'roughness_coefficient'
     ])
-    print(df['roughness_coefficient'].describe())
-
 
     # 4) Normalize and invert continuous variables
     for col in ['vegetation_opacity', 'roughness_coefficient']:
@@ -84,14 +82,14 @@ def SMAP_surface_flags_suitability(
     # 8) Interpolate score (linear), may leave NaNs
     score_grid = griddata((lons, lats), scores, (lon_grid, lat_grid), method='linear')
 
-    # 9) Interpolate static water flag (1=water)
+        # 9) Interpolate static water flag (1=water) using nearest so oceans get correctly flagged
     water_grid = griddata(
         (lons, lats),
         df['static_water'].values,
         (lon_grid, lat_grid),
         method='nearest'
     )
-    mask_water = (water_grid == 1)
+    mask_water = (water_grid == 1)  # True over all water (including ocean)
 
     # Mask grid cells over water
     score_grid_masked = np.ma.masked_where(mask_water, score_grid)
@@ -104,34 +102,44 @@ def SMAP_surface_flags_suitability(
             lon_grid[nan_mask], lat_grid[nan_mask]
         )
 
-    # 11) Optional smoothing
+    # 11) Optional smoothing (re-mask water afterwards)
     if sigma is not None:
-        score_grid_masked = gaussian_filter(score_grid_masked, sigma=sigma)
+        smoothed = gaussian_filter(score_grid_masked, sigma=sigma)
+        score_grid_masked = np.ma.masked_where(mask_water, smoothed)
 
-    # 12) Plot
+        # 12) Plot
     fig = plt.figure(figsize=(10, 8))
-    ax = plt.axes(projection=ccrs.PlateCarree())
+    ax = plt.axes(projection=ccrs.Mercator())
 
-    ax.add_feature(cfeature.COASTLINE)
-    ax.add_feature(cfeature.BORDERS)
+    # zoom to specified region
+    ax.set_extent([-130, 160, -40, 40], crs=ccrs.PlateCarree())
+
+    # add features
+    ax.add_feature(cfeature.COASTLINE, linewidth=0.5)
+    # ax.add_feature(cfeature.BORDERS)
     ax.add_feature(cfeature.LAND, facecolor='lightgray')
-    ax.add_feature(cfeature.OCEAN, facecolor='white')
+    ax.add_feature(cfeature.OCEAN, facecolor='#cfedf3')
 
+    # plot grid
     mesh = ax.pcolormesh(
         lon_edges, lat_edges, score_grid_masked,
         shading='auto', cmap='RdYlGn',
-        vmin=min_score, vmax=max_score,  # dynamic range
+        vmin=min_score, vmax=max_score,
         transform=ccrs.PlateCarree()
     )
-    cbar = fig.colorbar(
-        mesh, ax=ax, orientation='vertical',
-        label=f'Suitability ({min_score:.2f}–{max_score:.2f})'
+    _cbar = fig.colorbar(
+        mesh, ax=ax,
+        orientation='horizontal',
+        fraction=0.046,  # width of the cbar as fraction of axes width
+        pad=0.03,        # space between the plot and the cbar
+        label=f'Suitability (0–1)'
     )
+    _cbar.ax.tick_params(labelsize=25)
+    _cbar.set_label('Suitability (0–1)', fontsize=30, labelpad=20)
 
-    ax.set_xlim(lon_min, lon_max)
-    ax.set_ylim(lat_min, lat_max)
-    ax.set_title(f"New SMAP Suitability Score for {folder_name}")
-    ax.set_xlabel('Longitude')
-    ax.set_ylabel('Latitude')
+    # Increase title and axis label font sizes
+    ax.set_title(f"Suitability Score for Soil Moisture Estimation Using GNSS-R", fontsize=30, pad=25)
+    ax.set_xlabel('Longitude', fontsize=14)
+    ax.set_ylabel('Latitude', fontsize=14)
 
     plt.show()

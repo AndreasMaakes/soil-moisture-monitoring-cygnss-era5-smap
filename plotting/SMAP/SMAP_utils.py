@@ -26,10 +26,9 @@ def SMAP_averaging_soil_moisture(df):
         df.groupby(['latitude', 'longitude'])
         .agg(
             soil_moisture_avg=('soil_moisture', 'mean'),
-            roughness_coefficient=('roughness_coefficient', 'mean'),
-            vegetation_opacity=('vegetation_opacity', 'mean'),
-            static_water_body_fraction=('static_water_body_fraction', 'mean'),
-            surface_flag=('surface_flag', lambda x: int(np.bitwise_or.reduce(x.astype(int))))
+            #roughness_coefficient=('roughness_coefficient', 'mean'),
+            #vegetation_opacity=('vegetation_opacity', 'mean'),
+            #surface_flag=('surface_flag', lambda x: int(np.bitwise_or.reduce(x.astype(int))))
         )
         .reset_index()
     )
