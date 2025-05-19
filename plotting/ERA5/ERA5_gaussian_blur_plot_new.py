@@ -32,7 +32,7 @@ def ERA5_regrid_and_blur(folder_name: str,
 
     # 2.5) Filter geospatially before interpolation
     lat_min_bound, lat_max_bound = -30.25, -28.25
-    lon_min_bound, lon_max_bound = 118.5, 120.25
+    lon_min_bound, lon_max_bound = 118.5, 120.5
 
     avg = avg[
         (avg["latitude"] >= lat_min_bound) & (avg["latitude"] <= lat_max_bound) &
@@ -72,7 +72,7 @@ def ERA5_regrid_and_blur(folder_name: str,
     smoothed = gaussian_filter(moisture_grid, sigma=sigma)
 
     # 7) Plot
-    fig, ax = plt.subplots(figsize=(10, 10))
+    fig, ax = plt.subplots(figsize=(12, 10))
 
     # Plot using pcolormesh
     mesh = ax.pcolormesh(
@@ -93,16 +93,13 @@ def ERA5_regrid_and_blur(folder_name: str,
     ax.tick_params(axis='x', labelsize=28, pad=10)
     ax.tick_params(axis='y', labelsize=28, pad=10)
 
-    # Title
-    ax.set_title(
-        f"ERA5-Land Soil Moisture - Lake Barlee - January & February 2020",
-        fontsize=35,
-        pad=30
-    )
+    ax.set_title("ERA5 SM - Lake Barlee - January & February 2020", fontsize=32, pad=30)
+    ax.set_aspect('equal', adjustable='box')
+
 
     # Optional: Tick spacing every 1 degree
-    ax.xaxis.set_major_locator(MultipleLocator(0.5))
-    ax.yaxis.set_major_locator(MultipleLocator(0.5))
+    ax.xaxis.set_major_locator(MultipleLocator(1))
+    ax.yaxis.set_major_locator(MultipleLocator(1))
 
     def format_lon(x, _):
         direction = 'E' if x >= 0 else 'W'
