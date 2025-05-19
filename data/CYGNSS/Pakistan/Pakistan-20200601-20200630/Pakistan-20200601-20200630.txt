@@ -1,0 +1,17 @@
+Area of interest: Pakistan
+
+Start date: 20200601
+End date: 20200630
+
+Minimum latitude: 25
+Minimum longitude: 67
+Maximum latitude: 28.5
+Maximum longitude: 73
+
+Maximum inclination angle: 50
+Minimum ddm_snr: 0
+Minimum sp_rx_gain: 0
+Maximum sp_rx_gain: 15
+
+Data fetching started: 00:22:17
+Data fetching completed: 13:01:13

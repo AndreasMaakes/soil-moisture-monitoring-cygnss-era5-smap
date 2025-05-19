@@ -3,6 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import griddata
 from scipy.ndimage import gaussian_filter
+from matplotlib.ticker import MultipleLocator
+from matplotlib.ticker import FuncFormatter
+
+
 
 from .ERA5_utils import averaging_soil_moisture, apply_land_sea_mask
 
@@ -26,13 +30,22 @@ def ERA5_regrid_and_blur(folder_name: str,
     avg = averaging_soil_moisture(df)
     # (avg has columns: latitude, longitude, lsm, average_moisture)
 
+    # 2.5) Filter geospatially before interpolation
+    lat_min_bound, lat_max_bound = -30.25, -28.25
+    lon_min_bound, lon_max_bound = 118.5, 120.25
+
+    avg = avg[
+        (avg["latitude"] >= lat_min_bound) & (avg["latitude"] <= lat_max_bound) &
+        (avg["longitude"] >= lon_min_bound) & (avg["longitude"] <= lon_max_bound)
+    ]
+
     # 3) Build your output lat/lon grid
     lats = avg["latitude"].values
     lons = avg["longitude"].values
     lat_min, lat_max = lats.min(), lats.max()
     lon_min, lon_max = lons.min(), lons.max()
-    lat_new = np.arange(lat_min, lat_max + lat_step, lat_step)
-    lon_new = np.arange(lon_min, lon_max + lon_step, lon_step)
+    lat_new = np.round(np.linspace(lat_min, lat_max, int((lat_max - lat_min) / lat_step) + 1), 6)
+    lon_new = np.round(np.linspace(lon_min, lon_max, int((lon_max - lon_min) / lon_step) + 1), 6)
     lon_grid, lat_grid = np.meshgrid(lon_new, lat_new)
 
     # 4) Interpolate water‐content and mask separately
@@ -59,17 +72,51 @@ def ERA5_regrid_and_blur(folder_name: str,
     smoothed = gaussian_filter(moisture_grid, sigma=sigma)
 
     # 7) Plot
-    plt.figure(figsize=(10, 8))
-    mesh = plt.pcolormesh(
+    fig, ax = plt.subplots(figsize=(10, 10))
+
+    # Plot using pcolormesh
+    mesh = ax.pcolormesh(
         lon_grid, lat_grid, smoothed,
         shading="auto", cmap="viridis"
     )
-    plt.colorbar(mesh, label="Soil Moisture (Smoothed)")
-    plt.xlabel("Longitude")
-    plt.ylabel("Latitude")
-    plt.title(
-        f"Regridded & Smoothed Soil Moisture\n"
-        f"Grid: {lat_step}°×{lon_step}°, σ={sigma}, mask_thr={lsm_threshold}"
+
+    # Colorbar (beside or below)
+    cbar = fig.colorbar(mesh, ax=ax, pad=0.03)
+    cbar.set_label("Soil Moisture [m$^3$/m$^3$]", fontsize=32, labelpad=26)
+    cbar.ax.tick_params(labelsize=28)
+
+    # Axis labels
+    ax.set_xlabel("Longitude", fontsize=32, labelpad=20)
+    ax.set_ylabel("Latitude", fontsize=32, labelpad=20)
+
+    # Tick font size and padding
+    ax.tick_params(axis='x', labelsize=28, pad=10)
+    ax.tick_params(axis='y', labelsize=28, pad=10)
+
+    # Title
+    ax.set_title(
+        f"ERA5-Land Soil Moisture - Lake Barlee - January & February 2020",
+        fontsize=35,
+        pad=30
     )
-    plt.axis("equal")
+
+    # Optional: Tick spacing every 1 degree
+    ax.xaxis.set_major_locator(MultipleLocator(0.5))
+    ax.yaxis.set_major_locator(MultipleLocator(0.5))
+
+    def format_lon(x, _):
+        direction = 'E' if x >= 0 else 'W'
+        return f"{abs(x):.1f}°{direction}"
+
+    def format_lat(y, _):
+        direction = 'N' if y >= 0 else 'S'
+        return f"{abs(y):.1f}°{direction}"
+
+    ax.xaxis.set_major_formatter(FuncFormatter(format_lon))
+    ax.yaxis.set_major_formatter(FuncFormatter(format_lat))
+
+    # Final layout adjustments
+    fig.tight_layout()
     plt.show()
+
+
