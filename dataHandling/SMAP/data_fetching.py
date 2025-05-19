@@ -88,17 +88,16 @@ def data_fetching_smap(Timeseries: bool, startDate: str, endDate: str, max_lat: 
             if Timeseries:
                 df_timeseries = pd.concat([df_timeseries, df_filtered])
             else:
+                # One folder per area+time period
                 base_data_path = "data/SMAP"
-                area_folder_path = os.path.join(base_data_path, name)
-                if not os.path.exists(area_folder_path):
-                    os.mkdir(area_folder_path)
+                folder_name = f"{name}_{startDate}_{endDate}"
+                folder_path = os.path.join(base_data_path, folder_name)
 
-                file_name = f'{name}_{dates[count]}'
-                folder_path = os.path.join(area_folder_path, file_name)
+                # Create the folder if it doesn't exist
+                os.makedirs(folder_path, exist_ok=True)
 
-                if not os.path.exists(folder_path):
-                    os.mkdir(folder_path)
-
+                # Save each day's file inside the same folder
+                file_name = f"{name}_{dates[count]}"
                 ds_xr = xr.Dataset.from_dataframe(df_filtered)
                 ds_xr.to_netcdf(os.path.join(folder_path, file_name + ".nc"))
                 print(f"File {file_name} created successfully.")

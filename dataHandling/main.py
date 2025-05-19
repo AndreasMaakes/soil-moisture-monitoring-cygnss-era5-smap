@@ -80,13 +80,13 @@ max_lat = 18
 max_lon = 105
 '''
 
-
+'''
 name = "Pakistan_9km_smap"
 min_lat = 25
 min_lon = 67
 max_lat = 28.5
 max_lon = 73
-
+'''
 
 '''
 name = "Bolivia"
@@ -152,7 +152,7 @@ max_lon = 147.6
 '''
 
 #data_fetching_CYGNSS(False, "20200101", "20200131", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
-data_fetching_smap(False, "20200101", "20200131",  max_lat, min_lat, max_lon, min_lon, name)
+data_fetching_smap(False, "20200101", "20200228",  max_lat, min_lat, max_lon, min_lon, name)
 #data_fetching_era5(False, "20200101","20200131", min_lat, max_lat, min_lon, max_lon, name)
 #data_fetching_time_series("20240701", "20240703", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
 
