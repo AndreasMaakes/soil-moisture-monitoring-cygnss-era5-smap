@@ -5,7 +5,7 @@ from .import_data import importData
 from scipy.ndimage import gaussian_filter
 from scipy.stats import binned_statistic_2d
 from scipy.interpolate import griddata  # Import for interpolation
-from matplotlib.ticker import MultipleLocator
+from matplotlib.ticker import MultipleLocator, FuncFormatter
 
 
 def CYGNSS_average_plot(folder_name, sigma, step_size_lon, step_size_lat, smooth):
@@ -20,8 +20,10 @@ def CYGNSS_average_plot(folder_name, sigma, step_size_lon, step_size_lat, smooth
     dfs = importData(folder_name)
     df = pd.concat(dfs)
 
-    min_lat, max_lat = -30.5, -28.5
-    min_lon, max_lon = 118, 121
+
+
+    min_lat, max_lat = -30.25, -28.25
+    min_lon, max_lon = 118.5, 120.5
     df = df[
         (df['sp_lat'] >= min_lat) & (df['sp_lat'] <= max_lat) &
         (df['sp_lon'] >= min_lon) & (df['sp_lon'] <= max_lon)
@@ -68,7 +70,7 @@ def CYGNSS_average_plot(folder_name, sigma, step_size_lon, step_size_lat, smooth
     if sigma > 0:
         stat = gaussian_filter(stat, sigma=sigma)
 
-    fig, ax = plt.subplots(figsize=(10, 10))
+    fig, ax = plt.subplots(figsize=(12, 10))
 
     if smooth:
         mesh = ax.imshow(
@@ -86,23 +88,34 @@ def CYGNSS_average_plot(folder_name, sigma, step_size_lon, step_size_lat, smooth
 
     # Colorbar below or beside plot
     cbar = fig.colorbar(mesh, ax=ax, pad=0.03)
-    cbar.set_label('SR', fontsize=32, labelpad=24)
+    cbar.set_label('SR [dB]', fontsize=32, labelpad=24)
     cbar.ax.tick_params(labelsize=28)
 
     # Axis labels
-    ax.set_xlabel('Longitude [degrees]', fontsize=32, labelpad=20)
-    ax.set_ylabel('Latitude [degrees]', fontsize=32, labelpad=20)
+    ax.set_xlabel('Longitude', fontsize=32, labelpad=20)
+    ax.set_ylabel('Latitude', fontsize=32, labelpad=20)
 
     # Tick label font size and padding
     ax.tick_params(axis='x', labelsize=28, pad=10)  # pad increases distance from axis
     ax.tick_params(axis='y', labelsize=28, pad=10)
 
     # Title
-    ax.set_title("Satellite Image - Lake Barlee", fontsize=35, pad=30)
+    ax.set_title("CYGNSS SR - Lake Barlee- January & February 2020", fontsize=32, pad=30)
+    ax.set_aspect('equal', adjustable='box')
 
-    # Tick intervals
+
+    def format_lon(x, _):
+        direction = 'E' if x >= 0 else 'W'
+        return f"{abs(x):.1f}°{direction}"
+
+    def format_lat(y, _):
+        direction = 'N' if y >= 0 else 'S'
+        return f"{abs(y):.1f}°{direction}"
+
     ax.xaxis.set_major_locator(MultipleLocator(1))
     ax.yaxis.set_major_locator(MultipleLocator(1))
+    ax.xaxis.set_major_formatter(FuncFormatter(format_lon))
+    ax.yaxis.set_major_formatter(FuncFormatter(format_lat))
 
     fig.tight_layout()
     plt.show()
@@ -115,6 +128,4 @@ def CYGNSS_average_plot(folder_name, sigma, step_size_lon, step_size_lat, smooth
     plt.title("CYGNSS SR - Lake Barlee - January & February 2020", fontsize=35, pad=20)
 
     plt.tight_layout()  # <- Also helps remove white space
-    plt.gca().xaxis.set_major_locator(MultipleLocator(1))
-    plt.gca().yaxis.set_major_locator(MultipleLocator(1))
     plt.show()
