@@ -36,6 +36,7 @@ Note: Both plotting options has the option to save the plot to a file. This is d
 
 
 SMAP_gaussian_blur_plot("Western-Australia_20200101_20200228", 0, 0.08, 0.08)
+#SMAP_gaussian_blur_plot("Western-Australia/30_days", 0, 0.08, 0.08)
 #CYGNSS_gaussian_blur_plot("Western-Australia/Western-Australia-20200101-20200131", 0, 2000, True)
 #CYGNSS_average_plot("India2/India2-20200101-20200131", 0, 0.5, 0.5,  False)
 #ERA5_gaussian_blur_plot("India2/ERA5_India2_2020_01_01_07.nc", 0, 0.9, 30)
