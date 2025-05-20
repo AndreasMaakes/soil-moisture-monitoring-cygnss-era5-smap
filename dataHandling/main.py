@@ -151,14 +151,20 @@ max_lat = 17
 max_lon = 36
 '''
 
+name = "Ghana"
+min_lat = 6
+min_lon = -3.2
+max_lat = 11.2
+max_lon = 0.2
 
-data_fetching_CYGNSS(False, "20200601", "20200630", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
+
+#data_fetching_CYGNSS(False, "20200601", "20200630", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
 #data_fetching_smap(False, "20200101", "20200131",  max_lat, min_lat, max_lon, min_lon, name)
 #data_fetching_era5(False, "20200101","20200228", min_lat, max_lat, min_lon, max_lon, name)
 #data_fetching_time_series("20240101", "20240331",3, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
 #data_fetching_era5(False, "20240101", "20240103", 20, 22, 20, 22, "Bombaclaat")
 
-#data_fetching_time_series("20220108", "20241231", 3, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
+data_fetching_time_series("20210629", "20211231", 3, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
 
 
 
