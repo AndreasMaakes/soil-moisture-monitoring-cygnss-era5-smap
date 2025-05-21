@@ -11,8 +11,8 @@ from CYGNSS.import_data import importData
 
 def terrain_3d_plot(cygnss_folder, era5_folder, lsm_threshold, dem_file, lat_step, lon_step):
     
-    lat_min, lat_max = -34, -31
-    lon_min, lon_max = 18, 23
+    lat_min, lat_max = 25, 28.5
+    lon_min, lon_max = 67, 73
 
     # --- Create fine grid ---
     interp_factor = 1
@@ -49,7 +49,8 @@ def terrain_3d_plot(cygnss_folder, era5_folder, lsm_threshold, dem_file, lat_ste
     surf = ax.plot_surface(
         lon_mesh, lat_mesh, dem_fine,
         cmap='terrain',
-        linewidth=0, antialiased=True
+        linewidth=0, antialiased=True,
+        edgecolor="none"
     )
 
     ax.set_xlabel("Longitude")

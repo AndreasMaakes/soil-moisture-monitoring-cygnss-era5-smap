@@ -9,7 +9,7 @@ from CYGNSS.CYGNSS_testing_limits import CYGNSS_gaussian_blur_plot as LETSGO
 from plot_correlation import correlation_plot, correlation_matrix
 from horse import correlation_vs_tri
 from elevation_plot import correlation_3d_terrain
-#from elevation_only_plot import terrain_3d_plot
+from elevation_only_plot import terrain_3d_plot
 
 
 
@@ -81,10 +81,10 @@ Note: Both plotting options has the option to save the plot to a file. This is d
 
 #CYGNSS_gaussian_blur_plot("Thailand/Thailand-20200101-20200107", 2.0, 100)
 #LETSGO("Thailand/Thailand-20200101-20200107", 2.0, 100)
-#SMAP_gaussian_blur_plot("Thailand", 2.0, 100)
-ERA5_gaussian_blur_plot("South-Africa/ERA5_South-Africa_20200101_20200131.nc", 2.0, 0.9, 100)
+#SMAP_gaussian_blur_plot("South-Africa_20200101_20200131", 2.0, 100)
+#ERA5_gaussian_blur_plot("South-Africa/ERA5_South-Africa_20200101_20200131.nc", 2.0, 0.9, 100)
 
-CYGNSS_gaussian_blur_plot("South-Africa/South-Africa-20200101-20200131", 2, 100)
+#CYGNSS_gaussian_blur_plot("South-Africa/South-Africa-20200101-20200131", 2, 100)
 #LETSGO("India2/India2-20200101-20200107", 2, 100)
 #SMAP_gaussian_blur_plot("India2", 2, 100)
 #ERA5_gaussian_blur_plot("India2/ERA5_India2_2020_01_01_07.nc", 2, 0.9, 100)
@@ -93,7 +93,7 @@ CYGNSS_gaussian_blur_plot("South-Africa/South-Africa-20200101-20200131", 2, 100)
 
 
 #correlation_matrix("Bolivia", "Bolivia/Bolivia-20240701-20240707", "Bolivia/ERA5_Bolivia_2024_07_01_07.nc", 100, 15, 0.95)
-#correlation_matrix("Bolivia", "Bolivia/Bolivia-20240701-20240707", "Bolivia/ERA5_Bolivia_2024_07_01_07.nc", 1, 1, 0.95)
+correlation_matrix("India2", "India2/India2-20200101-20200107", "India2/ERA5_India2_2020_01_01_07.nc", 100, 10, 0.95)
 #correlation_plot( "India2", "India2/India2-20200101-20200107", "India2/ERA5_India2_2020_01_01_07.nc", 0.95)
 
 #correlation_vs_tri("Bolivia", "Bolivia/Bolivia-20240701-20240707", "data/ASTGTM/Bolivia_downsampled.nc", 0.5, 0.5)
@@ -103,12 +103,41 @@ CYGNSS_gaussian_blur_plot("South-Africa/South-Africa-20200101-20200131", 2, 100)
 
 '''
 correlation_3d_terrain(
-    cygnss_folder="South-Africa/South-Africa-20200101-20200131",
-    era5_folder="South-Africa/ERA5_South-Africa_20200101_20200131.nc",
+    cygnss_folder="India2/India2-20200101-20200107",
+    era5_folder="data/ERA5/India2/ERA5_India2_2020_01_01_07.nc",
     lsm_threshold=0.5,
     dem_file="data/ASTGTM/South_Africa_downsampled.nc",
     lat_step=0.1,
     lon_step=0.1
 )
 '''
+'''
+correlation_3d_terrain(
+    smap_folder="India2",
+    cygnss_folder="India2/India2-20200101-20200107",
+    era5_file="data/ERA5/India2/ERA5_India2_2020_01_01_07.nc",
+    dem_file="data/ASTGTM/Pakistan_downsampled.nc",
+    lsm_threshold=0.5,
+    lat_step=0.1,
+    lon_step=0.1,
+    dataset='SMAP'  # or 'ERA5'
+)
+'''
 
+'''
+terrain_3d_plot(cygnss_folder="South-Africa/South-Africa-20200101-20200131",
+    era5_folder="data/ERA5/South-Africa/ERA5_South-Africa_20200101_20200131.nc", 
+    lsm_threshold=0.5, 
+    dem_file="data/ASTGTM/South_Africa_downsampled.nc", 
+    lat_step=0.01, 
+    lon_step=0.01
+    )
+'''
+
+terrain_3d_plot(cygnss_folder="India2/India2-20200101-20200107",
+    era5_folder="data/ERA5/India2/ERA5_India2_2020_01_01_07.nc", 
+    lsm_threshold=0.5, 
+    dem_file="data/ASTGTM/Pakistan_downsampled.nc", 
+    lat_step=0.1, 
+    lon_step=0.1
+    )

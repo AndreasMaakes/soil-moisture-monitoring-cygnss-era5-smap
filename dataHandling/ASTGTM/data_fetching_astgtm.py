@@ -61,7 +61,7 @@ def data_fetching_astgtm(min_lat, max_lat, min_lon, max_lon, name):
                     ds = rxr.open_rasterio(tif_path).squeeze("band", drop=True)
 
                     # Downsample to approx. 9 km
-                    downsample_factor = 300
+                    downsample_factor = 30
                     downsampled_ds = ds.coarsen(y=downsample_factor, x=downsample_factor, boundary="trim").mean()
 
                     print("Before coarsen:", ds.shape)
@@ -95,4 +95,5 @@ def data_fetching_astgtm(min_lat, max_lat, min_lon, max_lon, name):
     shutil.rmtree(local_dir, ignore_errors=True)
 
 # Example usage
-data_fetching_astgtm("-34", "-31", "18", "23", "South_Africa")
+#data_fetching_astgtm("-34", "-30", "18", "23", "South_Africa_sharper")
+data_fetching_astgtm("24", "29", "66", "74", "Pakistan")
