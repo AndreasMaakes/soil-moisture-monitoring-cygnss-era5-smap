@@ -13,7 +13,7 @@ from CYGNSS.import_data import importData
 def correlation_3d_terrain(cygnss_folder, era5_folder, lsm_threshold, dem_file, lat_step, lon_step):
     # --- Load CYGNSS Data ---
     df_cygnss = pd.concat(importData(cygnss_folder))
-    df_cygnss = df_cygnss[(df_cygnss['ddm_snr'] > 2) & (df_cygnss['sp_rx_gain'] > 13)]
+    df_cygnss = df_cygnss[(df_cygnss['ddm_snr'] > 2) & (df_cygnss['sp_rx_gain'] < 13)]
 
     # --- Load ERA5 Data ---
     df_era5 = xr.open_dataset(f'data/ERA5/{era5_folder}').to_dataframe().reset_index()
@@ -26,8 +26,13 @@ def correlation_3d_terrain(cygnss_folder, era5_folder, lsm_threshold, dem_file, 
     lon_min = min(df_cygnss["sp_lon"].min(), df_era5_lsm["longitude"].min())
     lon_max = max(df_cygnss["sp_lon"].max(), df_era5_lsm["longitude"].max())
 
+    print(lat_min)
+    print(lat_max)
+    print(lon_min)
+    print(lon_max)
+
     # --- Create fine grid ---
-    interp_factor = 10
+    interp_factor = 20
     fine_lat_step = lat_step / interp_factor
     fine_lon_step = lon_step / interp_factor
     lat_fine = np.arange(lat_min, lat_max + fine_lat_step, fine_lat_step)
@@ -51,15 +56,15 @@ def correlation_3d_terrain(cygnss_folder, era5_folder, lsm_threshold, dem_file, 
 
     # --- Load and interpolate DEM ---
     dem_ds = xr.open_dataset(dem_file)
-    elevation = dem_ds["ASTER_GDEM_DEM"].values
-    dem_lat = dem_ds["lat"].values
-    dem_lon = dem_ds["lon"].values
+    elevation = dem_ds["__xarray_dataarray_variable__"].values
+    dem_lon = dem_ds["x"].values
+    dem_lat = dem_ds["y"].values
     dem_lon_mesh, dem_lat_mesh = np.meshgrid(dem_lon, dem_lat)
     dem_fine = griddata(
         (dem_lon_mesh.flatten(), dem_lat_mesh.flatten()),
         elevation.flatten(),
         (lon_mesh, lat_mesh),
-        method='nearest'
+        method='linear'
     )
 
     # --- Define coarse bins ---
