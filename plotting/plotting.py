@@ -8,6 +8,9 @@ from plot_timeseries import plot_time_series
 from CYGNSS.CYGNSS_testing_limits import CYGNSS_gaussian_blur_plot as LETSGO
 from plot_correlation import correlation_plot, correlation_matrix
 from horse import correlation_vs_tri
+#from elevation_plot import correlation_3d_terrain
+from elevation_only_plot import terrain_3d_plot
+
 
 
 '''
@@ -96,6 +99,14 @@ Note: Both plotting options has the option to save the plot to a file. This is d
 #correlation_vs_tri("Bolivia", "Bolivia/Bolivia-20240701-20240707", "data/ASTGTM/Bolivia_downsampled.nc", 0.5, 0.5)
 #correlation_vs_tri("India2", "India2/India2-20200101-20200107", "India2/ERA5_India2_2020_01_01_07.nc", 0.95, "data/ASTGTM/Pakistan_downsampled.nc", 0.5, 0.5)
 #correlation_vs_tri("Thailand", "Thailand/Thailand-20200101-20200107", "Thailand/ERA5_Thailand_2020_01_01_07.nc", 0.95, "data/ASTGTM/Thailand_downsampled.nc", 0.5, 0.5)
-correlation_vs_tri("India", "India/India-20240201-20240207", "India/ERA5_India_2024_02_01_07.nc", 0.95, "data/ASTGTM/India_downsampled.nc", 0.5, 0.5)
+#correlation_vs_tri("India", "India/India-20240201-20240207", "India/ERA5_India_2024_02_01_07.nc", 0.95, "data/ASTGTM/India_downsampled.nc", 0.5, 0.5)
 
+terrain_3d_plot(
+    cygnss_folder="Bolivia/Bolivia-20240701-20240707",
+    era5_folder="Bolivia/ERA5_Bolivia_2024_07_01_07.nc",
+    lsm_threshold=0.5,
+    dem_file="data/ASTGTM/South_Africa_downsampled.nc",
+    lat_step=0.1,
+    lon_step=0.1
+)
 
