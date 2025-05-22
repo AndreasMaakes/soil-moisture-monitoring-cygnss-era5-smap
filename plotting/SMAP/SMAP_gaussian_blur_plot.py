@@ -63,9 +63,9 @@ def SMAP_gaussian_blur_plot(folder_name, sigma, step_size_lon, step_size_lat):
     )
 
     # Title, labels, and colorbar
-    ax.set_title(f"SMAP SM - Lake Barlee - January & February 2020", fontsize=32, pad=30)
-    ax.set_xlabel("Longitude", fontsize=32, labelpad=20)
-    ax.set_ylabel("Latitude", fontsize=32, labelpad=20)
+    ax.set_title(f"SMAP SM - Lake Barlee - Jan & Feb 2020", fontsize=32, pad=30)
+    #ax.set_xlabel("Longitude", fontsize=32, labelpad=20)
+    #ax.set_ylabel("Latitude", fontsize=32, labelpad=20)
 
     cbar = fig.colorbar(mesh, ax=ax, pad=0.03)
     cbar.set_label("Soil Moisture [m$^3$/m$^3$]", fontsize=32, labelpad=24)
@@ -76,10 +76,10 @@ def SMAP_gaussian_blur_plot(folder_name, sigma, step_size_lon, step_size_lat):
     ax.tick_params(axis='y', labelsize=28, pad=10)
 
     def format_lon(x, _):
-        return f"{abs(x):.1f}°{'E' if x >= 0 else 'W'}"
+        return f"{abs(x):.0f}°{'E' if x >= 0 else 'W'}"
 
     def format_lat(y, _):
-        return f"{abs(y):.1f}°{'N' if y >= 0 else 'S'}"
+        return f"{abs(y):.0f}°{'N' if y >= 0 else 'S'}"
 
     ax.xaxis.set_major_locator(mticker.MultipleLocator(1))
     ax.yaxis.set_major_locator(mticker.MultipleLocator(1))

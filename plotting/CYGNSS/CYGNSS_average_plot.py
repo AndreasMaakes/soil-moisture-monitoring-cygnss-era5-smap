@@ -4,79 +4,96 @@ import pandas as pd
 from .import_data import importData
 from scipy.ndimage import gaussian_filter
 from scipy.stats import binned_statistic_2d
-from scipy.interpolate import griddata  # Import for interpolation
+from scipy.interpolate import griddata
+import matplotlib.ticker as mticker
 
 def CYGNSS_average_plot(folder_name, sigma, step_size_lon, step_size_lat, smooth):
-    # Create a title based on whether smoothing is applied.
-    name = folder_name.split("/")[0]
-    if sigma == 0:
-        title = f'CYGNSS Surface Reflectivity - {name} - September 2024'
-    else:
-        title = f'Smoothed CYGNSS Surface Reflectivity - {name} - September 2024 - σ={sigma}'
+    # Fixed title
+    title = "CYGNSS SR - Lake Barlee - Jan & Feb 2020"
 
-    # Import and concatenate data from the folder.
+    # Import and concatenate data
     dfs = importData(folder_name)
     df = pd.concat(dfs)
 
-    # Extract the latitude, longitude, and surface reflectivity values.
+    # Apply filters
+    df = df[df['ddm_snr'] >= 2]
+    df = df[df['sp_rx_gain'].between(0, 13)]
+    df = df[df["sp_inc_angle"] <= 45]
+
+    # Extract lat/lon/SR
     latitudes = df["sp_lat"].values
     longitudes = df["sp_lon"].values
     sr_values = df["sr"].values
 
-    # Dropping DDM_SNR and SP_RX_GAIN below thresholds.
-    df = df[df['ddm_snr'] >= 2]
-    df = df[df['sp_rx_gain'] <= 13]
-    df = df[df['sp_rx_gain'] >= 0]
-    df = df[df["sp_inc_angle"] <= 45]
+    # Fixed Lake Barlee bounds
+    lat_min, lat_max = -30.25, -28.25
+    lon_min, lon_max = 118.5, 120.5
 
-    # Define grid bin edges based on the desired step sizes.
-    lat_edges = np.arange(latitudes.min(), latitudes.max() + step_size_lat, step_size_lat)
-    lon_edges = np.arange(longitudes.min(), longitudes.max() + step_size_lon, step_size_lon)
+    # Define bin edges
+    lat_edges = np.arange(lat_min, lat_max, step_size_lat)
+    if lat_edges.size == 0 or lat_edges[-1] < lat_max:
+        lat_edges = np.append(lat_edges, lat_max)
 
-    # Bin the data: average the 'sr' values that fall within each grid cell.
+    lon_edges = np.arange(lon_min, lon_max, step_size_lon)
+    if lon_edges.size == 0 or lon_edges[-1] < lon_max:
+        lon_edges = np.append(lon_edges, lon_max)
+
+    # Bin data
     stat, _, _, _ = binned_statistic_2d(
         longitudes, latitudes, sr_values, statistic='mean', bins=[lon_edges, lat_edges]
     )
-    # Transpose so that the array has shape (n_lat_bins, n_lon_bins)
     stat = stat.T
 
-    # Create grid centers for interpolation.
+    # Grid centers for interpolation
     lon_centers = (lon_edges[:-1] + lon_edges[1:]) / 2
     lat_centers = (lat_edges[:-1] + lat_edges[1:]) / 2
     lon_mesh, lat_mesh = np.meshgrid(lon_centers, lat_centers)
 
-    # Identify bins with valid data.
+    # Fill missing with interpolation
     mask = ~np.isnan(stat)
     if np.any(mask):
-        # Points with data.
         points = np.column_stack((lon_mesh[mask], lat_mesh[mask]))
         values = stat[mask]
-        # Interpolate missing values using nearest-neighbor.
         stat = griddata(points, values, (lon_mesh, lat_mesh), method='linear')
-    
-    # Optionally apply Gaussian smoothing if sigma > 0.
+
+    # Smooth
     if sigma > 0:
         stat = gaussian_filter(stat, sigma=sigma)
 
-    plt.figure(figsize=(10, 8))
-    if smooth:
-        # Use imshow with bilinear interpolation.
-        mesh = plt.imshow(
-            stat, 
-            origin='lower', 
-            extent=[lon_edges[0], lon_edges[-1], lat_edges[0], lat_edges[-1]], 
-            cmap='viridis', 
-            interpolation='bilinear'
-        )
-    else:
-        # Use pcolormesh with the bin edges.
-        mesh = plt.pcolormesh(
-            lon_edges, lat_edges, stat, shading='auto', cmap="viridis"
-        )
-        
-    plt.colorbar(mesh, label='SR')
-    plt.xlabel('Longitude')
-    plt.ylabel('Latitude')
-    plt.title(title)
-    plt.axis('equal')
+    # Plot
+    fig, ax = plt.subplots(figsize=(12, 10))
+    mesh = ax.pcolormesh(
+        lon_edges, lat_edges, stat,
+        shading='auto', cmap='viridis'
+    )
+
+    # Labels, title, colorbar
+    ax.set_title(title, fontsize=32, pad=30)
+    #ax.set_xlabel("Longitude", fontsize=32, labelpad=20)
+    #ax.set_ylabel("Latitude", fontsize=32, labelpad=20)
+
+    cbar = fig.colorbar(mesh, ax=ax, pad=0.03)
+    cbar.set_label("SR [dB]", fontsize=32, labelpad=24)
+    cbar.ax.tick_params(labelsize=28)
+
+    # Ticks
+    ax.tick_params(axis='x', labelsize=28, pad=10)
+    ax.tick_params(axis='y', labelsize=28, pad=10)
+
+    def format_lon(x, _):
+        return f"{abs(x):.0f}°{'E' if x >= 0 else 'W'}"
+
+    def format_lat(y, _):
+        return f"{abs(y):.0f}°{'N' if y >= 0 else 'S'}"
+
+    ax.xaxis.set_major_locator(mticker.MultipleLocator(1))
+    ax.yaxis.set_major_locator(mticker.MultipleLocator(1))
+    ax.xaxis.set_major_formatter(mticker.FuncFormatter(format_lon))
+    ax.yaxis.set_major_formatter(mticker.FuncFormatter(format_lat))
+
+    ax.set_aspect('equal', adjustable='box')
+    ax.set_xlim(lon_min, lon_max)
+    ax.set_ylim(lat_min, lat_max)
+
+    fig.tight_layout()
     plt.show()
