@@ -22,11 +22,11 @@ password = "Terrengmodell69!"
 
 '''CYGNSS parameters'''
 #DDM SNR and SP RX gain
-min_ddm_snr = -1000
-min_sp_rx_gain = -1000
-max_sp_rx_gain = 1000
+min_ddm_snr = 2
+min_sp_rx_gain = 0
+max_sp_rx_gain = 13
 #Maximum inclination angle
-inc_angle = 1000
+inc_angle = 65
 
 
 
@@ -151,12 +151,18 @@ max_lat = -34.6
 max_lon = 147.6
 '''
 
-#data_fetching_CYGNSS(False, "20200101", "20200131", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
-data_fetching_smap(False, "20200101", "20200228",  max_lat, min_lat, max_lon, min_lon, name)
-#data_fetching_era5(False, "20200101","20200131", min_lat, max_lat, min_lon, max_lon, name)
+name = "Uruguay"
+min_lat = -34
+min_lon = -58
+max_lat = -32
+max_lon = -54
+
+#data_fetching_CYGNSS(False, "20200101", "20200114", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
+data_fetching_smap(False, "20200101", "20200114",  max_lat, min_lat, max_lon, min_lon, name)
+#data_fetching_era5(False, "20200101","20200114", min_lat, max_lat, min_lon, max_lon, name)
 #data_fetching_time_series("20240701", "20240703", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
 
 #data_fetching_era5(False, "20240101", "20240103", 20, 22, 20, 22, "Bombaclaat")
-#data_fetching_time_series("20200511", "20200801", 3, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
+#data_fetching_time_series("20200623", "20200801", 3, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
 
 

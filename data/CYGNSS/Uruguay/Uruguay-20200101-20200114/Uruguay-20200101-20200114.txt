@@ -1,0 +1,17 @@
+Area of interest: Uruguay
+
+Start date: 20200101
+End date: 20200114
+
+Minimum latitude: -34
+Minimum longitude: -58
+Maximum latitude: -32
+Maximum longitude: -54
+
+Maximum inclination angle: 65
+Minimum ddm_snr: 2
+Minimum sp_rx_gain: 0
+Maximum sp_rx_gain: 13
+
+Data fetching started: 00:22:34
+Data fetching completed: 08:26:35
