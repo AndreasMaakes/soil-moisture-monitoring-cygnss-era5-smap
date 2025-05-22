@@ -88,3 +88,4 @@ def trace_plot(folder_name, saveplot):
 
     if saveplot:
         fig.write_html(f'plotting/plots/{folder_name}.html')
+

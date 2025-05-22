@@ -33,7 +33,7 @@ def generate_weekly_intervals(start_date, end_date, num_days):
         intervals.append((current_start.strftime("%Y%m%d"), current_end.strftime("%Y%m%d")))
 
         # Move to the same weekday next week
-        current_start += datetime.timedelta(weeks=2)
+        current_start += datetime.timedelta(weeks=1)
 
     return intervals
 
