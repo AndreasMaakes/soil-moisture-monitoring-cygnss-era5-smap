@@ -5,6 +5,10 @@ import xarray as xr
 import numpy as np
 import matplotlib.dates as mdates
 from scipy.ndimage import gaussian_filter1d  # Import gaussian_filter1d
+import glob
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
+
 
 def plot_time_series(folder_name, min_lat, min_lon, max_lat, max_lon, gaussian_sigma=0, interpolate_cygnss=False):
     '''Data folder paths'''
@@ -12,7 +16,7 @@ def plot_time_series(folder_name, min_lat, min_lon, max_lat, max_lon, gaussian_s
     basePath_SMAP = f'{folder_name}/SMAP'
     basePath_CYGNSS = f'{folder_name}/CYGNSS'
     
-    # We'll collect ERA5 and SMAP data in dataframes with date indexes
+    #Collect ERA5 and SMAP data in dataframes with date indexes
     era5_data = []
     smap_data = []
     cygnss_data = []
@@ -177,13 +181,12 @@ def plot_cygnss_ismn_time_series(cygnss_folder, ismn_folder, sigma=0):
             df = ds.to_dataframe().reset_index()
             
             
-            df_filtered = df[df["ddm_snr"] >= 3]
+            df_filtered = df[df["ddm_snr"] >= 5]
             df_filtered = df_filtered[df_filtered["sp_rx_gain"] >= 0]
-            df_filtered = df_filtered[df_filtered["sp_rx_gain"] <= 13]
-            df_filtered = df_filtered[df_filtered["sp_inc_angle"] <= 45]
+            df_filtered = df_filtered[df_filtered["sp_rx_gain"] <= 12]
+            df_filtered = df_filtered[df_filtered["sp_inc_angle"] <= 40]
             
-            
-
+        
             if not df_filtered.empty:
                 min_sr = df_filtered["sr"].min()
                 df_filtered["sr"] = df_filtered["sr"] - min_sr
@@ -205,8 +208,12 @@ def plot_cygnss_ismn_time_series(cygnss_folder, ismn_folder, sigma=0):
         weekly_series_list.append(weekly_avg)
 
     combined = pd.concat(weekly_series_list, axis=1)
+    combined = combined.dropna(how='all')  # remove completely empty weeks
     combined["mean_moisture"] = combined.mean(axis=1)
-    df_ismn = combined[combined["mean_moisture"] <= 1][["mean_moisture"]]
+    df_ismn = combined[["mean_moisture"]].dropna()  # ensure final ISMN dataframe has no NaNs
+    print("CYGNSS max date:", df_cygnss.index.max())
+    print("ISMN max date:", df_ismn.index.max())
+
 
     # ===== Time Alignment =====
     common_start = max(df_cygnss.index.min(), df_ismn.index.min())
@@ -226,36 +233,41 @@ def plot_cygnss_ismn_time_series(cygnss_folder, ismn_folder, sigma=0):
 
     # Left axis: ISMN
     if not df_ismn.empty:
-        ax1.plot(df_ismn.index, df_ismn["mean_moisture"], label="ISMN Moisture", color="orange", marker="o")
-        ax1.set_ylabel("ISMN Soil Moisture (0–1)", color="orange")
-        ax1.tick_params(axis="y", labelcolor="orange")
+        ax1.plot(df_ismn.index, df_ismn["mean_moisture"], label="ISMN Soil Moisture", color="red", marker="o", markersize=3)
+        ax1.set_ylabel("ISMN SM (m$^3$/m$^3$)", color="black", fontsize=24, labelpad=20)
+        ax1.tick_params(axis="y", labelcolor="black", labelsize=24)
 
     # Right axis: CYGNSS
     ax2 = ax1.twinx()
     if not df_cygnss.empty:
-        ax2.plot(df_cygnss.index, df_cygnss["cygnss_sr"], label="CYGNSS SR", color="blue", marker="o")
-        ax2.set_ylabel("CYGNSS Surface Reflectivity (dB)", color="blue")
-        ax2.tick_params(axis="y", labelcolor="blue")
+        ax2.plot(df_cygnss.index, df_cygnss["cygnss_sr"], label="CYGNSS SR", color="blue", marker="o", markersize=3)
+        ax2.set_ylabel("CYGNSS SR (dB)", color="black", fontsize=24, labelpad=20)
+        ax2.tick_params(axis="y", labelcolor="black", labelsize = 24)
 
-    ax1.set_xlabel("Date")
-    ax1.set_title("CYGNSS Surface Reflectivity and ISMN Soil Moisture Time Series")
+    ax1.set_title("Weekly Average CYGNSS SR and ISMN SM for Australia ($\\sigma$ = 3) ", fontsize = 26, pad=40)
     ax1.xaxis.set_major_locator(mdates.MonthLocator(interval=2))
     ax1.xaxis.set_major_formatter(mdates.DateFormatter("%b %Y"))
+    fig.autofmt_xdate(rotation=45)
+    for label in ax1.get_xticklabels():
+        label.set_fontsize(22)
     fig.autofmt_xdate()
     ax1.grid(True)
 
     # Create a unified legend
     lines_1, labels_1 = ax1.get_legend_handles_labels()
     lines_2, labels_2 = ax2.get_legend_handles_labels()
-    ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc="upper left")
+    ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc="upper left", fontsize=22)
 
     plt.tight_layout()
     plt.show()
 
 
+
+
+
 plot_cygnss_ismn_time_series(
-    cygnss_folder="data\Timeseries\TimeSeries-Ghana-20190101-20211231/CYGNSS",
-    ismn_folder="data/ISMN/Ghana",
-    sigma=3)
+    cygnss_folder="data\Timeseries\TimeSeries-Australia-20180801-20200801/CYGNSS",
+    ismn_folder="data/ISMN/Australia",
+    sigma=0)
 
 

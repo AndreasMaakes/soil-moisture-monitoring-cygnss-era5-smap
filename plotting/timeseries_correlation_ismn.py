@@ -32,10 +32,10 @@ def time_series_correlation_with_ismn(folder_name, ismn_folder, gaussian_sigma=0
 
 
                 df_filtered = df[
-                    (df['ddm_snr'] >= 3) &
+                    (df['ddm_snr'] >= 5) &
                     (df['sp_rx_gain'] >= 0) &
-                    (df['sp_rx_gain'] <= 13) &
-                    (df['sp_inc_angle'] <= 45)
+                    (df['sp_rx_gain'] <= 12) &
+                    (df['sp_inc_angle'] <= 40)
                 ].copy()
 
                 if not df_filtered.empty:
@@ -106,6 +106,7 @@ def time_series_correlation_with_ismn(folder_name, ismn_folder, gaussian_sigma=0
     cygnss_mean = df_combined["cygnss_sr"].mean()
     cygnss_std = df_combined["cygnss_sr"].std()
     ismn_mean = df_combined["mean_moisture"].mean()
+    ismn_std = df_combined["mean_moisture"].std()
 
     bias = cygnss_mean - ismn_mean
 
@@ -113,6 +114,7 @@ def time_series_correlation_with_ismn(folder_name, ismn_folder, gaussian_sigma=0
     print(f"CYGNSS Std Dev: {cygnss_std:.3f}")
     print(f"ISMN Mean: {ismn_mean:.3f}")
     print(f"Bias (CYGNSS - ISMN): {bias:.3f}")
+    print(f"ISMN Std Dev: {ismn_std:.3f}")
 
     # ========== Optional Scatter Plot ==========
     plt.figure(figsize=(6, 6))
@@ -258,14 +260,15 @@ def optimize_correlation_parameters(folder_name, ismn_folder):
         
 '''
 optimize_correlation_parameters(
-    folder_name="data/Timeseries/TimeSeries-Ghana-20190101-20211231",
-    ismn_folder="data/ISMN/Ghana"
+    folder_name="data\Timeseries\TimeSeries-Australia-20180801-20200801",
+    ismn_folder="data/ISMN/Australia"
 )
 '''
 
+
 time_series_correlation_with_ismn(
-    folder_name="data\Timeseries\TimeSeries-Ghana-20190101-20211231",
-    ismn_folder="data/ISMN/Ghana",
+    folder_name="data\Timeseries\TimeSeries-Australia-20180801-20200801",
+    ismn_folder="data/ISMN/Australia",
     gaussian_sigma=3
 )
 

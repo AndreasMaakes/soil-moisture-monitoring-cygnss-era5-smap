@@ -9,7 +9,7 @@ from plot_correlation import correlation_plot, spatial_correlation_matrix
 from CYGNSS.CYGNSS_average_plot import CYGNSS_average_plot
 from ERA5.ERA5_gaussian_blur_plot_new import ERA5_regrid_and_blur
 from timeseries_correlation import time_series_correlation
-
+from CYGNSS.cygnss_trace_plot_new import CYGNSS_raw_plot_satellite
 
 
 '''
@@ -46,3 +46,5 @@ spatial_correlation_matrix("India2", "India2/India2-20200101-20200131", "India2/
 #plot_time_series("data/Timeseries/TimeSeries-Pakistan-20220101-20241231", 27, 67, 28.5, 68.5, gaussian_sigma=2, interpolate_cygnss=False)
 
 #time_series_correlation("data/Timeseries/TimeSeries-Pakistan-20220101-20241231", 27, 67, 28.5, 68.5, gaussian_sigma=2)
+
+#CYGNSS_raw_plot_satellite("Sudan\Sudan-20201001-20201003")
