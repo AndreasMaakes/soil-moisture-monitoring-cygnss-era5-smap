@@ -18,7 +18,7 @@ def CYGNSS_average_plot(folder_name, sigma, step_size_lon, step_size_lat, smooth
     # Apply filters
     df = df[df['ddm_snr'] >= 2]
     df = df[df['sp_rx_gain'].between(0, 13)]
-    df = df[df["sp_inc_angle"] <= 45]
+    df = df[df["sp_inc_angle"] <= 65]
 
     # Extract lat/lon/SR
     latitudes = df["sp_lat"].values

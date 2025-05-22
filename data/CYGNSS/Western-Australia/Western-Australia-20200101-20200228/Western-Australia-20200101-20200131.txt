@@ -1,7 +1,7 @@
 Area of interest: Western-Australia
 
 Start date: 20200101
-End date: 20200131
+End date: 20200228
 
 Minimum latitude: -32
 Minimum longitude: 116
