@@ -26,7 +26,7 @@ min_ddm_snr = 2
 min_sp_rx_gain = 0
 max_sp_rx_gain = 13
 #Maximum inclination angle
-inc_angle = 65
+inc_angle = 50
 
 
 
@@ -64,13 +64,13 @@ max_lat = -32
 max_lon = 149
 '''
 
-
+'''
 name = "Western-Australia"
 min_lat = -32
 min_lon = 116
 max_lat = -27
 max_lon = 122
-
+'''
 
 '''
 name = "Thailand"
@@ -86,7 +86,7 @@ min_lat = 25
 min_lon = 67
 max_lat = 28.5
 max_lon = 73
-'''
+
 
 '''
 name = "Bolivia"
@@ -143,6 +143,7 @@ max_lat = 32.5
 max_lon = 79.8
 '''
 
+
 '''
 name = "Australia"
 min_lat = -35.4
@@ -157,12 +158,29 @@ min_lon = -58
 max_lat = -32
 max_lon = -54
 
-#data_fetching_CYGNSS(False, "20200101", "20200114", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
-data_fetching_smap(False, "20200101", "20200114",  max_lat, min_lat, max_lon, min_lon, name)
-#data_fetching_era5(False, "20200101","20200114", min_lat, max_lat, min_lon, max_lon, name)
+'''
+name = "Sudan-era5-land"
+min_lat = 11
+min_lon = 29
+max_lat = 17
+max_lon = 36
+
+'''
+name= "Ghana"
+min_lon = -3.2
+max_lon = 0.2
+min_lat = 6
+max_lat = 11.2
+'''
+
+data_fetching_CYGNSS(False, "20200101", "20200131", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
+data_fetching_smap(False, "20200101", "20200131",  max_lat, min_lat, max_lon, min_lon, name)
+data_fetching_era5(False, "20200101","20200131", min_lat, max_lat, min_lon, max_lon, name)
 #data_fetching_time_series("20240701", "20240703", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
 
 #data_fetching_era5(False, "20240101", "20240103", 20, 22, 20, 22, "Bombaclaat")
-#data_fetching_time_series("20200623", "20200801", 3, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
+
+#data_fetching_time_series("20220108", "20241231", 3, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
 
 
+ 

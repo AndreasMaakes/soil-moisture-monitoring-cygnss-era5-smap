@@ -7,9 +7,9 @@ from CYGNSS.trace_plot import trace_plot
 from plot_timeseries import plot_time_series
 from plot_correlation import correlation_plot, spatial_correlation_matrix
 from CYGNSS.CYGNSS_average_plot import CYGNSS_average_plot
-from CYGNSS.cygnss_grid_comparison import trace_plot_2 
-#from SMAP.SMAP_gaussian_blur_adjustable_grid_size import 
-
+from ERA5.ERA5_gaussian_blur_plot_new import ERA5_regrid_and_blur
+from timeseries_correlation import time_series_correlation
+from CYGNSS.cygnss_trace_plot_new import CYGNSS_raw_plot_satellite
 
 
 '''
@@ -44,4 +44,4 @@ ERA5_gaussian_blur_plot("Uruguay/ERA5_Uruguay_2020_01_01_14.nc", 0, 0.1, 0.1, 0.
 #correlation_plot("India2", "India2/India2-20200101-20200131", "India2/ERA5_India2_2020_01_01_31.nc", 0.5, 0.5, 0.9, gaussian_sigma=2)
 #plot_time_series("data/Timeseries/TimeSeries-Australia-20180801-20200801", -35.4, 145.8, -34.6, 147.6, gaussian_sigma=5)
 
-#trace_plot_2('India2/India2-20200101-20200107', saveplot=False)
+#CYGNSS_raw_plot_satellite("Sudan\Sudan-20201001-20201003")
