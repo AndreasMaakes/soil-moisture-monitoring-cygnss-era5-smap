@@ -26,8 +26,8 @@ def CYGNSS_average_plot(folder_name, sigma, step_size_lon, step_size_lat, smooth
     sr_values = df["sr"].values
 
     # Fixed Lake Barlee bounds
-    lat_min, lat_max = -30.25, -28.25
-    lon_min, lon_max = 118.5, 120.5
+    lat_min, lat_max = latitudes.min(), latitudes.max()
+    lon_min, lon_max = longitudes.min(), longitudes.max()
 
     # Define bin edges
     lat_edges = np.arange(lat_min, lat_max, step_size_lat)

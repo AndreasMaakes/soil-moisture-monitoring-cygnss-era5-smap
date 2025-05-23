@@ -20,8 +20,8 @@ def ERA5_gaussian_blur_plot(folder_name, sigma, threshold, lat_step, lon_step):
     moisture_values = lsm_df["average_moisture"].values
 
     # Set region bounds (Lake Barlee example)
-    lat_min, lat_max = -30.25, -28.25
-    lon_min, lon_max = 118.5, 120.5
+    lat_min, lat_max = latitudes.min(), latitudes.max()
+    lon_min, lon_max = longitudes.min(), longitudes.max()
 
     # Create grid edges
     lat_edges = np.arange(lat_min, lat_max, lat_step)
