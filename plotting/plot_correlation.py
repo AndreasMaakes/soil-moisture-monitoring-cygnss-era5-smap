@@ -360,6 +360,12 @@ spatial_correlation_matrix_old("India2",
                            "India2/ERA5_India2_2020_01_01_31.nc", 
                            0.5, 0.5, 0.9, window=1, min_points=3, gaussian_sigma=3)
 '''
+
+
+
+
+
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
