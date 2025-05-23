@@ -6,12 +6,6 @@ import cartopy.io.img_tiles as cimgt
 import cartopy.feature as cfeature
 from .import_data import importData
 import matplotlib.ticker as mticker
-import contextily as ctx
-import geopandas as gpd
-from shapely.geometry import box
-
-
-
 
 # High-res satellite tiles from ESRI
 class ESRIImagery(cimgt.GoogleTiles):
@@ -146,18 +140,7 @@ def CYGNSS_raw_plot(folder_name):
     plt.show()
     
 
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-
-import cartopy.crs as ccrs
-import cartopy.feature as cfeature
-import cartopy.io.img_tiles as cimgt
-
-from shapely.geometry import box
-from .import_data import importData  # adjust import path as needed
-
-# High-res ESRI World Imagery tile source
+# High-res satellite tiles from ESRI
 class ESRIImagery(cimgt.GoogleTiles):
     def __init__(self):
         super().__init__()
@@ -167,45 +150,53 @@ class ESRIImagery(cimgt.GoogleTiles):
 
     def _image_url(self, tile):
         x, y, z = tile
-        return (
-            f"https://server.arcgisonline.com/ArcGIS/rest/services/"
-            f"World_Imagery/MapServer/tile/{z}/{y}/{x}"
-        )
+        return f"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
 
-def plot_satellite_only(folder_name, zoom_level=8):
-    # --- 1) load your CYGNSS points to get the bounds ---
+
+def plot_study_area_satellite(folder_name, zoom_level=8, buffer=0):
+    """
+    Plot ESRI satellite imagery for the study area defined by CYGNSS data extents.
+
+    Parameters
+    ----------
+    folder_name : str
+        Path to the folder containing CYGNSS data files.
+    zoom_level : int, optional
+        Zoom level for the basemap tile (default: 8).
+    buffer : float, optional
+        Degrees to pad the extent on each side (default: 0).
+    """
+    # Import and concatenate data to determine extents
     dfs = importData(folder_name)
-    df  = pd.concat(dfs)
+    df = pd.concat(dfs)
 
-    # same filters as your CYGNSS_raw_plot
-    df = df[df['ddm_snr'] >= 2]
-    df = df[df['sp_rx_gain'].between(0, 13)]
-    df = df[df['sp_inc_angle'] <= 45]
-
+    # Extract coordinates
     lons = df['sp_lon'].values
     lats = df['sp_lat'].values
 
-    # buffer in degrees
-    buffer = 1.0
+    # Define study area bounds with optional buffer
     min_lon, max_lon = lons.min() - buffer, lons.max() + buffer
     min_lat, max_lat = lats.min() - buffer, lats.max() + buffer
 
-    # --- 2) set up the map ---
+    # Setup satellite basemap
     tiler = ESRIImagery()
-    fig  = plt.figure(figsize=(12, 8))
-    ax   = plt.axes(projection=tiler.crs)
-
-    # restrict to your study area's lon/lat
-    ax.set_extent([min_lon, max_lon, min_lat, max_lat],
-                  crs=ccrs.PlateCarree())
-
-    # draw only the satellite tiles
+    fig = plt.figure(figsize=(12, 8))
+    ax = plt.axes(projection=tiler.crs)
+    ax.set_extent([min_lon, max_lon, min_lat, max_lat], crs=ccrs.PlateCarree())
     ax.add_image(tiler, zoom_level)
 
-    # optional: coastlines/borders for reference
+    # Add optional features
     ax.add_feature(cfeature.COASTLINE, edgecolor='white', linewidth=0.75)
 
-    ax.set_title("ESRI World Imagery – Study Area", fontsize=24, pad=15)
-    ax.set_axis_off()
-    plt.tight_layout()
+    # Gridlines with Lat/Lon labels
+    gl = ax.gridlines(draw_labels=True, crs=ccrs.PlateCarree(), linewidth=0)
+    gl.top_labels = False
+    gl.right_labels = False
+    gl.xlabel_style = {'size': 24}
+    gl.ylabel_style = {'size': 24}
+
+    ax.set_title('Satellite Imagery - Study Area - Pakistan', fontsize=28, pad=20)
     plt.show()
+
+
+

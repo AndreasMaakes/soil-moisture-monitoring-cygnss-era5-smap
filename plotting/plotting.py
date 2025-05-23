@@ -9,7 +9,7 @@ from plot_correlation import correlation_plot, spatial_correlation_matrix, spati
 from CYGNSS.CYGNSS_average_plot import CYGNSS_average_plot
 from ERA5.ERA5_gaussian_blur_plot_new import ERA5_regrid_and_blur
 from timeseries_correlation import time_series_correlation
-from CYGNSS.CYGNSS_trace_plot import CYGNSS_raw_plot_satellite, CYGNSS_raw_plot
+from CYGNSS.CYGNSS_trace_plot import CYGNSS_raw_plot_satellite, CYGNSS_raw_plot, plot_study_area_satellite
 from ERA5.ERA5_gaussian_blur_plot_new import ERA5_regrid_and_blur as ERA5_gaussian_blur_plot_new
 
 
@@ -46,8 +46,8 @@ Note: Both plotting options has the option to save the plot to a file. This is d
 #plot_time_series("data/Timeseries/TimeSeries-Australia-20180801-20200801", -35.4, 145.8, -34.6, 147.6, gaussian_sigma=5)
 
 #CYGNSS_raw_plot_satellite("Pakistan\Pakistan-20200101-20200131")
-CYGNSS_raw_plot("Pakistan\Pakistan-20200601-20200630")
+#CYGNSS_raw_plot("Pakistan\Pakistan-20200601-20200630")
 
 #SMAP_gaussian_blur_plot("Pakistan_20200601_20200630", 1.5, 0.08, 0.08)
 
-#satellite_image("Pakistan\Pakistan-20200601-20200630")
+plot_study_area_satellite("Pakistan\Pakistan-20200601-20200630")
