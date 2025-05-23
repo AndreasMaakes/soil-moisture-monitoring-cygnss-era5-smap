@@ -64,8 +64,8 @@ def SMAP_gaussian_blur_plot(folder_name, sigma, step_size_lon, step_size_lat):
 
     # Title, labels, and colorbar
     ax.set_title(f"SMAP SM - Lake Barlee - Jan & Feb 2020", fontsize=32, pad=30)
-    #ax.set_xlabel("Longitude", fontsize=32, labelpad=20)
-    #ax.set_ylabel("Latitude", fontsize=32, labelpad=20)
+    ax.set_xlabel("Longitude", fontsize=32, labelpad=20)
+    ax.set_ylabel("Latitude", fontsize=32, labelpad=20)
 
     cbar = fig.colorbar(mesh, ax=ax, pad=0.03)
     cbar.set_label("Soil Moisture [m$^3$/m$^3$]", fontsize=32, labelpad=24)

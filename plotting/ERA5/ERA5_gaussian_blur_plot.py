@@ -56,8 +56,8 @@ def ERA5_gaussian_blur_plot(folder_name, sigma, threshold, lat_step, lon_step):
     )
 
     ax.set_title("ERA5 SM - Lake Barlee - Jan & Feb 2020", fontsize=32, pad=30)
-    #ax.set_xlabel("Longitude", fontsize=32, labelpad=20)
-    #ax.set_ylabel("Latitude", fontsize=32, labelpad=20)
+    ax.set_xlabel("Longitude", fontsize=32, labelpad=20)
+    ax.set_ylabel("Latitude", fontsize=32, labelpad=20)
 
     cbar = fig.colorbar(mesh, ax=ax, pad=0.03)
     cbar.set_label("Soil Moisture [m$^3$/m$^3$]", fontsize=32, labelpad=24)
