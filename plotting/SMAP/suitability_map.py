@@ -37,6 +37,8 @@ def SMAP_surface_flags_suitability(
         'static_water', 'urban', 'mountainous',
         'vegetation_opacity', 'roughness_coefficient'
     ])
+    df = df[(df['vegetation_opacity'] >= 0) & (df['vegetation_opacity'] <= 1)]
+
 
     # 4) Normalize and invert continuous variables
     for col in ['vegetation_opacity', 'roughness_coefficient']:
