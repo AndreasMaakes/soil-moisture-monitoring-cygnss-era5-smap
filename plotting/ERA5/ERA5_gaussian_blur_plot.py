@@ -10,7 +10,6 @@ from .ERA5_utils import averaging_soil_moisture
 from .ERA5_utils import apply_land_sea_mask
 
 
-
 def ERA5_gaussian_blur_plot(folder_name, sigma, threshold, lat_step, lon_step):
     ds = xr.open_dataset(f'data/ERA5/{folder_name}', engine='netcdf4') 
     df = ds.to_dataframe().reset_index()

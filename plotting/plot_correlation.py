@@ -410,7 +410,7 @@ def compute_local_correlation(merged_df, col1, col2, window_size=3):
 
             # Filter out pairs where either value is NaN
             valid = (~np.isnan(window1)) & (~np.isnan(window2))
-            if np.sum(valid) >= 2:  # Need at least two valid pairs for Pearson correlation
+            if np.sum(valid) >= 3:  # Need at least two valid pairs for Pearson correlation
                 r = np.corrcoef(window1[valid], window2[valid])[0, 1]
                 corr_matrix[i, j] = r
             else:

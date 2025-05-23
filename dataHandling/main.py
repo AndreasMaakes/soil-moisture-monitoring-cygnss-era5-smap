@@ -22,11 +22,11 @@ password = "Terrengmodell69!"
 
 '''CYGNSS parameters'''
 #DDM SNR and SP RX gain
-min_ddm_snr = 2
+min_ddm_snr = 1
 min_sp_rx_gain = 0
 max_sp_rx_gain = 13
 #Maximum inclination angle
-inc_angle = 50
+inc_angle = 65
 
 
 
@@ -80,12 +80,13 @@ max_lat = 18
 max_lon = 105
 '''
 
-'''
-name = "Pakistan_9km_smap"
+
+name = "Pakistan"
 min_lat = 25
 min_lon = 67
 max_lat = 28.5
 max_lon = 73
+
 
 
 '''
@@ -151,13 +152,13 @@ min_lon = 145.8
 max_lat = -34.6
 max_lon = 147.6
 '''
-
+'''
 name = "Uruguay"
 min_lat = -34
 min_lon = -58
 max_lat = -32
 max_lon = -54
-
+'''
 '''
 name = "Sudan-era5-land"
 min_lat = 11
@@ -166,21 +167,22 @@ max_lat = 17
 max_lon = 36
 
 '''
+
 name= "Ghana"
 min_lon = -3.2
 max_lon = 0.2
 min_lat = 6
 max_lat = 11.2
-'''
 
-data_fetching_CYGNSS(False, "20200101", "20200131", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
-data_fetching_smap(False, "20200101", "20200131",  max_lat, min_lat, max_lon, min_lon, name)
-data_fetching_era5(False, "20200101","20200131", min_lat, max_lat, min_lon, max_lon, name)
+
+#data_fetching_CYGNSS(False, "20200101", "20200131", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
+#data_fetching_smap(False, "20200601", "20200630",  max_lat, min_lat, max_lon, min_lon, name)
+#data_fetching_era5(False, "20200601","20200630", min_lat, max_lat, min_lon, max_lon, name)
 #data_fetching_time_series("20240701", "20240703", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
 
 #data_fetching_era5(False, "20240101", "20240103", 20, 22, 20, 22, "Bombaclaat")
 
-#data_fetching_time_series("20220108", "20241231", 3, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
+data_fetching_time_series("20210831", "20211231", 3, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
 
 
  

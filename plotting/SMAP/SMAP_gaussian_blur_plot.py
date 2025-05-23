@@ -22,8 +22,8 @@ def SMAP_gaussian_blur_plot(folder_name, sigma, step_size_lon, step_size_lat):
     
     # Set the plot boundaries to the original data boundaries.
     # For your Thailand example these should be: 14, 18, 99, and 105.
-    lat_min, lat_max = -30.25, -28.25
-    lon_min, lon_max = 118.5, 120.5
+    lat_min, lat_max = latitudes.min(), latitudes.max()
+    lon_min, lon_max = longitudes.min(), longitudes.max()
     
     # Create grid cell edges using the desired step sizes.
     # Use np.arange from the minimum up to (but not including) the maximum,
@@ -76,10 +76,10 @@ def SMAP_gaussian_blur_plot(folder_name, sigma, step_size_lon, step_size_lat):
     ax.tick_params(axis='y', labelsize=28, pad=10)
 
     def format_lon(x, _):
-        return f"{abs(x):.1f}°{'E' if x >= 0 else 'W'}"
+        return f"{abs(x):.0f}°{'E' if x >= 0 else 'W'}"
 
     def format_lat(y, _):
-        return f"{abs(y):.1f}°{'N' if y >= 0 else 'S'}"
+        return f"{abs(y):.0f}°{'N' if y >= 0 else 'S'}"
 
     ax.xaxis.set_major_locator(mticker.MultipleLocator(1))
     ax.yaxis.set_major_locator(mticker.MultipleLocator(1))
@@ -88,8 +88,8 @@ def SMAP_gaussian_blur_plot(folder_name, sigma, step_size_lon, step_size_lat):
 
     # Aspect ratio and limits
     ax.set_aspect('equal', adjustable='box')
-    ax.set_xlim(118.5, 120.5)
-    ax.set_ylim(-30.25, -28.25)
+    ax.set_xlim(lon_min, lon_max)
+    ax.set_ylim(lat_min, lat_max)
 
     fig.tight_layout()
     plt.show()

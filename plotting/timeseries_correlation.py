@@ -198,3 +198,36 @@ def time_series_correlation(folder_name, min_lat, min_lon, max_lat, max_lon, gau
     plt.legend()
     plt.tight_layout()
     plt.show()
+    
+        # ========== Cross-Correlation Analysis ==========
+
+    def compute_cross_corr(x, y):
+        x = x - np.mean(x)
+        y = y - np.mean(y)
+        corr = correlate(x, y, mode='full')
+        lags = np.arange(-len(x) + 1, len(y))
+        corr /= (np.std(x) * np.std(y) * len(x))  # Normalize
+        return lags, corr
+
+    lags, xcorr = compute_cross_corr(df_valid['cygnss_sr'].values, df_valid['mean_moisture'].values)
+
+    max_corr_idx = np.argmax(xcorr)
+    max_corr = xcorr[max_corr_idx]
+    best_lag = lags[max_corr_idx]
+
+    print(f"Max Cross-Correlation = {max_corr:.3f} at lag = {best_lag} weeks")
+
+    # ========== Plot Cross-Correlation ==========
+
+    plt.figure(figsize=(10, 4))
+    plt.plot(lags, xcorr, label="CYGNSS vs ISMN", color='teal')
+    plt.axvline(x=0, color='gray', linestyle='--')
+    plt.axvline(x=best_lag, color='red', linestyle='--', label=f"Max Corr (lag={best_lag})")
+    plt.xlabel("Lag (weeks)")
+    plt.ylabel("Cross-Correlation")
+    plt.title("Lag Analysis: CYGNSS vs ISMN")
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+

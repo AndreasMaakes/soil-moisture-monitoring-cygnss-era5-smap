@@ -26,10 +26,10 @@ def CYGNSS_raw_plot_satellite(folder_name):
     df = pd.concat(dfs)
 
     # Filtering
-    df = df[df['ddm_snr'] >= 0]
+    df = df[df['ddm_snr'] >= 2]
     df = df[df['sp_rx_gain'] <= 13]
     df = df[df['sp_rx_gain'] >= 0]
-    df = df[df["sp_inc_angle"] <= 65]
+    df = df[df["sp_inc_angle"] <= 45]
 
     # Coordinates and values
     lons = df["sp_lon"].values
