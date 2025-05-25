@@ -80,13 +80,13 @@ max_lat = 18
 max_lon = 105
 '''
 
-
+'''
 name = "Pakistan"
 min_lat = 25
 min_lon = 67
 max_lat = 28.5
 max_lon = 73
-
+'''
 
 
 '''
@@ -95,25 +95,33 @@ min_lat = -19
 max_lat = -14
 min_lon = -69
 max_lon = -62
+'''
 
+'''
 name = "China2"
 min_lat = 42
 max_lat = 46
 min_lon = 123
 max_lon = 129
+'''
 
+'''
 name = "Aus1"
 min_lat = -21
 max_lat = -13.7
 min_lon = 130
 max_lon = 135
+'''
 
+'''
 name = "Senegal"
 min_lat = 12.6
 max_lat = 15.7
 min_lon = -16.2
 max_lon = -12.5
+'''
 
+'''
 name = "Texas"
 min_lat = 30
 max_lat = 33.4
@@ -144,8 +152,6 @@ max_lat = 32.5
 max_lon = 79.8
 '''
 
-
-'''
 '''
 name = "Australia"
 min_lat = -35.4
@@ -153,6 +159,8 @@ min_lon = 145.8
 max_lat = -34.6
 max_lon = 147.6
 '''
+
+
 '''
 name = "Uruguay"
 min_lat = -34
@@ -160,23 +168,22 @@ min_lon = -58
 max_lat = -32
 max_lon = -54
 '''
-'''
-name = "Sudan-era5-land"
+
+
+name = "Sudan"
 min_lat = 11
 min_lon = 29
 max_lat = 17
 max_lon = 36
-'''
+
 
 '''
-
 name= "Ghana"
 min_lon = -3.2
 max_lon = 0.2
 min_lat = 6
 max_lat = 11.2
 '''
-
 '''
 name = "Western-Australia"
 min_lat = -32
@@ -184,15 +191,16 @@ min_lon = 116
 max_lat = -27
 max_lon = 122
 '''
-'''
-data_fetching_CYGNSS(False, "20200115", "20200131", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
-#data_fetching_smap(False, "20200101", "20200114",  max_lat, min_lat, max_lon, min_lon, name)
+
+
+#data_fetching_CYGNSS(False, "20200115", "20200131", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
+data_fetching_smap(False, "20200101", "20200127",  max_lat, min_lat, max_lon, min_lon, name)
 #data_fetching_era5(False, "20200601","20200607", min_lat, max_lat, min_lon, max_lon, name)
 #data_fetching_time_series("20240701", "20240703", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
 
 #data_fetching_era5(False, "20240101", "20240103", 20, 22, 20, 22, "Bombaclaat")
 
-data_fetching_time_series("20210831", "20211231", 3, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
+#data_fetching_time_series("20210831", "20211231", 3, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
 
 
  

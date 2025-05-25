@@ -77,15 +77,15 @@ def regrid_dataframe(df, lat_bins, lon_bins, data_source):
         df['lat_bin'] = pd.cut(df['sp_lat'], bins=lat_bins, right=False)
         df['lon_bin'] = pd.cut(df['sp_lon'], bins=lon_bins, right=False)
         # Aggregate using mean
-        df_grid = df.groupby(['lat_bin', 'lon_bin'])['sr'].mean().reset_index()
+        df_grid = df.groupby(['lat_bin', 'lon_bin'], observed=True)['sr'].mean().reset_index()
     elif data_source == "SMAP":
         df['lat_bin'] = pd.cut(df['latitude'], bins=lat_bins, right=False)
         df['lon_bin'] = pd.cut(df['longitude'], bins=lon_bins, right=False)
-        df_grid = df.groupby(['lat_bin', 'lon_bin'])['soil_moisture_avg'].mean().reset_index()
+        df_grid = df.groupby(['lat_bin', 'lon_bin'], observed=True)['soil_moisture_avg'].mean().reset_index()
     elif data_source == "ERA5":
         df['lat_bin'] = pd.cut(df['latitude'], bins=lat_bins, right=False)
         df['lon_bin'] = pd.cut(df['longitude'], bins=lon_bins, right=False)
-        df_grid = df.groupby(['lat_bin', 'lon_bin'])['average_moisture'].mean().reset_index()
+        df_grid = df.groupby(['lat_bin', 'lon_bin'], observed=True)['average_moisture'].mean().reset_index()
     else:
         raise ValueError("Invalid data source provided")
     
