@@ -5,7 +5,7 @@ from .import_data import importData
 from scipy.ndimage import gaussian_filter
 from scipy.interpolate import griddata
 
-def CYGNSS_gaussian_blur_plot(folder_name, sigma, grid_size):
+def CYGNSS_gaussian_blur_plot(folder_name, sigma, grid_size, smooth):
     title = ""
     name = folder_name.split("/")[0]
 
@@ -41,8 +41,15 @@ def CYGNSS_gaussian_blur_plot(folder_name, sigma, grid_size):
 
     # Plot the smoothed surface reflectivity data
     plt.figure(figsize=(10, 8))
-    mesh = plt.pcolormesh(lon_mesh, lat_mesh, smoothed_data, shading='auto', cmap='viridis')
+
+    if smooth:
+        mesh = plt.imshow(smoothed_data, origin='lower', extent=[lon_mesh.min(), lon_mesh.max(), lat_mesh.min(), lat_mesh.max()], cmap='viridis', interpolation='bilinear')
+    else:
+        mesh = plt.pcolormesh(lon_mesh, lat_mesh, smoothed_data, shading='auto', cmap="viridis") 
+    #contour = plt.contour(lon_mesh, lat_mesh, smoothed_data, 10, cmap='Spectral')
+    #plt.colorbar(contour, label='SR')
     plt.colorbar(mesh, label='SR')
+    
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')
     plt.title(title)

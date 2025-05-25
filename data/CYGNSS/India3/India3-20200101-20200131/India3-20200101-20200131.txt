@@ -1,0 +1,16 @@
+Area of interest: India3
+
+Start date: 20200101
+End date: 20200131
+
+Minimum latitude: 24.7
+Minimum longitude: 69.6
+Maximum latitude: 32.5
+Maximum longitude: 79.8
+
+Maximum inclination angle: 65
+Minimum ddm_snr: 1
+Minimum sp_rx_gain: 0
+Maximum sp_rx_gain: 15
+
+Data fetching started: 22:18:17

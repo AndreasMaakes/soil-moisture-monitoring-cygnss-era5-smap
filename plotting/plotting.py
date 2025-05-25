@@ -5,12 +5,20 @@ from ERA5.ERA5_gaussian_blur_plot import ERA5_gaussian_blur_plot
 from SMAP.SMAP_gaussian_blur_plot import SMAP_gaussian_blur_plot
 from CYGNSS.trace_plot import trace_plot
 from plot_timeseries import plot_time_series
+<<<<<<< HEAD
 from CYGNSS.CYGNSS_testing_limits import CYGNSS_gaussian_blur_plot as LETSGO
 from plot_correlation import correlation_plot, correlation_matrix
 from horse import correlation_vs_tri
 from elevation_plot import correlation_3d_terrain
 from elevation_only_plot import terrain_3d_plot
 
+=======
+from plot_correlation import correlation_plot, spatial_correlation_matrix
+from CYGNSS.CYGNSS_average_plot import CYGNSS_average_plot
+from ERA5.ERA5_gaussian_blur_plot_new import ERA5_regrid_and_blur
+from timeseries_correlation import time_series_correlation
+from CYGNSS.cygnss_trace_plot_new import CYGNSS_raw_plot_satellite
+>>>>>>> 324c8fcc1ebba8a2a6a8acf47e673f1a7429c308
 
 
 '''
@@ -35,16 +43,17 @@ Note: Both plotting options has the option to save the plot to a file. This is d
 
 
 
-#CYGNSS_gaussian_blur_plot("Iraq/Iraq-20240201-20240207", 2.5)
-#CYGGIBOI("Iraq/Iraq-20240201-20240207", False, 1.0)
-#SMAP_gaussian_blur_plot("Iraq", 2.0, 100)
-#ERA5_gaussian_blur_plot("Iraq/ERA5_Iraq_2024_02_01_07.nc", 2.0, 0.9, 100)
 
-#CYGNSS_gaussian_blur_plot("India/India-20200601-20200607", 0, 1000)
-#CYGGIBOI("India/India-20240201-20240207", False, 1.5)
-#SMAP_gaussian_blur_plot("India", 1.5, 100)
-#ERA5_gaussian_blur_plot("India/ERA5_India_2020_06_01_07.nc", 1.5, 0.9, 100)
+#SMAP_gaussian_blur_plot("Western-Australia_20200101_20200228", 0, 0.08, 0.08)
+#SMAP_gaussian_blur_plot("Pakistan_9km_smap", 0, 0.001, 0.001)
+#CYGNSS_gaussian_blur_plot("Western-Australia/Western-Australia-20200101-20200131", 0, 2000, True)
+CYGNSS_average_plot("Western-Australia/Western-Australia-20200101-20200228", 0, 0.001, 0.001,  False)
+#ERA5_gaussian_blur_plot("Western-Australia/ERA5_Western-Australia_20200601_20200607.nc", 0, 0.1, 0.08, 0.08)
+#correlation_matrix("India2", "India2/India2-20200101-20200131", "India2/ERA5_India2_2020_01_01_31.nc", 0.5, 0.5, 0.9)
+#correlation_plot("India2", "India2/India2-20200101-20200131", "India2/ERA5_India2_2020_01_01_31.nc", 0.5, 0.5, 0.9, gaussian_sigma=2)
+#plot_time_series("data/Timeseries/TimeSeries-Australia-20180801-20200801", -35.4, 145.8, -34.6, 147.6, gaussian_sigma=5)
 
+<<<<<<< HEAD
 #CYGNSS_gaussian_blur_plot("Argentina/Argentina-20240701-20240707", 0, 1000)
 #CYGGIBOI("Argentina/Argentina-20240701-20240707", False, 1.0)
 #SMAP_gaussian_blur_plot("Argentina", 1.0, 100)
@@ -141,3 +150,6 @@ terrain_3d_plot(cygnss_folder="India2/India2-20200101-20200107",
     lat_step=0.1, 
     lon_step=0.1
     )
+=======
+#CYGNSS_raw_plot_satellite("Sudan\Sudan-20201001-20201003")
+>>>>>>> 324c8fcc1ebba8a2a6a8acf47e673f1a7429c308
