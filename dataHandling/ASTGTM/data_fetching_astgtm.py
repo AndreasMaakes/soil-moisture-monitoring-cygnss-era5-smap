@@ -96,4 +96,4 @@ def data_fetching_astgtm(min_lat, max_lat, min_lon, max_lon, name):
 
 # Example usage
 #data_fetching_astgtm("-34", "-30", "18", "23", "South_Africa_sharper")
-data_fetching_astgtm("24", "29", "66", "74", "Pakistan")
+data_fetching_astgtm("24", "29", "65", "75", "Pakistan")

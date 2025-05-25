@@ -9,10 +9,10 @@ from ERA5.ERA5_utils import apply_land_sea_mask, averaging_soil_moisture
 from CYGNSS.import_data import importData
 
 
-def terrain_3d_plot(cygnss_folder, era5_folder, lsm_threshold, dem_file, lat_step, lon_step):
+def terrain_3d_plot(dem_file, lat_step, lon_step):
     
     lat_min, lat_max = 25, 28.5
-    lon_min, lon_max = 67, 73
+    lon_min, lon_max = 65, 75
 
     # --- Create fine grid ---
     interp_factor = 1
