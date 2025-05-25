@@ -76,10 +76,6 @@ LAT_STEP = 0.08
 LON_STEP = 0.08
 
 regions = {
-    'Western Australia': {
-        'smap': 'Western-Australia_20200101_20200131',
-        'cygnss': 'Western-Australia/Western-Australia-20200101-20200131'
-    },
     'Pakistan': {
         'smap': 'Pakistan_20200101_20200131',
         'cygnss': 'Pakistan/Pakistan-20200101-20200131'
@@ -99,7 +95,7 @@ plt.figure(figsize=(10, 6))
 for region, folders in regions.items():
     results = cumulative_correlations(folders['smap'], folders['cygnss'], dates, LAT_STEP, LON_STEP)
     ks, rs = zip(*results)
-    plt.plot(ks, rs, label=region)
+    plt.plot(ks, rs, label=region, linewidth=2, marker='o', markersize=4)
 
 plt.xlabel("Days of CYGNSS Averaging")
 plt.ylabel("Pearson Correlation with SMAP")
@@ -108,3 +104,10 @@ plt.legend()
 plt.grid(True)
 plt.tight_layout()
 plt.show()
+
+'''
+'Western Australia': {
+        'smap': 'Western-Australia_20200101_20200131',
+        'cygnss': 'Western-Australia/Western-Australia-20200101-20200131'
+    }
+'''
