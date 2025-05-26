@@ -22,7 +22,7 @@ password = "Terrengmodell69!"
 
 '''CYGNSS parameters'''
 #DDM SNR and SP RX gain
-min_ddm_snr = 1
+min_ddm_snr = 2
 min_sp_rx_gain = 0
 max_sp_rx_gain = 13
 #Maximum inclination angle
@@ -177,13 +177,14 @@ max_lat = 17
 max_lon = 36
 
 
-'''
+
 name= "Ghana"
 min_lon = -3.2
 max_lon = 0.2
 min_lat = 6
 max_lat = 11.2
-'''
+
+
 '''
 name = "Western-Australia"
 min_lat = -32
@@ -193,8 +194,8 @@ max_lon = 122
 '''
 
 
-data_fetching_CYGNSS(False, "20200115", "20200131", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
-#data_fetching_smap(False, "20200101", "20200127",  max_lat, min_lat, max_lon, min_lon, name)
+#data_fetching_CYGNSS(False, "20200101", "20200131", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
+data_fetching_smap(False, "20200101", "20200131",  max_lat, min_lat, max_lon, min_lon, name)
 #data_fetching_era5(False, "20200601","20200607", min_lat, max_lat, min_lon, max_lon, name)
 #data_fetching_time_series("20240701", "20240703", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
 

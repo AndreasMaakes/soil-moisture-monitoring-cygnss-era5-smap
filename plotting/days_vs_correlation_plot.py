@@ -87,6 +87,10 @@ regions = {
     'Sudan': {
         'smap': 'Sudan_20200101_20200131',
         'cygnss': 'Sudan/Sudan-20200101-20200131'
+    },
+    'South-Africa': {
+        'smap': 'South-Africa_20200101_20200131',
+        'cygnss': 'South-Africa-20200101-20200131'
     }
 }
 

@@ -1,0 +1,16 @@
+Area of interest: Ghana
+
+Start date: 20200101
+End date: 20200131
+
+Minimum latitude: 6
+Minimum longitude: -3.2
+Maximum latitude: 11.2
+Maximum longitude: 0.2
+
+Maximum inclination angle: 65
+Minimum ddm_snr: 2
+Minimum sp_rx_gain: 0
+Maximum sp_rx_gain: 13
+
+Data fetching started: 00:27:02
