@@ -1,13 +1,8 @@
-from CYGNSS.trace_plot import trace_plot
-from CYGNSS.CYGNSS_gaussian_blur_plot import CYGNSS_gaussian_blur_plot
-from CYGNSS.CYGNSS_gaussian_blur_plot_old import CYGNSS_gaussian_blur_plot as CYGGIBOI
 from ERA5.ERA5_gaussian_blur_plot import ERA5_gaussian_blur_plot
 from SMAP.SMAP_gaussian_blur_plot import SMAP_gaussian_blur_plot
-from CYGNSS.trace_plot import trace_plot
 from plot_timeseries import plot_time_series
 from plot_correlation import correlation_plot, spatial_correlation_matrix
 from CYGNSS.CYGNSS_average_plot import CYGNSS_average_plot
-from ERA5.ERA5_gaussian_blur_plot_new import ERA5_regrid_and_blur
 from timeseries_correlation import time_series_correlation
 from CYGNSS.cygnss_trace_plot_new import CYGNSS_raw_plot_satellite
 
