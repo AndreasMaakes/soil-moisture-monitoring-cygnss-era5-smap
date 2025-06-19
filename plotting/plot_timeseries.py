@@ -265,9 +265,5 @@ def plot_cygnss_ismn_time_series(cygnss_folder, ismn_folder, sigma=0):
 
 
 
-plot_cygnss_ismn_time_series(
-    cygnss_folder="data\Timeseries\TimeSeries-Australia-20180801-20200801/CYGNSS",
-    ismn_folder="data/ISMN/Australia",
-    sigma=3)
 
 

@@ -7,7 +7,7 @@ from scipy.stats import binned_statistic_2d
 from scipy.interpolate import griddata
 import matplotlib.ticker as mticker
 
-def CYGNSS_average_plot(folder_name, sigma, step_size_lon, step_size_lat, smooth):
+def CYGNSS_average_plot(folder_name, sigma, step_size_lon, step_size_lat):
     # Fixed title
     title = "CYGNSS SR - Lake Barlee - Jan & Feb 2020"
 

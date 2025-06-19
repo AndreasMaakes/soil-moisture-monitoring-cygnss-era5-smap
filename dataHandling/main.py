@@ -1,6 +1,5 @@
 from SMAP.data_fetching import data_fetching_smap
 from ERA5.data_fetching import data_fetching_era5
-from ERA5.data_fetching import data_fetching_era5
 from CYGNSS.data_fetching import data_fetching_CYGNSS
 from data_fetching_time_series import data_fetching_time_series
 
@@ -8,19 +7,53 @@ from data_fetching_time_series import data_fetching_time_series
 
 '''
 This is the main function of the program. 
-This file is simply used to call the data_fetching function with the desired parameters, which are explained in the data_fetching.py file.
+
+This file is simply used to call the data_fetching function with the desired parameters.
+
+The parameters are as follows:
+username: str
+    The username for the Earthdata server. Should be set as an environment variable or inserted 
+password: str
+    The password for the Earthdata server. Should be set as an environment variable or inserted 
+max_lat: float
+    The maximum latitude of the area of interest.
+min_lat: float
+    The minimum latitude of the area of interest.
+max_lon: float
+    The maximum longitude of the area of interest.
+min_lon: float
+    The minimum longitude of the area of interest.
+inc_angle: float
+    The maximum inclination angle of the CYGNSS observation
+name: str
+    The name of the area of interest. This is used to create the folder structure for the downloaded data.
+min_ddm_snr: int
+    The minimum DDM SNR value for the CYGNSS data. Default is 2 (Empirical value)
+min_sp_rx_gain: int
+    The minimum SP RX gain value for the CYGNSS data. Default is 0 (Empirical value)
+max_sp_rx_gain: int
+    The maximum SP RX gain value for the CYGNSS data. Default is 13 (Empirical value)
+
+
+
+Login to the server is required to access the data from the Earthdata server.
+The username and password should either be set as environment variables or inserted here as cleartext (not recommended).
+
 '''
 
-'''Login to the server. '''
-
-username = "andreasmaakes"
-password = "Terrengmodell69!"
-
+#Cleartext example with filler values:
+username = "your_username_here"  # Set your Earthdata username here or as an environment variable
+password = "your_password_here"  # Set your Earthdata password here or as an environment variable
 
 
-#Dates format CYGNSS "yyyymmdd"
+'''
+To fetch data for CYGNSS, SMAP or ERA5, simply call the respective data_fetching function with the desired parameters.
+To fetch time series data, call the data_fetching_time_series function with the desired parameters.
 
-'''CYGNSS parameters'''
+'''
+
+
+'''CYGNSS parameters   - Change these as needed '''
 #DDM SNR and SP RX gain
 min_ddm_snr = 2
 min_sp_rx_gain = 0
@@ -28,153 +61,17 @@ max_sp_rx_gain = 13
 #Maximum inclination angle
 inc_angle = 65
 
+'''Below are some examples of how to set up coordinates and names for the data fetching functions.'''
 
-
-
+#Example - Pakistan
 '''
-name = "Argentina"
-min_lat = -30
-min_lon = -68
-max_lat = -25
-max_lon = -61
-'''
-
-
-'''
-name = "Iraq"
-min_lat = 30.5
-min_lon = 43
-max_lat = 34.5
-max_lon = 48
-'''
-
-'''
-name = "India"
-min_lat = 24
-min_lon = 70
-max_lat = 32
-max_lon = 80
-'''
-
-'''
-name = "South-Australia"
-min_lat = -37
-min_lon = 140
-max_lat = -32
-max_lon = 149
-'''
-
-'''
-name = "Western-Australia"
-min_lat = -32
-min_lon = 116
-max_lat = -27
-max_lon = 122
-'''
-
-'''
-name = "Thailand"
-min_lat = 14
-min_lon = 99
-max_lat = 18
-max_lon = 105
-'''
-
-'''
-name = "Pakistan_9km_smap"
+name = "Pakistan"
 min_lat = 25
 min_lon = 67
 max_lat = 28.5
 max_lon = 73
-
-
 '''
-name = "Bolivia"
-min_lat = -19
-max_lat = -14
-min_lon = -69
-max_lon = -62
-
-name = "China2"
-min_lat = 42
-max_lat = 46
-min_lon = 123
-max_lon = 129
-
-name = "Aus1"
-min_lat = -21
-max_lat = -13.7
-min_lon = 130
-max_lon = 135
-
-name = "Senegal"
-min_lat = 12.6
-max_lat = 15.7
-min_lon = -16.2
-max_lon = -12.5
-
-name = "Texas"
-min_lat = 30
-max_lat = 33.4
-min_lon = -102.2
-max_lon = -94.5
-'''
-
-'''
-name = "Venezuela"
-min_lat = 3
-max_lat = 9
-min_lon = -70
-max_lon = -63
-'''
-'''
-name = "Testing"
-min_lat = 4
-max_lat = 19
-min_lon = 16
-max_lon = 33
-'''
-
-'''
-name = "India3"
-min_lat = 24.7
-min_lon = 69.6
-max_lat = 32.5
-max_lon = 79.8
-'''
-
-
-'''
-'''
-name = "Australia"
-min_lat = -35.4
-min_lon = 145.8
-max_lat = -34.6
-max_lon = 147.6
-'''
-
-name = "Uruguay"
-min_lat = -34
-min_lon = -58
-max_lat = -32
-max_lon = -54
-
-'''
-name = "Sudan-era5-land"
-min_lat = 11
-min_lon = 29
-max_lat = 17
-max_lon = 36
-'''
-
-'''
-name= "Ghana"
-min_lon = -3.2
-max_lon = 0.2
-min_lat = 6
-max_lat = 11.2
-'''
-
+#Example - Western Australia
 '''
 name = "Western-Australia"
 min_lat = -32
@@ -183,14 +80,23 @@ max_lat = -27
 max_lon = 122
 '''
 
-data_fetching_CYGNSS(False, "20200115", "20200131", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
+
+
+
+'''Example calls are shown below. Uncomment the desired function call to fetch data, and adjust the parameters as needed.'''
+
+'''CYGNSS data fetching example'''
+#data_fetching_CYGNSS(False, "20200115", "20200131", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
+
+'''SMAP data fetching example'''
 #data_fetching_smap(False, "20200101", "20200114",  max_lat, min_lat, max_lon, min_lon, name)
+
+'''ERA5 data fetching example'''
 #data_fetching_era5(False, "20200601","20200607", min_lat, max_lat, min_lon, max_lon, name)
-#data_fetching_time_series("20240701", "20240703", username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
-
-#data_fetching_era5(False, "20240101", "20240103", 20, 22, 20, 22, "Bombaclaat")
-
+'''
+Time series data fetching example. This function fetches data from CYGNSS, SMAP and ERA5 for a given time period and area of interest.
+The number of days per week can be adjusted with the third parameter
+'''
 #data_fetching_time_series("20220108", "20241231", 3, username, password, max_lat, min_lat, max_lon, min_lon, inc_angle, name, min_ddm_snr, min_sp_rx_gain, max_sp_rx_gain)
-
 
  
